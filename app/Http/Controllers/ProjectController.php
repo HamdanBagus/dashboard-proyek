@@ -52,6 +52,14 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')->with('success', 'Proyek berhasil ditambahkan!');
     }
+    public function show(Project $project)
+    {
+        // Kita load relasi personil (nanti akan berguna saat kita sudah isi data)
+        // Saat ini tabel personil mungkin masih kosong, tidak apa-apa.
+        $project->load('personnel');
+
+        return view('projects.show', compact('project'));
+    }
 
     // ... method lain (show, edit, update, destroy) kita isi nanti ...
 }

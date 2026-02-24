@@ -64,3 +64,59 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+
+<!-- Untuk devices lain
+1. cd C:\wamp64\www
+2. git clone https://github.com/HamdanBagus/dashboard-proyek.git
+3. cd dashboard-proyek
+
+composer install      # install package Laravel
+npm install           # install package frontend (Breeze / Vite)
+cp .env.example .env  # buat file .env baru
+php artisan key:generate
+php artisan migrate   # buat tabel di database lokal
+npm run dev           # compile CSS/JS Breeze
+
+git pull origin main     # ambil update terbaru
+# kerjakan coding
+git add .
+git commit -m "Pesan commit"
+git push origin main     # kirim update ke GitHub
+ -->
+
+
+<!-- 
+RINGKASAN HARIAN 
+PC KANTOR
+# 1. Cek file yang berubah
+git status
+
+# 2. Tambahkan file yang ingin di-save
+git add .
+
+# 3. Commit perubahan dengan pesan jelas
+git commit -m "Menambahkan fitur X / memperbaiki bug Y"
+
+# 4. Push ke GitHub
+git push origin main 
+
+PC RUMAH
+
+# 1. Masuk ke folder proyek
+cd path\to\project
+
+# 2. Ambil update terakhir dari GitHub
+git pull origin main
+
+# 3. Kerjakan coding seperti biasa
+# ... edit file, tambah fitur, dsb
+
+# 4. Setelah selesai kerja, commit perubahan
+git add .
+git commit -m "Update fitur Z, perbaiki bug A"
+
+# 5. Push kembali ke GitHub
+git push origin main-->
