@@ -23,7 +23,7 @@
                     </p>
                 </a>
 
-                <a href="#" class="block p-6 bg-teal-600 border border-teal-600 rounded-lg shadow hover:bg-teal-700 transition">
+                <a href="{{ route('projects.qc.index', $project->id) }}" class="block p-6 bg-teal-600 border border-teal-600 rounded-lg shadow hover:bg-teal-700 transition">
                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-white">Formulir & QC ✅</h5>
                     <p class="font-normal text-teal-100">
                         Akses formulir persiapan dan checklist Quality Control.

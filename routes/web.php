@@ -101,6 +101,29 @@ Route::middleware('auth')->group(function () {
     // Output
     Route::post('/lidar-reports/{report}/outputs', [\App\Http\Controllers\LidarReportController::class, 'storeOutput'])->name('lidar-outputs.store');
     Route::delete('/lidar-outputs/{output}', [\App\Http\Controllers\LidarReportController::class, 'destroyOutput'])->name('lidar-outputs.destroy');
+    // Route Menu Formulir & QC
+    Route::get('/projects/{project}/qc', [\App\Http\Controllers\ProjectQcController::class, 'index'])
+        ->name('projects.qc.index');
+    // --- ROUTE FORMULIR PERSIAPAN ---
+    Route::get('/projects/{project}/form-ground', [\App\Http\Controllers\ProjectFormController::class, 'ground'])->name('projects.form.ground');
+    Route::put('/projects/{project}/form-ground', [\App\Http\Controllers\ProjectFormController::class, 'updateGround'])->name('projects.form.ground.update');
+
+    Route::get('/projects/{project}/form-uav', [\App\Http\Controllers\ProjectFormController::class, 'uav'])->name('projects.form.uav');
+    Route::put('/projects/{project}/form-uav', [\App\Http\Controllers\ProjectFormController::class, 'updateUav'])->name('projects.form.uav.update');
+
+    Route::get('/projects/{project}/form-processing', [\App\Http\Controllers\ProjectFormController::class, 'processing'])->name('projects.form.processing');
+    Route::put('/projects/{project}/form-processing', [\App\Http\Controllers\ProjectFormController::class, 'updateProcessing'])->name('projects.form.processing.update');
+    // --- ROUTE QC (QUALITY CONTROL) ---
+    Route::get('/projects/{project}/qc-ground', [\App\Http\Controllers\ProjectQcController::class, 'showGround'])->name('projects.qc.ground');
+    Route::post('/projects/{project}/qc-ground', [\App\Http\Controllers\ProjectQcController::class, 'updateGround'])->name('projects.qc.ground.update');
+    Route::get('/projects/{project}/qc-uav-photo', [\App\Http\Controllers\ProjectQcController::class, 'showUavPhoto'])->name('projects.qc.uav_photo');
+    Route::post('/projects/{project}/qc-uav-photo', [\App\Http\Controllers\ProjectQcController::class, 'updateUavPhoto'])->name('projects.qc.uav_photo.update');
+    Route::get('/projects/{project}/qc-uav-lidar', [\App\Http\Controllers\ProjectQcController::class, 'showUavLidar'])->name('projects.qc.uav_lidar');
+    Route::post('/projects/{project}/qc-uav-lidar', [\App\Http\Controllers\ProjectQcController::class, 'updateUavLidar'])->name('projects.qc.uav_lidar.update');
+    Route::get('/projects/{project}/qc-processing', [\App\Http\Controllers\ProjectQcController::class, 'showProcessing'])->name('projects.qc.processing');
+    Route::post('/projects/{project}/qc-processing', [\App\Http\Controllers\ProjectQcController::class, 'updateProcessing'])->name('projects.qc.processing.update');
+    Route::get('/projects/{project}/qc-manager', [\App\Http\Controllers\ProjectQcController::class, 'showManager'])->name('projects.qc.manager');
+    Route::post('/projects/{project}/qc-manager', [\App\Http\Controllers\ProjectQcController::class, 'updateManager'])->name('projects.qc.manager.update');
 
 });
 

@@ -21,4 +21,27 @@ class Project extends Model
                     ->withPivot('role')
                     ->withTimestamps();
     }
+    // Relasi ke Laporan Tim Ground (HasOne karena 1 proyek = 1 laporan utama)
+    public function groundReport()
+    {
+        return $this->hasOne(GroundReport::class);
+    }
+
+    // Relasi ke Laporan Tim UAV
+    public function uavReport()
+    {
+        return $this->hasOne(UavReport::class);
+    }
+
+    // Relasi ke Laporan Pengolahan Foto Udara
+    public function photoReport()
+    {
+        return $this->hasOne(PhotoReport::class);
+    }
+
+    // Relasi ke Laporan Pengolahan LiDAR
+    public function lidarReport()
+    {
+        return $this->hasOne(LidarReport::class);
+    }
 }

@@ -54,7 +54,7 @@
                                     <span class="font-bold">{{ number_format($percentage, 2) }}%</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ min($percentage, 100) }}%"></div>
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ min($percentage, 100)}}%"></div>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1">
                                     Terakuisisi: {{ $totalAcquired }} Ha dari {{ $report->aoi_size }} Ha
