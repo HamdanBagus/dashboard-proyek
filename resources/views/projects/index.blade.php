@@ -57,7 +57,11 @@
                                     <td class="py-3 px-6 text-left">{{ $project->name }}</td>
                                     <td class="py-3 px-6 text-left">{{ $project->client_name }}</td>
                                     <td class="py-3 px-6 text-center">
-                                        <span class="bg-yellow-200 text-yellow-600 py-1 px-3 rounded-full text-xs font-bold">
+                                        <span class="py-1 px-3 rounded-full text-xs font-bold
+                                            @if($project->status == 'planning') bg-orange-100 text-orange-800
+                                            @elseif($project->status == 'ongoing') bg-yellow-200 text-yellow-800
+                                            @elseif($project->status == 'finished') bg-green-200 text-green-800
+                                            @endif">
                                             {{ ucfirst($project->status) }}
                                         </span>
                                     </td>
