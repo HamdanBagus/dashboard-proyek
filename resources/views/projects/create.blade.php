@@ -82,7 +82,7 @@
                                     <input type="number" name="planned_lidar" value="{{ old('planned_lidar', 0) }}" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
                                 <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-2">Jumlah GPS Geodetik</label>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">Jumlah GPS</label>
                                     <input type="number" name="planned_gps" value="{{ old('planned_gps', 0) }}" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
                             </div>

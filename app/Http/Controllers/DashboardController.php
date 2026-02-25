@@ -5,25 +5,42 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $hariIni = Carbon::now()->toDateString();
+        $tahunIni = Carbon::now()->year;
+        // Statistik Tahun Ini
+        $totalProyek = Project::whereYear('start_date', $tahunIni)->count();
 
-        // Menghitung Statistik
-        $totalProyek = Project::count();
+        $proyekBerjalan = Project::whereYear('start_date', $tahunIni)
+            ->where('status', 'ongoing')
+            ->count();
 
-        // Asumsi: Jika tanggal selesai masih hari ini atau di masa depan, maka "Sedang Berjalan"
-        $proyekBerjalan = Project::whereDate('end_date', '>=', $hariIni)->count();
+        $proyekSelesai = Project::whereYear('start_date', $tahunIni)
+            ->where('status', 'finished')
+            ->count();
+        // 5 Proyek Terbaru
 
-        // Asumsi: Jika tanggal selesai sudah lewat dari hari ini, maka "Selesai"
-        $proyekSelesai = Project::whereDate('end_date', '<', $hariIni)->count();
-
-        // Mengambil 5 proyek terbaru untuk ditampilkan di tabel sekilas
         $proyekTerbaru = Project::latest()->take(5)->get();
+        // Chart 5 Tahun Terakhir
+        $chartData = Project::select(
+                DB::raw('YEAR(start_date) as tahun'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereYear('start_date', '>=', $tahunIni - 4)
+            ->groupBy('tahun')
+            ->orderBy('tahun')
+            ->get();
 
-        return view('dashboard', compact('totalProyek', 'proyekBerjalan', 'proyekSelesai', 'proyekTerbaru'));
+        return view('dashboard', compact(
+            'totalProyek',
+            'proyekBerjalan',
+            'proyekSelesai',
+            'proyekTerbaru',
+            'chartData'
+        ));
     }
 }
