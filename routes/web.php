@@ -10,6 +10,26 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+// --- MENU MANAJEMEN ASSET & KARYAWAN (HANYA ADMIN) ---
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/management', [\App\Http\Controllers\AssetManagementController::class, 'index'])->name('management.index');
+
+        // Karyawan
+        Route::post('/management/employee', [\App\Http\Controllers\AssetManagementController::class, 'storeEmployee'])->name('management.employee.store');
+        Route::delete('/management/employee/{employee}', [\App\Http\Controllers\AssetManagementController::class, 'destroyEmployee'])->name('management.employee.destroy');
+
+        // UAV
+        Route::post('/management/uav', [\App\Http\Controllers\AssetManagementController::class, 'storeUav'])->name('management.uav.store');
+        Route::delete('/management/uav/{uav}', [\App\Http\Controllers\AssetManagementController::class, 'destroyUav'])->name('management.uav.destroy');
+
+        // Kamera
+        Route::post('/management/camera', [\App\Http\Controllers\AssetManagementController::class, 'storeCamera'])->name('management.camera.store');
+        Route::delete('/management/camera/{camera}', [\App\Http\Controllers\AssetManagementController::class, 'destroyCamera'])->name('management.camera.destroy');
+
+        // PC
+        Route::post('/management/pc', [\App\Http\Controllers\AssetManagementController::class, 'storePc'])->name('management.pc.store');
+        Route::delete('/management/pc/{pc}', [\App\Http\Controllers\AssetManagementController::class, 'destroyPc'])->name('management.pc.destroy');
+    });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

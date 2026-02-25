@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 class ProjectController extends Controller
@@ -26,9 +27,9 @@ class ProjectController extends Controller
     public function create()
     {
         // Hanya Admin yang boleh akses halaman tambah
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
-        }
+        if (!Auth::check() || Auth::user()?->role !== 'admin') {
+        abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+    }
         return view('projects.create');
     }
 

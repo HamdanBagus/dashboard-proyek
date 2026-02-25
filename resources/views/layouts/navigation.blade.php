@@ -18,6 +18,13 @@
                     <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
                         {{ __('Manajemen Proyek') }}
                     </x-nav-link>
+                    @if(auth()->user()->role === 'admin')
+                    <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('management.index')" :active="request()->routeIs('management.*')">
+                        {{ __('Manajemen Asset') }}
+                    </x-nav-link>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -73,6 +80,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @if(auth()->user()->role === 'admin')
+            <x-responsive-nav-link :href="route('management.index')" :active="request()->routeIs('management.*')">
+                {{ __('Manajemen Asset') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
