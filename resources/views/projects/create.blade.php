@@ -70,12 +70,31 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end mt-6">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h3 class="text-gray-800 text-lg font-bold mb-4">Rencana Kebutuhan Alat (Opsional)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">Jumlah UAV / Drone</label>
+                                    <input type="number" name="planned_uav" value="{{ old('planned_uav', 0) }}" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">Jumlah Alat LiDAR</label>
+                                    <input type="number" name="planned_lidar" value="{{ old('planned_lidar', 0) }}" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">Jumlah GPS Geodetik</label>
+                                    <input type="number" name="planned_gps" value="{{ old('planned_gps', 0) }}" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-8">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition">
                                 Simpan Proyek
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>

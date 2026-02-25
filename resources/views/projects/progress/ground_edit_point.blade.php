@@ -32,8 +32,15 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700">Nama Surveyor</label>
-                                    <input type="text" name="install_surveyor" value="{{ $point->install_surveyor }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Nama Surveyor">
+                                    <label class="block text-sm font-medium text-gray-700">Nama Pemasang (Surveyor)</label>
+                                    <select name="install_surveyor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="">-- Pilih Surveyor --</option>
+                                        @foreach($surveyors as $surveyor)
+                                            <option value="{{ $surveyor->name }}" {{ $point->install_surveyor == $surveyor->name ? 'selected' : '' }}>
+                                                {{ $surveyor->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
@@ -53,8 +60,15 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700">Nama Surveyor</label>
-                                    <input type="text" name="measure_surveyor" value="{{ $point->measure_surveyor }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Nama Surveyor">
+                                    <label class="block text-sm font-medium text-gray-700">Nama Pengukur (Surveyor)</label>
+                                    <select name="measure_surveyor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <option value="">-- Pilih Surveyor --</option>
+                                        @foreach($surveyors as $surveyor)
+                                            <option value="{{ $surveyor->name }}" {{ $point->measure_surveyor == $surveyor->name ? 'selected' : '' }}>
+                                                {{ $surveyor->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
@@ -74,8 +88,15 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700">Nama Pengolah</label>
-                                    <input type="text" name="process_surveyor" value="{{ $point->process_surveyor }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" placeholder="Nama Staff">
+                                    <label class="block text-sm font-medium text-gray-700">Nama Pengolah Data</label>
+                                    <select name="process_surveyor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm">
+                                        <option value="">-- Pilih Pengolah Data --</option>
+                                        @foreach($pengolahData as $pengolah)
+                                            <option value="{{ $pengolah->name }}" {{ $point->process_surveyor == $pengolah->name ? 'selected' : '' }}>
+                                                {{ $pengolah->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 

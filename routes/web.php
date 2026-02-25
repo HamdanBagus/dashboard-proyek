@@ -7,9 +7,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+
+// Route Dashboard yang baru
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
 // --- MENU MANAJEMEN ASSET & KARYAWAN (HANYA ADMIN) ---
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/management', [\App\Http\Controllers\AssetManagementController::class, 'index'])->name('management.index');
@@ -144,6 +151,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/qc-processing', [\App\Http\Controllers\ProjectQcController::class, 'updateProcessing'])->name('projects.qc.processing.update');
     Route::get('/projects/{project}/qc-manager', [\App\Http\Controllers\ProjectQcController::class, 'showManager'])->name('projects.qc.manager');
     Route::post('/projects/{project}/qc-manager', [\App\Http\Controllers\ProjectQcController::class, 'updateManager'])->name('projects.qc.manager.update');
+    // Route Personil Proyek
+    Route::post('/projects/{project}/personnel', [\App\Http\Controllers\ProjectController::class, 'storePersonnel'])->name('projects.personnel.store');
+    Route::delete('/projects/{project}/personnel/{employee_id}/{role}', [\App\Http\Controllers\ProjectController::class, 'destroyPersonnel'])->name('projects.personnel.destroy');
 
 });
 

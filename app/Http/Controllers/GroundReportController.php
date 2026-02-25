@@ -33,17 +33,16 @@ class GroundReportController extends Controller
      */
     public function update(Request $request, GroundReport $report)
     {
+        // 1. Validasi hanya untuk tanggal
         $validated = $request->validate([
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
-            'bm_count' => 'required|integer|min:0',
-            'icp_count' => 'required|integer|min:0',
-            'gcp_count' => 'required|integer|min:0',
-            'other_count' => 'required|integer|min:0',
+            'end_date'   => 'nullable|date|after_or_equal:start_date',
         ]);
 
+        // 2. Simpan ke database
         $report->update($validated);
 
-        return back()->with('success', 'Data laporan berhasil diperbarui.');
+        // 3. Kembali dengan pesan sukses
+        return back()->with('success', 'Tanggal pelaksanaan berhasil diperbarui!');
     }
 }

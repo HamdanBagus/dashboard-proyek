@@ -17,14 +17,26 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-medium">Daftar Proyek</h3>
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <h3 class="text-lg font-bold w-full sm:w-auto">Daftar Proyek</h3>
 
-                        @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('projects.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                + Tambah Proyek Baru
-                            </a>
-                        @endif
+                        <div class="flex w-full sm:w-auto space-x-2">
+                            <form action="{{ route('projects.index') }}" method="GET" class="flex w-full sm:w-auto">
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Nama / Kode..." class="rounded-l-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-full text-sm">
+                                <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-r-md border border-l-0 border-gray-300 text-sm transition">
+                                    Cari
+                                </button>
+                                @if(request('search'))
+                                    <a href="{{ route('projects.index') }}" class="ml-2 text-red-500 hover:text-red-700 flex items-center text-sm font-bold">Batal</a>
+                                @endif
+                            </form>
+
+                            @if(auth()->user()->role === 'admin')
+                                <a href="{{ route('projects.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md whitespace-nowrap text-sm transition">
+                                    + Tambah Proyek Baru
+                                </a>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -45,7 +57,7 @@
                                     <td class="py-3 px-6 text-left">{{ $project->name }}</td>
                                     <td class="py-3 px-6 text-left">{{ $project->client_name }}</td>
                                     <td class="py-3 px-6 text-center">
-                                        <span class="bg-yellow-200 text-yellow-600 py-1 px-3 rounded-full text-xs">
+                                        <span class="bg-yellow-200 text-yellow-600 py-1 px-3 rounded-full text-xs font-bold">
                                             {{ ucfirst($project->status) }}
                                         </span>
                                     </td>
@@ -59,12 +71,12 @@
                                             </a>
 
                                             @if(auth()->user()->role === 'admin')
-                                                <a href="#" class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                                <a href="{{ route('projects.edit', $project->id) }}" class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                     </svg>
                                                 </a>
-                                                <a href="#" class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                                                <a href="{{ route('projects.destroy', $project->id) }}" class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
@@ -75,14 +87,20 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="py-3 px-6 text-center">Belum ada data proyek.</td>
+                                    <td colspan="5" class="py-6 px-6 text-center text-gray-500 italic">
+                                        @if(request('search'))
+                                            Proyek dengan kata kunci "<strong>{{ request('search') }}</strong>" tidak ditemukan.
+                                        @else
+                                            Belum ada data proyek.
+                                        @endif
+                                    </td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
 
                         <div class="mt-4">
-                            {{ $projects->links() }}
+                            {{ $projects->withQueryString()->links() }}
                         </div>
 
                     </div>

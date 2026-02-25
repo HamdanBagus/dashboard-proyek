@@ -16,11 +16,13 @@ class GroundPointController extends Controller
         // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
+            'point_type' => 'required|in:BM,ICP,GCP',
         ]);
 
         // Simpan ke database
         $report->points()->create([
             'name' => $request->name,
+            'point_type' => $request->point_type,
             // Status lainnya default false (sesuai migration)
         ]);
 
@@ -37,12 +39,25 @@ class GroundPointController extends Controller
     }
 
     /**
-     * Halaman Edit Progress (Akan kita buat di langkah selanjutnya)
+     * Halaman Edit Progress (Mengirim Data Dropdown Personil)
      */
     public function edit(GroundPoint $point)
     {
-        return view('projects.progress.ground_edit_point', compact('point'));
+        // 1. Ambil data proyek melalui relasi titik -> report -> project
+        // (Perhatikan: kita memanggil relasi 'report' karena di fungsi update di bawah Anda menggunakan $point->report)
+        $project = $point->report->project;
+
+        // 2. Load data personil dari proyek tersebut
+        $project->load('personnel');
+
+        // 3. Filter personil berdasarkan Role untuk dikirim ke Dropdown View
+        $surveyors = $project->personnel->where('pivot.role', 'Surveyor');
+        $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
+
+        // 4. Kirim variabel point, surveyors, dan pengolahData ke view
+        return view('projects.progress.ground_edit_point', compact('point', 'surveyors', 'pengolahData'));
     }
+
     /**
      * Update Progress Titik (Checklist, Tanggal, Surveyor)
      */
