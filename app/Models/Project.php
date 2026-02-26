@@ -44,4 +44,10 @@ class Project extends Model
     {
         return $this->hasOne(LidarReport::class);
     }
+    protected $casts = [
+        'products' => 'array',
+        'product_specs' => 'array',
+        'point_codes' => 'array',
+        'tie_points' => 'array',
+    ];
 }

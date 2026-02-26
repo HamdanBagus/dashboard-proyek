@@ -58,6 +58,21 @@ class ProjectController extends Controller
             'planned_uav' => 'nullable|integer',
             'planned_lidar' => 'nullable|integer',
             'planned_gps' => 'nullable|integer',
+            // Validasi Data Persiapan
+            'takeoff_count' => 'nullable|integer|min:0',
+            'control_point_count' => 'nullable|integer|min:0',
+
+            'products' => 'nullable|array',
+            'products.*' => 'nullable|string',
+
+            'product_specs' => 'nullable|array',
+            'product_specs.*' => 'nullable|string',
+
+            'point_codes' => 'nullable|array',
+            'point_codes.*' => 'nullable|string',
+
+            'tie_points' => 'nullable|array',
+            'tie_points.*' => 'nullable|string',
         ]);
 
         Project::create($validated);
@@ -121,6 +136,21 @@ class ProjectController extends Controller
             'planned_uav' => 'nullable|integer',
             'planned_lidar' => 'nullable|integer',
             'planned_gps' => 'nullable|integer',
+            // Validasi Data Persiapan
+            'takeoff_count' => 'nullable|integer|min:0',
+            'control_point_count' => 'nullable|integer|min:0',
+
+            'products' => 'nullable|array',
+            'products.*' => 'nullable|string',
+
+            'product_specs' => 'nullable|array',
+            'product_specs.*' => 'nullable|string',
+
+            'point_codes' => 'nullable|array',
+            'point_codes.*' => 'nullable|string',
+
+            'tie_points' => 'nullable|array',
+            'tie_points.*' => 'nullable|string',
         ]);
 
         $project->update($validated);
