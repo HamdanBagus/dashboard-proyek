@@ -2,7 +2,7 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('projects.lidar.index', $project->id) }}" class="text-blue-600 hover:underline">
-                Laporan Foto
+                Laporan Lidar
             </a>
             <span class="text-gray-400 mx-2">/</span>
             Detail Hamparan: {{ $hamparan->name }}
@@ -68,7 +68,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                             <div>
                                 <label class="block text-xs font-medium text-gray-500">Nama Pengolah</label>
-                                <input type="text" name="processor_name" placeholder="Nama Staff" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                <select name="processor_name" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm" required>
+                                    <option value="">-- Pilih Pengolah Data --</option>
+                                    @foreach($pengolahData as $pengolah)
+                                        <option value="{{ $pengolah->name }}">{{ $pengolah->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500">PC Pengolahan</label>

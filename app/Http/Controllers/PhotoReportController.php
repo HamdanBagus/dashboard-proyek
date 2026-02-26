@@ -94,8 +94,13 @@ class PhotoReportController extends Controller
     {
         $project = $hamparan->photoReport->project; // Untuk breadcrumb
         $pcs = AssetPc::all(); // Untuk dropdown PC
+        // 2. Load data personil proyek tersebut
+        $project->load('personnel');
 
-        return view('projects.progress.photo.show_hamparan', compact('hamparan', 'project', 'pcs'));
+        // 3. Filter khusus untuk role "Pengolah Data"
+        $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
+
+        return view('projects.progress.photo.show_hamparan', compact('hamparan', 'project', 'pcs','pengolahData'));
     }
 
     /**
