@@ -38,26 +38,30 @@
                             </div>
                         </div>
 
-                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                            <h3 class="text-lg font-bold mb-2 text-blue-800">Target & Realisasi</h3>
-                            <div class="mb-3">
-                                <label class="block text-xs font-bold text-gray-500 uppercase">Luas AOI (Ha)</label>
-                                <div class="flex gap-2">
-                                    <input type="number" step="0.01" name="aoi_size" value="{{ $report->aoi_size }}" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                                    <button type="submit" class="bg-blue-600 text-white px-3 rounded text-xs">Simpan</button>
+                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 flex flex-col justify-center">
+                            <h3 class="text-lg font-bold mb-3 text-blue-800 border-b border-blue-200 pb-2">Target & Realisasi</h3>
+
+                            <div class="mb-4 flex justify-between items-end">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Luas AOI Proyek</p>
+                                    <p class="text-2xl font-bold text-gray-900">{{ $project->area_size }} <span class="text-sm text-gray-600 font-normal">Hektar</span></p>
                                 </div>
                             </div>
 
-                            <div class="mt-4">
+                            <div class="mt-2">
                                 <div class="flex justify-between text-sm mb-1">
-                                    <span>Progress Akuisisi</span>
-                                    <span class="font-bold">{{ number_format($percentage, 2) }}%</span>
+                                    <span class="font-bold text-gray-700">Progress Akuisisi</span>
+                                    @php
+                                        $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
+                                        $persentaseBaru = ($totalAcquired / $luasProyek) * 100;
+                                    @endphp
+                                    <span class="font-bold text-blue-700">{{ number_format($persentaseBaru, 2) }}%</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ min($percentage, 100)}}%"></div>
+                                <div class="w-full bg-gray-300 rounded-full h-3 mb-1 shadow-inner">
+                                    <div class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-in-out" style="width: {{ min($persentaseBaru, 100) }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    Terakuisisi: {{ $totalAcquired }} Ha dari {{ $report->aoi_size }} Ha
+                                <p class="text-xs text-gray-600 font-medium">
+                                    Terbang: <span class="text-gray-900 font-bold">{{ $totalAcquired }} Ha</span> dari target <span class="text-gray-900 font-bold">{{ $project->area_size }} Ha</span>
                                 </p>
                             </div>
                         </div>
