@@ -19,11 +19,26 @@
             @endif
 
             @php
-                // Menghitung jumlah masing-masing titik secara real-time
+                // 1. Menghitung statistik jenis titik
                 $countBM = $report->points->where('point_type', 'BM')->count();
                 $countICP = $report->points->where('point_type', 'ICP')->count();
                 $countGCP = $report->points->where('point_type', 'GCP')->count();
                 $totalTitik = $report->points->count();
+
+                // 2. Menghitung jumlah titik yang sudah selesai tiap tahapan
+                $installedCount = $report->points->where('install_status', true)->count();
+                $measuredCount = $report->points->where('measure_status', true)->count();
+                $processedCount = $report->points->where('process_status', true)->count();
+
+                // 3. Menghitung persentase (mencegah pembagian dengan 0 jika belum ada titik)
+                $divisor = $totalTitik > 0 ? $totalTitik : 1;
+
+                $pctInstall = ($installedCount / $divisor) * 100;
+                $pctMeasure = ($measuredCount / $divisor) * 100;
+                $pctProcess = ($processedCount / $divisor) * 100;
+
+                // 4. Persentase Overall (Rata-rata dari ketiganya)
+                $pctOverall = ($pctInstall + $pctMeasure + $pctProcess) / 3;
             @endphp
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
@@ -69,6 +84,55 @@
                                 <span class="text-xl font-bold text-indigo-900">{{ $totalTitik }}</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-indigo-700">Persentase Progress Pekerjaan</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+
+                    <div class="md:col-span-1 bg-indigo-50 p-6 rounded-lg border border-indigo-200 text-center flex flex-col justify-center h-full shadow-sm">
+                        <span class="block text-sm font-bold text-indigo-700 uppercase tracking-wider mb-2">Overall Progress</span>
+                        <span class="text-5xl font-extrabold text-indigo-900">{{ number_format($pctOverall, 1) }}<span class="text-2xl">%</span></span>
+                    </div>
+
+                    <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-gray-700">Pemasangan</span>
+                                <span class="text-lg font-bold text-blue-600">{{ number_format($pctInstall, 1) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($pctInstall, 100) }}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $installedCount }} dari {{ $totalTitik }} Titik Selesai</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-gray-700">Pengukuran</span>
+                                <span class="text-lg font-bold text-teal-600">{{ number_format($pctMeasure, 1) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($pctMeasure, 100) }}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $measuredCount }} dari {{ $totalTitik }} Titik Selesai</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-gray-700">Pengolahan</span>
+                                <span class="text-lg font-bold text-purple-600">{{ number_format($pctProcess, 1) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-purple-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($pctProcess, 100) }}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $processedCount }} dari {{ $totalTitik }} Titik Selesai</p>
+                        </div>
+
                     </div>
                 </div>
             </div>
