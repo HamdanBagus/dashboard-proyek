@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Project Monitoring System</title>
+    <title>Project Monitoring Geo Survey Persada Indonesia</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -15,7 +15,7 @@
     <!-- BACKGROUND IMAGE -->
     <div class="absolute inset-0">
         <img src="{{ asset('images/background.jpg') }}"
-             class="w-full h-full object-cover opacity-40"
+             class="w-full h-full object-cover "
              alt="Background">
     </div>
 
@@ -28,11 +28,12 @@
         <!-- ================= HEADER ================= -->
         <header class="absolute top-0 left-0 w-full z-20">
             <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-
+                <div  class="flex items-center space-x-3">
+                    <img src="{{ asset('images/logo-perusahaan-bgputih.png') }}"class="w-20 h-20 object-contain">
                 <h1 class="text-xl font-bold">
-                    📊 Project Monitoring
+                    Project Monitoring Geo Survey Persada Indonesia
                 </h1>
-
+                </div>
                 <div class="space-x-6">
                     <a href="{{ route('login') }}"
                        class="hover:text-blue-400 transition">
@@ -58,8 +59,7 @@
                 </h2>
 
                 <p class="text-lg md:text-xl mb-8 text-gray-200">
-                    Sistem monitoring proyek untuk mengontrol progres,
-                    timeline, dan performa tim dalam satu dashboard terintegrasi.
+                    Sistem monitoring proyek untuk mengontrol progres dan performa tim dalam satu dashboard terintegrasi.
                 </p>
 
                 <a href="{{ route('login') }}"
