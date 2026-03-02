@@ -17,19 +17,55 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @php
+                $totalTahapan = $hamparan->progresses->count();
+                // Asumsi status selesai menggunakan string 'Selesai'
+                $tahapanSelesai = $hamparan->progresses->where('status', 'Selesai')->count();
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex justify-between items-center">
+                // Menghitung Persentase
+                $persentase = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
+            @endphp
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
-                    <h3 class="text-lg font-bold text-gray-900">{{ $hamparan->name }}</h3>
-                    <p class="text-sm text-gray-500">Luas Area: {{ $hamparan->size }} Ha</p>
+                    <h3 class="text-2xl font-extrabold text-gray-900 mb-1">{{ $hamparan->name }}</h3>
+                    <p class="text-sm text-gray-500 font-medium mb-4">Luas Area: <span class="text-gray-800 font-bold">{{ $hamparan->size }} Ha</span></p>
+
+                    <div class="flex gap-2">
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded border border-indigo-200">
+                            Total: {{ $totalTahapan }} Tahapan
+                        </span>
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded border border-green-200">
+                            Selesai: {{ $tahapanSelesai }} Tahapan
+                        </span>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
-                        Total Tahapan: {{ $hamparan->progresses->count() }}
-                    </span>
+
+                <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Progress</p>
+                        <p class="text-sm font-medium text-gray-800">Penyelesaian Area</p>
+                    </div>
+
+                    <div class="relative w-20 h-20">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-200" stroke-width="3.5" stroke="currentColor" fill="none"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="{{ $persentase == 100 ? 'text-green-500' : 'text-indigo-600' }}"
+                                  stroke-width="3.5"
+                                  stroke-dasharray="{{ $persentase }}, 100"
+                                  stroke="currentColor"
+                                  fill="none"
+                                  stroke-linecap="round"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-sm font-extrabold text-gray-800">{{ number_format($persentase, 0) }}%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
+            
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="text-lg font-bold mb-4 text-indigo-700">Log Tahapan Pengolahan</h3>
 
