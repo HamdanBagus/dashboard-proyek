@@ -36,35 +36,56 @@
                                     <input type="date" name="end_date" value="{{ $report->end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                                 </div>
                             </div>
+                            <div class="mt-4">
+                                <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-bold shadow-sm transition">
+                                    Simpan Tanggal
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 flex flex-col justify-center">
-                            <h3 class="text-lg font-bold mb-3 text-blue-800 border-b border-blue-200 pb-2">Target & Realisasi</h3>
+                        @php
+                            // PERBAIKAN LOGIKA: Hanya hitung area_acquired dari log yang statusnya 'Finished Flight'
+                            $luasTercapai = $report->logs->where('status', 'Finished Flight')->sum('area_acquired');
 
-                            <div class="mb-4 flex justify-between items-end">
-                                <div>
+                            $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
+                            $persentaseBaru = ($luasTercapai / $luasProyek) * 100;
+                            $persentaseTampil = min($persentaseBaru, 100);
+                        @endphp
+
+                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 flex items-center justify-between h-full">
+                            <div class="flex-1 pr-4">
+                                <h3 class="text-lg font-bold mb-3 text-blue-800 border-b border-blue-200 pb-2">Target & Realisasi</h3>
+                                <div class="mb-2">
                                     <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Luas AOI Proyek</p>
                                     <p class="text-2xl font-bold text-gray-900">{{ $project->area_size }} <span class="text-sm text-gray-600 font-normal">Hektar</span></p>
                                 </div>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Telah Diakuisisi</p>
+                                    <p class="text-lg font-bold {{ $persentaseBaru >= 100 ? 'text-green-600' : 'text-blue-700' }}">{{ $luasTercapai }} <span class="text-sm font-normal">Hektar</span></p>
+                                </div>
                             </div>
 
-                            <div class="mt-2">
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="font-bold text-gray-700">Progress Akuisisi</span>
-                                    @php
-                                        $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
-                                        $persentaseBaru = ($totalAcquired / $luasProyek) * 100;
-                                    @endphp
-                                    <span class="font-bold text-blue-700">{{ number_format($persentaseBaru, 2) }}%</span>
+                            <div class="relative w-28 h-28 shrink-0">
+                                <svg class="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 36 36">
+                                    <path class="text-blue-200" stroke-width="3.5" stroke="currentColor" fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="{{ $persentaseBaru >= 100 ? 'text-green-500' : 'text-blue-600' }}"
+                                          stroke-width="3.5"
+                                          stroke-dasharray="{{ $persentaseTampil }}, 100"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          stroke-linecap="round"
+                                          style="transition: stroke-dasharray 1s ease-in-out;"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-xl font-extrabold {{ $persentaseBaru >= 100 ? 'text-green-600' : 'text-blue-900' }}">
+                                        {{ number_format($persentaseBaru, 1) }}%
+                                    </span>
                                 </div>
-                                <div class="w-full bg-gray-300 rounded-full h-3 mb-1 shadow-inner">
-                                    <div class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-in-out" style="width: {{ min($persentaseBaru, 100) }}%"></div>
-                                </div>
-                                <p class="text-xs text-gray-600 font-medium">
-                                    Terbang: <span class="text-gray-900 font-bold">{{ $totalAcquired }} Ha</span> dari target <span class="text-gray-900 font-bold">{{ $project->area_size }} Ha</span>
-                                </p>
                             </div>
                         </div>
+
                     </div>
                 </form>
             </div>
