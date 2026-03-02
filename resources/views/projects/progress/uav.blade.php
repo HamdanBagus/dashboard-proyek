@@ -5,7 +5,7 @@
                 Log Progress
             </a>
             <span class="text-gray-400 mx-2">/</span>
-            Laporan Tim UAV 🚁
+            Laporan Tim UAV
         </h2>
     </x-slot>
 

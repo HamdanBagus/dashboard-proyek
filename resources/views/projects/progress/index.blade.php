@@ -2,7 +2,7 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('projects.show', $project->id) }}" class="text-blue-600 hover:underline">
-                {{ $project->code }}
+                {{ $project->name }}
             </a>
             <span class="text-gray-400 mx-2">/</span>
             Log Progress
@@ -30,7 +30,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-blue-700">Tim UAV 🚁</h3>
+                            <h3 class="text-lg font-bold text-blue-700">Tim UAV </h3>
                             <span class="text-xs bg-gray-200 px-2 py-1 rounded">0% Selesai</span>
                         </div>
                         <p class="text-gray-600 text-sm mb-4">Log penerbangan pilot, area akuisisi, dan monitoring flight.</p>
@@ -43,7 +43,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-green-700">Olah Foto Udara 📸</h3>
+                            <h3 class="text-lg font-bold text-green-700">Olah Foto Udara </h3>
                             <span class="text-xs bg-gray-200 px-2 py-1 rounded">0% Selesai</span>
                         </div>
                         <p class="text-gray-600 text-sm mb-4">Progress hamparan, aerotriangulasi, dan output orthophoto.</p>
@@ -56,7 +56,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-orange-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-orange-700">Olah LiDAR 📡</h3>
+                            <h3 class="text-lg font-bold text-orange-700">Olah LiDAR </h3>
                             <span class="text-xs bg-gray-200 px-2 py-1 rounded">0% Selesai</span>
                         </div>
                         <p class="text-gray-600 text-sm mb-4">Progress klasifikasi point cloud, DTM, dan kontur.</p>
