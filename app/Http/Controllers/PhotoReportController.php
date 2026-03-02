@@ -122,4 +122,35 @@ class PhotoReportController extends Controller
         $progress->delete();
         return back()->with('success', 'Tahapan dihapus.');
     }
+    // Fungsi untuk memperbarui data output dari pop-up modal
+    public function updateOutput(Request $request, PhotoOutput $output)
+    {
+        $validated = $request->validate([
+            'filename' => 'required|string|max:255',
+            'format' => 'required|string|max:255',
+            'size_gb' => 'nullable|numeric|min:0',
+            'location' => 'nullable|string|max:1000',
+            'checklist' => 'required|boolean',
+        ]);
+
+        $output->update($validated);
+
+        return back()->with('success', 'Detail output berhasil diperbarui!');
+    }
+    public function updateProgress(Request $request, PhotoProgress $progress)
+    {
+        $validated = $request->validate([
+            'stage_name' => 'required|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'status' => 'required|string',
+            'processor_name' => 'nullable|string',
+            'pc_name' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $progress->update($validated);
+
+        return back()->with('success', 'Progress tahapan berhasil diperbarui!');
+    }
 }
