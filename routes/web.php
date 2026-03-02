@@ -125,6 +125,11 @@ Route::middleware('auth')->group(function () {
     // Progress Lidar
     Route::post('/lidar-hamparans/{hamparan}/progress', [\App\Http\Controllers\LidarReportController::class, 'storeProgress'])->name('lidar-progress.store');
     Route::delete('/lidar-progress/{progress}', [\App\Http\Controllers\LidarReportController::class, 'destroyProgress'])->name('lidar-progress.destroy');
+    // Route Update Modal Lidar Progress
+    Route::put('/lidar-progress/{progress}', [\App\Http\Controllers\LidarReportController::class, 'updateProgress'])->name('lidar-progress.update');
+
+    // Route Update Modal Lidar Output
+    Route::put('/lidar-outputs/{output}', [\App\Http\Controllers\LidarReportController::class, 'updateOutput'])->name('lidar-outputs.update');
 
     // Output Lidar
     Route::post('/lidar-reports/{report}/outputs', [\App\Http\Controllers\LidarReportController::class, 'storeOutput'])->name('lidar-outputs.store');
