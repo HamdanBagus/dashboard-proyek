@@ -114,6 +114,67 @@
                     </table>
                 </div>
             </div>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="text-lg font-bold mb-4 text-indigo-700 border-b pb-2">Manajemen Unit GPS</h3>
+                
+                <div class="mb-6 bg-indigo-50 p-4 rounded border border-indigo-200">
+                    <form action="{{ route('management.gps.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        @csrf
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Merek / Nama GPS</label>
+                            <input type="text" name="name" placeholder="Contoh: Trimble R8s" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 sm:text-sm" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Tipe GPS</label>
+                            <input type="text" name="type" list="gps_types" placeholder="Contoh: Geodetik Base" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 sm:text-sm">
+                            <datalist id="gps_types">
+                                <option value="Geodetik Base">
+                                <option value="Geodetik Rover">
+                                <option value="Handheld">
+                                <option value="Echosounder">
+                            </datalist>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-bold transition">
+                                + Tambah GPS
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 border">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama GPS</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipe</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase w-1 whitespace-nowrap">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($gps_units as $gps)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">{{ $gps->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $gps->type ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <form action="{{ route('management.gps.destroy', $gps->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus GPS ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-500 hover:text-white hover:bg-red-500 font-bold border border-red-500 px-3 py-1 rounded transition text-xs">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="px-6 py-8 text-center text-gray-500 italic">Belum ada unit GPS yang terdaftar.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
         </div>
     </div>

@@ -75,7 +75,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 composer install      # install package Laravel
 npm install           # install package frontend (Breeze / Vite)
-cp .env.example .env  # buat file .env baru
+copy .env.example .env  # buat file .env baru
 php artisan key:generate
 php artisan migrate   # buat tabel di database lokal
 npm run dev           # compile CSS/JS Breeze

@@ -31,6 +31,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // PC
     Route::post('/management/pc', [\App\Http\Controllers\AssetManagementController::class, 'storePc'])->name('management.pc.store');
     Route::delete('/management/pc/{pc}', [\App\Http\Controllers\AssetManagementController::class, 'destroyPc'])->name('management.pc.destroy');
+    // GPS
+    Route::post('/management/gps', [\App\Http\Controllers\AssetManagementController::class, 'storeGps'])->name('management.gps.store');
+    Route::delete('/management/gps/{gps}', [\App\Http\Controllers\AssetManagementController::class, 'destroyGps'])->name('management.gps.destroy');
 });
 
 

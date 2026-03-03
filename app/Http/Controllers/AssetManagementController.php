@@ -7,6 +7,7 @@ use App\Models\AssetUav;
 use App\Models\AssetCamera;
 use App\Models\AssetPc;
 use Illuminate\Http\Request;
+use App\Models\AssetGps;
 
 class AssetManagementController extends Controller
 {
@@ -16,8 +17,9 @@ class AssetManagementController extends Controller
         $uavs = AssetUav::latest()->get();
         $cameras = AssetCamera::latest()->get();
         $pcs = AssetPc::latest()->get();
+        $gps_units = AssetGps::all();
 
-        return view('management.index', compact('employees', 'uavs', 'cameras', 'pcs'));
+        return view('management.index', compact('employees', 'uavs', 'cameras', 'pcs','gps_units'));
     }
 
     // --- CRUD KARYAWAN ---
@@ -61,5 +63,23 @@ class AssetManagementController extends Controller
     public function destroyPc(AssetPc $pc) {
         $pc->delete();
         return back()->with('success', 'PC berhasil dihapus.');
+    }
+    // --- FUNGSI UNTUK GPS ---
+    public function storeGps(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'nullable|string|max:255',
+        ]);
+
+        AssetGps::create($validated);
+
+        return back()->with('success', 'Aset GPS berhasil ditambahkan.');
+    }
+
+    public function destroyGps(AssetGps $gps)
+    {
+        $gps->delete();
+        return back()->with('success', 'Aset GPS berhasil dihapus.');
     }
 }
