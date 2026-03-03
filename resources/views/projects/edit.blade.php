@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Proyek: ') }} <span class="text-blue-600">{{ $project->code }}</span>
+            {{ __('Edit Proyek: ') }} <span class="text-blue-600">{{ $project->name }}</span>
         </h2>
     </x-slot>
 
@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900">
 
                     @if ($errors->any())
-                        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-sm">
                             <strong class="font-bold">Gagal Menyimpan!</strong>
                             <ul class="list-disc pl-5 mt-2 text-sm">
                                 @foreach ($errors->all() as $error)
@@ -88,26 +88,81 @@
                                 </div>
 
                                 <div class="space-y-4">
-                                    <h3 class="font-bold border-b pb-2 text-blue-700">Rencana Kebutuhan Alat (Opsional)</h3>
-                                    <div class="grid grid-cols-3 gap-4">
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-700">Jml UAV / Drone</label>
-                                            <input type="number" name="planned_uav" value="{{ old('planned_uav', $project->planned_uav) }}" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-700">Jml Alat LiDAR</label>
-                                            <input type="number" name="planned_lidar" value="{{ old('planned_lidar', $project->planned_lidar) }}" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-700">Jml GPS</label>
-                                            <input type="number" name="planned_gps" value="{{ old('planned_gps', $project->planned_gps) }}" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500">
-                                        </div>
+                                    <h3 class="font-bold border-b pb-2 text-blue-700">Rencana Kebutuhan Alat</h3>
+                                    
+                                    <div x-data="{ items: {{ json_encode(old('planned_uavs', is_array($project->planned_uavs) && count($project->planned_uavs) > 0 ? $project->planned_uavs : [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border border-gray-200">
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">UAV / Drone</label>
+                                        <template x-for="(item, index) in items" :key="index">
+                                            <div class="flex gap-2 mb-2">
+                                                <select :name="'planned_uavs['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                                    <option value="">-- Pilih UAV --</option>
+                                                    @foreach($uavs as $uav)
+                                                        <option value="{{ $uav->name }}">{{ $uav->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="number" :name="'planned_uavs['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold transition">X</button>
+                                            </div>
+                                        </template>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah UAV</button>
+                                    </div>
+
+                                    <div x-data="{ items: {{ json_encode(old('planned_cameras', is_array($project->planned_cameras) && count($project->planned_cameras) > 0 ? $project->planned_cameras : [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border border-gray-200">
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">Kamera / Sensor LiDAR</label>
+                                        <template x-for="(item, index) in items" :key="index">
+                                            <div class="flex gap-2 mb-2">
+                                                <select :name="'planned_cameras['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                                    <option value="">-- Pilih Kamera/Sensor --</option>
+                                                    @foreach($cameras as $cam)
+                                                        <option value="{{ $cam->name }}">{{ $cam->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="number" :name="'planned_cameras['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold transition">X</button>
+                                            </div>
+                                        </template>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah Kamera</button>
+                                    </div>
+
+                                    <div x-data="{ items: {{ json_encode(old('planned_gps', is_array($project->planned_gps) && count($project->planned_gps) > 0 ? $project->planned_gps : [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border border-gray-200">
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">GPS (Geodetik/Handheld)</label>
+                                        <template x-for="(item, index) in items" :key="index">
+                                            <div class="flex gap-2 mb-2">
+                                                <select :name="'planned_gps['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                                    <option value="">-- Pilih GPS --</option>
+                                                    @foreach($gps_units as $gps)
+                                                        <option value="{{ $gps->name }}">{{ $gps->name }} ({{ $gps->type }})</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="number" :name="'planned_gps['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold transition">X</button>
+                                            </div>
+                                        </template>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah GPS</button>
+                                    </div>
+
+                                    <div x-data="{ items: {{ json_encode(old('planned_pcs', is_array($project->planned_pcs) && count($project->planned_pcs) > 0 ? $project->planned_pcs : [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border border-gray-200">
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">PC Pengolahan (Workstation)</label>
+                                        <template x-for="(item, index) in items" :key="index">
+                                            <div class="flex gap-2 mb-2">
+                                                <select :name="'planned_pcs['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                                    <option value="">-- Pilih PC --</option>
+                                                    @foreach($pcs as $pc)
+                                                        <option value="{{ $pc->name }}">{{ $pc->name }}</option>
+                                                    @endforeach
+                                                    <option value="Laptop Pribadi">Laptop Pribadi</option>
+                                                </select>
+                                                <input type="number" :name="'planned_pcs['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold transition">X</button>
+                                            </div>
+                                        </template>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah PC</button>
                                     </div>
                                 </div>
 
                             </div>
 
-                            <div class="space-y-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <div class="space-y-6 bg-gray-50 p-6 rounded-xl border border-gray-200">
                                 <h3 class="font-bold border-b border-gray-300 pb-2 text-indigo-700 text-lg">Detail Persiapan Proyek</h3>
 
                                 <div class="grid grid-cols-2 gap-4">

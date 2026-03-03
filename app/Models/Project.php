@@ -49,5 +49,10 @@ class Project extends Model
         'product_specs' => 'array',
         'point_codes' => 'array',
         'tie_points' => 'array',
+        'planned_uavs' => 'array',
+        'planned_cameras' => 'array',
+        'planned_gps' => 'array',
+        'planned_pcs' => 'array',
     ];
+    
 }

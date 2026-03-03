@@ -26,9 +26,10 @@ return new class extends Migration
         $table->enum('status', ['planning', 'ongoing', 'finished'])->default('planning');
 
         // Rencana Jumlah Alat (Inputan Admin di Info Proyek) [cite: 11]
-        $table->integer('planned_uav')->default(0);
-        $table->integer('planned_lidar')->default(0);
-        $table->integer('planned_gps')->default(0);
+        $table->json('planned_uavs')->nullable();
+        $table->json('planned_cameras')->nullable();
+        $table->json('planned_gps')->nullable();
+        $table->json('planned_pcs')->nullable();
 
         $table->timestamps();
     });

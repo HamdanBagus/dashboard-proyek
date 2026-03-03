@@ -9,6 +9,7 @@ use App\Models\Employee;
 use Illuminate\Support\Facades\DB;
 
 
+
 class ProjectController extends Controller
 {
     /**
@@ -32,11 +33,18 @@ class ProjectController extends Controller
      */
     public function create()
     {
+        
         // Hanya Admin yang boleh akses halaman tambah
         if (!Auth::check() || Auth::user()?->role !== 'admin') {
         abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
     }
-        return view('projects.create');
+    // Panggil semua master data aset
+        $uavs = \App\Models\AssetUav::all();
+        $cameras = \App\Models\AssetCamera::all();
+        $pcs = \App\Models\AssetPc::all();
+        $gps_units = \App\Models\AssetGps::all(); // Model baru yang baru saja kita buat
+
+        return view('projects.create', compact('uavs', 'cameras', 'pcs', 'gps_units'));
     }
 
     /**
@@ -55,9 +63,10 @@ class ProjectController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
 
-            'planned_uav' => 'nullable|integer',
-            'planned_lidar' => 'nullable|integer',
-            'planned_gps' => 'nullable|integer',
+            'planned_uavs' => 'nullable|array',
+            'planned_cameras' => 'nullable|array',
+            'planned_gps' => 'nullable|array',
+            'planned_pcs' => 'nullable|array',
             // Validasi Data Persiapan
             'takeoff_count' => 'nullable|integer|min:0',
             'control_point_count' => 'nullable|integer|min:0',
@@ -74,6 +83,21 @@ class ProjectController extends Controller
             'tie_points' => 'nullable|array',
             'tie_points.*' => 'nullable|string',
         ]);
+
+        // Fungsi kecil untuk membersihkan array kosong (jika user tidak memilih alat)
+        $cleanArray = function ($items) {
+            if (!is_array($items)) return null;
+            return array_values(array_filter($items, function ($item) {
+                // Hanya simpan yang ID alatnya tidak kosong
+                return !empty($item['id']); 
+            }));
+        };
+
+        // Terapkan fungsi pembersih ke data input
+        $validated['planned_uavs'] = $cleanArray($request->planned_uavs);
+        $validated['planned_cameras'] = $cleanArray($request->planned_cameras);
+        $validated['planned_gps'] = $cleanArray($request->planned_gps);
+        $validated['planned_pcs'] = $cleanArray($request->planned_pcs);
 
         Project::create($validated);
 
@@ -117,45 +141,74 @@ class ProjectController extends Controller
     // --- FUNGSI MENAMPILKAN FORM EDIT ---
     public function edit(Project $project)
     {
-        return view('projects.edit', compact('project'));
+        $uavs = \App\Models\AssetUav::all();
+        $cameras = \App\Models\AssetCamera::all();
+        $pcs = \App\Models\AssetPc::all();
+        $gps_units = \App\Models\AssetGps::all();
+        return view('projects.edit', compact('project','uavs', 'cameras', 'pcs', 'gps_units'));
     }
 
     // --- FUNGSI MENYIMPAN PERUBAHAN EDIT ---
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
+            // PENTING: Untuk validasi unique 'code' saat update, kita harus mengecualikan ID proyek ini sendiri
+            'code' => 'required|unique:projects,code,' . $project->id, 
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:projects,code,' . $project->id,
             'client_name' => 'required|string|max:255',
-            'client_address' => 'required|string',
+            'client_address' => 'nullable|string',
+            'project_location' => 'nullable|string',
             'area_size' => 'required|numeric',
-            'project_location' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'status' => 'required|in:planning,ongoing,finished',
-            'planned_uav' => 'nullable|integer',
-            'planned_lidar' => 'nullable|integer',
-            'planned_gps' => 'nullable|integer',
-            // Validasi Data Persiapan
+            'status' => 'required|string|in:planning,ongoing,finished',
+            
             'takeoff_count' => 'nullable|integer|min:0',
             'control_point_count' => 'nullable|integer|min:0',
 
+            // Validasi format array untuk daftar alat (Bukan lagi integer tunggal!)
+            'planned_uavs' => 'nullable|array',
+            'planned_cameras' => 'nullable|array',
+            'planned_gps' => 'nullable|array',
+            'planned_pcs' => 'nullable|array',
+            
+            // Validasi format array untuk daftar spesifikasi dan produk
             'products' => 'nullable|array',
-            'products.*' => 'nullable|string',
-
             'product_specs' => 'nullable|array',
-            'product_specs.*' => 'nullable|string',
-
             'point_codes' => 'nullable|array',
-            'point_codes.*' => 'nullable|string',
-
             'tie_points' => 'nullable|array',
-            'tie_points.*' => 'nullable|string',
         ]);
 
+        // 1. Fungsi pembersih untuk Array Alat (menghapus baris yang ID alat-nya kosong)
+        $cleanDeviceArray = function ($items) {
+            if (!is_array($items)) return null;
+            return array_values(array_filter($items, function ($item) {
+                return !empty($item['id']); 
+            }));
+        };
+
+        // 2. Fungsi pembersih untuk Array Teks Biasa (menghapus baris input string yang kosong)
+        $cleanTextArray = function ($items) {
+            if (!is_array($items)) return null;
+            return array_values(array_filter($items)); 
+        };
+
+        // Bersihkan data Alat
+        $validated['planned_uavs'] = $cleanDeviceArray($request->planned_uavs);
+        $validated['planned_cameras'] = $cleanDeviceArray($request->planned_cameras);
+        $validated['planned_gps'] = $cleanDeviceArray($request->planned_gps);
+        $validated['planned_pcs'] = $cleanDeviceArray($request->planned_pcs);
+
+        // Bersihkan data Detail Persiapan Proyek
+        $validated['products'] = $cleanTextArray($request->products);
+        $validated['product_specs'] = $cleanTextArray($request->product_specs);
+        $validated['point_codes'] = $cleanTextArray($request->point_codes);
+        $validated['tie_points'] = $cleanTextArray($request->tie_points);
+
+        // Lakukan pembaruan (Update) ke database
         $project->update($validated);
 
-        return redirect()->route('projects.index')->with('success', 'Data Proyek berhasil diperbarui!');
+        return redirect()->route('projects.show', $project->id)->with('success', 'Detail proyek berhasil diperbarui!');
     }
 
     // --- FUNGSI MENGHAPUS PROYEK ---
