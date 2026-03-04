@@ -120,3 +120,12 @@ git commit -m "Update fitur Z, perbaiki bug A"
 
 # 5. Push kembali ke GitHub
 git push origin main-->
+
+
+<!-- kalau mau pakai ngrok
+
+npm run build
+php artisan serve (project)
+ngrok http 8000 (cmd)
+
+copy link ke .env (app url) -->
