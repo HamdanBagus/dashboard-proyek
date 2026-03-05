@@ -90,10 +90,9 @@
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700">Nama Pengolah Data</label>
                                     <select name="process_surveyor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm">
-                                        <option value="">-- Pilih Pengolah Data --</option>
-                                        @foreach($pengolahData as $pengolah)
-                                            <option value="{{ $pengolah->name }}" {{ $point->process_surveyor == $pengolah->name ? 'selected' : '' }}>
-                                                {{ $pengolah->name }}
+                                        <option value="">-- Pilih Surveyor --</option>
+                                        @foreach($surveyors as $person) <option value="{{ $person->name }}" {{ $point->process_surveyor == $person->name ? 'selected' : '' }}>
+                                                {{ $person->name }}
                                             </option>
                                         @endforeach
                                     </select>

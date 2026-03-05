@@ -52,10 +52,10 @@ class GroundPointController extends Controller
 
         // 3. Filter personil berdasarkan Role untuk dikirim ke Dropdown View
         $surveyors = $project->personnel->where('pivot.role', 'Surveyor');
-        $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
+        // $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
 
         // 4. Kirim variabel point, surveyors, dan pengolahData ke view
-        return view('projects.progress.ground_edit_point', compact('point', 'surveyors', 'pengolahData'));
+        return view('projects.progress.ground_edit_point', compact('point', 'surveyors'));
     }
 
     /**
