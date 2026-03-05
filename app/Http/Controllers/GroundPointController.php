@@ -65,6 +65,11 @@ class GroundPointController extends Controller
     {
         // Validasi input
         $validated = $request->validate([
+
+            // Identitas Titik (BARU)
+            'name'       => 'required|string|max:255',
+            'point_type' => 'required|in:BM,ICP,GCP',
+
             // Tahap 1: Pemasangan
             'install_status' => 'boolean',
             'install_date' => 'nullable|date',
@@ -84,8 +89,13 @@ class GroundPointController extends Controller
         ]);
 
         // Fix checkbox: HTML checkbox tidak kirim data jika unchecked.
-        // Kita set default false jika tidak ada di request.
+        
         $point->update([
+
+        // Identitas Titik (BARU)
+            'name' => $request->name,
+            'point_type' => $request->point_type,
+
             'install_status' => $request->has('install_status'),
             'install_date' => $request->install_date,
             'install_surveyor' => $request->install_surveyor,
