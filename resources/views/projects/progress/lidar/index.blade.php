@@ -307,8 +307,8 @@
                                                 <input type="number" step="0.01" name="size_gb" :value="selectedOutput?.size_gb" placeholder="Contoh: 2.5" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 sm:text-sm">
                                             </div>
                                             <div class="md:col-span-2">
-                                                <label class="block text-xs font-bold text-gray-600 mb-1">Lokasi Penyimpanan (Path / Tautan)</label>
-                                                <input type="text" name="location" :value="selectedOutput?.location" placeholder="HDD 211 / https://..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 sm:text-sm">
+                                                <label class="block text-xs font-bold text-gray-600 mb-1">Lokasi Penyimpanan (Disk)</label>
+                                                <input type="text" name="location" :value="selectedOutput?.location" placeholder="HDD 211" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 sm:text-sm">
                                             </div>
                                             <div class="md:col-span-2 mt-2 p-3 bg-gray-50 border rounded flex justify-between items-center">
                                                 <label class="block text-sm font-bold text-gray-700">Apakah file sudah final / tersedia?</label>
