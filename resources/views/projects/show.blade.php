@@ -41,16 +41,42 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    <div>
+                    <div class="flex flex-col h-full">
                         <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
                             <h3 class="text-lg font-bold text-blue-700">Informasi Dasar Proyek</h3>
                             @if(auth()->user()->role === 'admin')
-                                <a href="{{ route('projects.edit', $project->id) }}" class="text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-800 px-3 py-1 rounded font-bold transition">Edit Proyek</a>
+                                <a href="{{ route('projects.edit', $project->id) }}" 
+                                class="text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-800 px-3 py-1 rounded font-bold transition shadow-sm">
+                                    Edit Proyek
+                                </a>
                             @endif
                         </div>
-
-                        <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                        <div class="mb-6 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">Total Progress Proyek</p>
+                                <p class="text-xs text-blue-600 font-medium">Rata-rata dari 4 divisi</p>
+                            </div>
+                            <div class="relative w-16 h-16 shrink-0">
+                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                    <path class="text-blue-200" stroke-width="3.5" stroke="currentColor" fill="none" 
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="{{ $totalProjectProgress >= 100 ? 'text-green-500' : 'text-blue-600' }}" 
+                                        stroke-width="3.5" 
+                                        stroke-dasharray="{{ min($totalProjectProgress, 100) }}, 100" 
+                                        stroke="currentColor" 
+                                        fill="none" 
+                                        stroke-linecap="round"
+                                        style="transition: stroke-dasharray 1s ease-in-out;"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-sm font-extrabold {{ $totalProjectProgress >= 100 ? 'text-green-600' : 'text-blue-900' }}">
+                                        {{ number_format($totalProjectProgress, 0) }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-y-4 gap-x-4 mt-2">
                             <div>
                                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Nama Klien</p>
                                 <p class="font-medium text-gray-900">{{ $project->client_name }}</p>
