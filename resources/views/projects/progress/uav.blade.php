@@ -76,8 +76,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mt-4 border-t border-gray-200 pt-4 flex justify-end">
+                        <a href="{{ route('projects.uav.pilots', $project->id) }}" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold py-2 px-6 rounded-lg transition border border-indigo-300 shadow-sm flex items-center gap-2">
+                            <span> Detail Performa Pilot</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
                 </form>
             </div>
+            
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 

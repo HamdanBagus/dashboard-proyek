@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -83,7 +84,10 @@ Route::middleware('auth')->group(function () {
         ->name('uav-logs.store');
     Route::delete('/uav-logs/{log}', [\App\Http\Controllers\UavReportController::class, 'destroyLog'])
         ->name('uav-logs.destroy');
-    Route::put('/uav-logs/{log}', [UavReportController::class, 'updateLog'])->name('uav-logs.update');
+    Route::put('/uav-logs/{log}', [\App\Http\Controllers\UavReportController::class, 'updateLog'])
+        ->name('uav-logs.update');
+    Route::get('/projects/{project}/uav/pilots', [App\Http\Controllers\UavReportController::class, 'pilotSummary'])
+        ->name('projects.uav.pilots');
 
     // --- ROUTE FOTO UDARA ---
     Route::get('/projects/{project}/photo-report', [\App\Http\Controllers\PhotoReportController::class, 'index'])

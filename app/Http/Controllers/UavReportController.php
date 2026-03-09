@@ -49,6 +49,7 @@ class UavReportController extends Controller
 
         $report->update($validated);
 
+        // Untuk ini masih aman menggunakan back() karena berada di halaman yang sama
         return back()->with('success', 'Waktu pelaksanaan UAV berhasil diperbarui.');
     }
 
@@ -57,21 +58,24 @@ class UavReportController extends Controller
      */
     public function storeLog(Request $request, UavReport $report)
     {
-        // PERBAIKAN: Ubah min:1 menjadi min:0 agar nilai 0 bisa masuk
+        // PERBAIKAN: Ubah min:1 menjadi min:0 agar nilai 0 bisa masuk.
+        // Hapus rules 'exists' pada relasi untuk menghindari hidden error redirect.
         $validated = $request->validate([
-            'date' => 'required|date',
-            'pilot_id' => 'required|exists:employees,id',
-            'assistant_id' => 'nullable|exists:employees,id',
-            'uav_id' => 'required|exists:asset_uavs,id',
-            'flight_count' => 'required|integer|min:0', 
+            'date'          => 'required|date',
+            'pilot_id'      => 'required',
+            'assistant_id'  => 'nullable',
+            'uav_id'        => 'required',
+            'flight_count'  => 'required|numeric|min:0', 
             'area_acquired' => 'required|numeric|min:0', 
-            'status' => 'required|string', 
-            'notes' => 'nullable|string',
+            'status'        => 'required|string', 
+            'notes'         => 'nullable|string',
         ]);
 
         $report->logs()->create($validated);
 
-        return back()->with('success', 'Log penerbangan berhasil ditambahkan.');
+        // PERBAIKAN: Redirect eksplisit ke rute index
+        return redirect()->route('projects.uav.index', $report->project_id)
+                         ->with('success', 'Log penerbangan berhasil ditambahkan.');
     }
 
     /**
@@ -79,21 +83,26 @@ class UavReportController extends Controller
      */
     public function updateLog(Request $request, UavPilotLog $log)
     {
-        // Validasi yang sama persis dengan storeLog
+        // Validasi diperlonggar
         $validated = $request->validate([
-            'date' => 'required|date',
-            'pilot_id' => 'required|exists:employees,id',
-            'assistant_id' => 'nullable|exists:employees,id',
-            'uav_id' => 'required|exists:asset_uavs,id',
-            'flight_count' => 'required|integer|min:0',
+            'date'          => 'required|date',
+            'pilot_id'      => 'required',
+            'assistant_id'  => 'nullable',
+            'uav_id'        => 'required',
+            'flight_count'  => 'required|numeric|min:0',
             'area_acquired' => 'required|numeric|min:0',
-            'status' => 'required|string',
-            'notes' => 'nullable|string',
+            'status'        => 'required|string',
+            'notes'         => 'nullable|string',
         ]);
 
         $log->update($validated);
 
-        return back()->with('success', 'Log penerbangan berhasil diperbarui.');
+        // CARA AMAN: Panggil UavReport secara manual menggunakan uav_report_id
+        $report = \App\Models\UavReport::find($log->uav_report_id);
+
+        // Redirect eksplisit ke rute index
+        return redirect()->route('projects.uav.index', $report->project_id)
+                         ->with('success', 'Log penerbangan berhasil diperbarui.');
     }
 
     /**
@@ -101,7 +110,53 @@ class UavReportController extends Controller
      */
     public function destroyLog(UavPilotLog $log)
     {
+        $report = \App\Models\UavReport::find($log->uav_report_id);
+        $projectId = $report->project_id;
+        
         $log->delete();
-        return back()->with('success', 'Log penerbangan berhasil dihapus.');
+        
+        // Redirect eksplisit
+        return redirect()->route('projects.uav.index', $projectId)
+                         ->with('success', 'Log penerbangan berhasil dihapus.');
+    }
+
+    /**
+     * Rekap Pilot
+     */
+    public function pilotSummary(Project $project)
+    {
+        $report = UavReport::with(['logs.pilot', 'logs.uav', 'logs.assistant'])->where('project_id', $project->id)->firstOrFail();
+
+        // 1. Ambil SEMUA log
+        $allLogs = $report->logs;
+
+        // 2. PASTIKAN BARIS INI MENGGUNAKAN $allLogs (Bukan $successfulLogs)
+        $groupedLogs = $allLogs->groupBy('pilot_id');
+
+        $pilotStats = [];
+
+        foreach ($groupedLogs as $pilotId => $logs) {
+            $pilotName = $logs->first()->pilot->name ?? 'Pilot Tidak Diketahui';
+            $totalArea = $logs->sum('area_acquired');
+            $daysFlown = $logs->pluck('date')->unique()->count();
+            $averagePerDay = $daysFlown > 0 ? ($totalArea / $daysFlown) : 0;
+
+            $pilotStats[] = [
+                'name' => $pilotName,
+                'total_area' => $totalArea,
+                'days_flown' => $daysFlown,
+                'average_per_day' => $averagePerDay,
+                'flight_count' => $logs->sum('flight_count'),
+                
+                'logs' => $logs->sortByDesc('date') 
+            ];
+        }
+
+        // Urutkan berdasarkan total area terbanyak
+        usort($pilotStats, function($a, $b) {
+            return $b['total_area'] <=> $a['total_area'];
+        });
+
+        return view('projects.progress.uav_pilots', compact('project', 'pilotStats'));
     }
 }
