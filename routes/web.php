@@ -76,13 +76,14 @@ Route::middleware('auth')->group(function () {
         ->name('projects.uav.index');
     Route::put('/uav-reports/{report}', [\App\Http\Controllers\UavReportController::class, 'update'])
         ->name('uav-reports.update');
+    
 
     // Log UAV
     Route::post('/uav-reports/{report}/logs', [\App\Http\Controllers\UavReportController::class, 'storeLog'])
         ->name('uav-logs.store');
     Route::delete('/uav-logs/{log}', [\App\Http\Controllers\UavReportController::class, 'destroyLog'])
         ->name('uav-logs.destroy');
-
+    Route::put('/uav-logs/{log}', [UavReportController::class, 'updateLog'])->name('uav-logs.update');
 
     // --- ROUTE FOTO UDARA ---
     Route::get('/projects/{project}/photo-report', [\App\Http\Controllers\PhotoReportController::class, 'index'])
