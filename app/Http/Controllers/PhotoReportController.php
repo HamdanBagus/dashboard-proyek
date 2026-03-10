@@ -17,17 +17,32 @@ class PhotoReportController extends Controller
      */
     public function index(Project $project)
     {
-        // 1. Cari atau Buat Laporan
         $report = PhotoReport::firstOrCreate(
             ['project_id' => $project->id],
             ['status' => 'On Progress']
         );
+        
+        // Eager load relasi agar hemat query
+        $hamparans = $report->hamparans()->with(['progresses', 'outputs'])->get();
+        
+        // Hitung persentase gabungan untuk masing-masing baris tabel
+        foreach ($hamparans as $h) {
+            $totalT = $h->progresses->count();
+            $selesaiT = $h->progresses->where('status', 'Selesai')->count();
+            $pctTahapan = $totalT > 0 ? ($selesaiT / $totalT) * 100 : 0;
 
-        // 2. Ambil data relasi
-        $hamparans = $report->hamparans;
-        $outputs = $report->outputs;
+            $totalO = $h->outputs->count();
+            $selesaiO = $h->outputs->where('checklist', 1)->count();
+            $pctOutput = $totalO > 0 ? ($selesaiO / $totalO) * 100 : 0;
 
-        return view('projects.progress.photo.index', compact('project', 'report', 'hamparans', 'outputs'));
+            $h->persentase_gabungan = ($totalO > 0) ? (($pctTahapan + $pctOutput) / 2) : $pctTahapan;
+        }
+
+        // PANGGIL RUMUS DARI MODEL (Akan sama persis dengan Dashboard Utama)
+        $pctOverall = $report->overall_progress;
+        $hamparanCount = $hamparans->count();
+
+        return view('projects.progress.photo.index', compact('project', 'report', 'hamparans', 'pctOverall', 'hamparanCount'));
     }
 
     /**
@@ -66,16 +81,17 @@ class PhotoReportController extends Controller
     /**
      * Tambah Output File
      */
-    public function storeOutput(Request $request, PhotoReport $report)
+    public function storeOutput(Request $request, PhotoHamparan $hamparan) // Ubah parameter menjadi PhotoHamparan
     {
-        $report->outputs()->create($request->validate([
-            'filename' => 'required|string', // Jenis Output (Orthophoto, DSM)
-            'format' => 'required|string',   // TIF, ECW
+        $hamparan->outputs()->create($request->validate([
+            'filename' => 'required|string', 
+            'format' => 'required|string',   
             'size_gb' => 'nullable|numeric',
             'location' => 'nullable|string',
-            'checklist' => 'boolean', // Checkbox
+            'checklist' => 'boolean', 
         ]));
-        return back()->with('success', 'Output berhasil ditambahkan.');
+        
+        return back()->with('success', 'Output berhasil ditambahkan ke area ini.');
     }
 
     /**
@@ -92,15 +108,34 @@ class PhotoReportController extends Controller
      */
     public function showHamparan(PhotoHamparan $hamparan)
     {
-        $project = $hamparan->photoReport->project; // Untuk breadcrumb
-        $pcs = AssetPc::all(); // Untuk dropdown PC
-        // 2. Load data personil proyek tersebut
+        $project = $hamparan->photoReport->project;
+        $pcs = AssetPc::all();
         $project->load('personnel');
-
-        // 3. Filter khusus untuk role "Pengolah Data"
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
 
-        return view('projects.progress.photo.show_hamparan', compact('hamparan', 'project', 'pcs','pengolahData'));
+        // --- HITUNG PROGRESS HAMPARAN INI (Gabungan Tahapan & Output) ---
+        
+        // 1. Progress Tahapan Pengolahan
+        $totalTahapan = $hamparan->progresses->count();
+        $tahapanSelesai = $hamparan->progresses->where('status', 'Selesai')->count();
+        $pctTahapan = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
+
+        // 2. Progress Ketersediaan Output
+        $totalOutput = $hamparan->outputs->count();
+        $outputSelesai = $hamparan->outputs->where('checklist', 1)->count();
+        $pctOutput = $totalOutput > 0 ? ($outputSelesai / $totalOutput) * 100 : 0;
+
+        // 3. Persentase Gabungan Area Ini
+        if ($totalOutput > 0) {
+            $persentase = ($pctTahapan + $pctOutput) / 2;
+        } else {
+            $persentase = $pctTahapan;
+        }
+
+        return view('projects.progress.photo.show_hamparan', compact(
+            'hamparan', 'project', 'pcs', 'pengolahData',
+            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase'
+        ));
     }
 
     /**

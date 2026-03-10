@@ -112,7 +112,7 @@ Route::middleware('auth')->group(function () {
     ->name('photo-progress.update');
 
     // Output Foto
-    Route::post('/photo-reports/{report}/outputs', [\App\Http\Controllers\PhotoReportController::class, 'storeOutput'])
+    Route::post('/photo-reports/{hamparan}/outputs', [\App\Http\Controllers\PhotoReportController::class, 'storeOutput'])
         ->name('photo-outputs.store');
     Route::delete('/photo-outputs/{output}', [\App\Http\Controllers\PhotoReportController::class, 'destroyOutput'])
         ->name('photo-outputs.destroy');
@@ -140,7 +140,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/lidar-outputs/{output}', [\App\Http\Controllers\LidarReportController::class, 'updateOutput'])->name('lidar-outputs.update');
 
     // Output Lidar
-    Route::post('/lidar-reports/{report}/outputs', [\App\Http\Controllers\LidarReportController::class, 'storeOutput'])->name('lidar-outputs.store');
+    Route::post('/lidar-hamparans/{hamparan}/outputs', [\App\Http\Controllers\LidarReportController::class, 'storeOutput'])->name('lidar-outputs.store');
     Route::delete('/lidar-outputs/{output}', [\App\Http\Controllers\LidarReportController::class, 'destroyOutput'])->name('lidar-outputs.destroy');
 
 

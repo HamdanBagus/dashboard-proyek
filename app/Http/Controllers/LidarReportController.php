@@ -15,9 +15,26 @@ class LidarReportController extends Controller
     public function index(Project $project)
     {
         $report = LidarReport::firstOrCreate(['project_id' => $project->id]);
-        $hamparans = $report->hamparans;
-        $outputs = $report->outputs;
-        return view('projects.progress.lidar.index', compact('project', 'report', 'hamparans', 'outputs'));
+        $hamparans = $report->hamparans()->with(['progresses', 'outputs'])->get();
+        
+        // Hitung untuk masing-masing baris tabel di view
+        foreach ($hamparans as $h) {
+            $totalT = $h->progresses->count();
+            $selesaiT = $h->progresses->where('status', 'Selesai')->count();
+            $pctTahapan = $totalT > 0 ? ($selesaiT / $totalT) * 100 : 0;
+
+            $totalO = $h->outputs->count();
+            $selesaiO = $h->outputs->where('checklist', 1)->count();
+            $pctOutput = $totalO > 0 ? ($selesaiO / $totalO) * 100 : 0;
+
+            $h->persentase_gabungan = ($totalO > 0) ? (($pctTahapan + $pctOutput) / 2) : $pctTahapan;
+        }
+
+        // PANGGIL RUMUS DARI MODEL (Dijamin 100% sama persis dengan Dashboard)
+        $pctOverall = $report->overall_progress;
+        $hamparanCount = $hamparans->count();
+
+        return view('projects.progress.lidar.index', compact('project', 'report', 'hamparans', 'pctOverall', 'hamparanCount'));
     }
 
     public function updateReport(Request $request, LidarReport $report)
@@ -48,12 +65,34 @@ class LidarReportController extends Controller
     {
         $project = $hamparan->lidarReport->project;
         $pcs = AssetPc::all();
-        // Load data personil proyek tersebut
         $project->load('personnel');
-        // Filter khusus untuk role "Pengolah Data"
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
 
-        return view('projects.progress.lidar.show_hamparan', compact('hamparan', 'project', 'pcs', 'pengolahData'));
+        // --- HITUNG PROGRESS HAMPARAN INI ---
+        
+        // 1. Progress Tahapan Pengolahan
+        $totalTahapan = $hamparan->progresses->count();
+        $tahapanSelesai = $hamparan->progresses->where('status', 'Selesai')->count();
+        $pctTahapan = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
+
+        // 2. Progress Ketersediaan Output
+        $totalOutput = $hamparan->outputs->count();
+        $outputSelesai = $hamparan->outputs->where('checklist', 1)->count();
+        $pctOutput = $totalOutput > 0 ? ($outputSelesai / $totalOutput) * 100 : 0;
+
+        // 3. Persentase Gabungan
+        // Jika belum ada output yang didaftarkan, nilai diambil 100% dari tahapan saja
+        if ($totalOutput > 0) {
+            $persentase = ($pctTahapan + $pctOutput) / 2;
+        } else {
+            $persentase = $pctTahapan;
+        }
+
+        // Kirim semua variabel ke tampilan Blade
+        return view('projects.progress.lidar.show_hamparan', compact(
+            'hamparan', 'project', 'pcs', 'pengolahData',
+            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase'
+        ));
     }
 
     // --- PROGRESS TAHAPAN ---
@@ -95,7 +134,7 @@ class LidarReportController extends Controller
 
     // --- OUTPUT PRODUK ---
 
-    public function storeOutput(Request $request, LidarReport $report)
+    public function storeOutput(Request $request, LidarHamparan $hamparan)
     {
         // Validasi disesuaikan agar bisa menerima input bebas (datalist)
         $validated = $request->validate([
@@ -104,7 +143,7 @@ class LidarReportController extends Controller
             'checklist' => 'required|boolean'
         ]);
 
-        $report->outputs()->create($validated);
+        $hamparan->outputs()->create($validated);
 
         return back()->with('success', 'Output berhasil didaftarkan.');
     }

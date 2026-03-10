@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('photo_outputs', function (Blueprint $table) {
         $table->id();
         // Output biasanya terikat ke Laporan Proyek (Global per project foto)
-        $table->foreignId('photo_report_id')->constrained('photo_reports')->onDelete('cascade');
+        $table->foreignId('photo_hamparan_id')->constrained('photo_hamparans')->onDelete('cascade');
 
         $table->string('filename'); // Jenis Output (Ex: Orthophoto)
         $table->string('format'); // TIF, ECW, dll

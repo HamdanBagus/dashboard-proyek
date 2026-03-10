@@ -10,4 +10,9 @@ class LidarHamparan extends Model
 
     public function lidarReport() { return $this->belongsTo(LidarReport::class); }
     public function progresses() { return $this->hasMany(LidarProgress::class); }
+    
+    public function outputs()
+    {
+        return $this->hasMany(LidarOutput::class, 'lidar_hamparan_id');
+    }
 }

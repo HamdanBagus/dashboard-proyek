@@ -110,7 +110,10 @@ class ProjectController extends Controller
 
         // Ambil semua data master karyawan untuk dropdown
         $employees = Employee::orderBy('name', 'asc')->get();
+
+        // ==========================================
         // 1. HITUNG PROGRESS GROUND
+        // ==========================================
         $groundProgress = 0;
         $groundReport = \App\Models\GroundReport::with('points')->where('project_id', $project->id)->first();
         if ($groundReport && $groundReport->points->count() > 0) {
@@ -122,7 +125,9 @@ class ProjectController extends Controller
             $groundProgress = (( ($installed/$totalTitik) + ($measured/$totalTitik) + ($processed/$totalTitik) ) / 3) * 100;
         }
 
+        // ==========================================
         // 2. HITUNG PROGRESS UAV
+        // ==========================================
         $uavProgress = 0;
         $uavReport = \App\Models\UavReport::with('logs')->where('project_id', $project->id)->first();
         if ($uavReport && $project->area_size > 0) {
@@ -130,45 +135,20 @@ class ProjectController extends Controller
             $uavProgress = ($luasTercapai / $project->area_size) * 100;
         }
 
-        // 3. HITUNG PROGRESS FOTO UDARA
-        $photoProgress = 0;
-        $photoReport = \App\Models\PhotoReport::with(['hamparans.progresses', 'outputs'])->where('project_id', $project->id)->first();
-        if ($photoReport) {
-            $hamparanProgress = 0;
-            $hamparanCount = $photoReport->hamparans->count();
-            foreach($photoReport->hamparans as $h) {
-                $totalT = $h->progresses->count();
-                $selesaiT = $h->progresses->where('status', 'Selesai')->count();
-                $hamparanProgress += $totalT > 0 ? ($selesaiT / $totalT) * 100 : 0;
-            }
-            $pctPengolahanFoto = $hamparanCount > 0 ? ($hamparanProgress / $hamparanCount) : 0;
+        // ==========================================
+        // 3. HITUNG PROGRESS FOTO UDARA (TERBARU)
+        // ==========================================
+        // Kita tetap me-load relasi agar query database hemat, tapi perhitungannya
+        // langsung mengambil dari Model (Single Source of Truth) -> $photoReport->overall_progress
+        $photoReport = \App\Models\PhotoReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
+        $photoProgress = $photoReport ? $photoReport->overall_progress : 0;
 
-            $totalOut = $photoReport->outputs->count();
-            $selesaiOut = $photoReport->outputs->where('checklist', 1)->count();
-            $pctOutputFoto = $totalOut > 0 ? ($selesaiOut / $totalOut) * 100 : 0;
-
-            $photoProgress = ($pctPengolahanFoto + $pctOutputFoto) / 2;
-        }
-
-        // 4. HITUNG PROGRESS LIDAR
-        $lidarProgress = 0;
-        $lidarReport = \App\Models\LidarReport::with(['hamparans.progresses', 'outputs'])->where('project_id', $project->id)->first();
-        if ($lidarReport) {
-            $hamparanProgress = 0;
-            $hamparanCount = $lidarReport->hamparans->count();
-            foreach($lidarReport->hamparans as $h) {
-                $totalT = $h->progresses->count();
-                $selesaiT = $h->progresses->where('status', 'Selesai')->count();
-                $hamparanProgress += $totalT > 0 ? ($selesaiT / $totalT) * 100 : 0;
-            }
-            $pctPengolahanLidar = $hamparanCount > 0 ? ($hamparanProgress / $hamparanCount) : 0;
-
-            $totalOut = $lidarReport->outputs->count();
-            $selesaiOut = $lidarReport->outputs->where('checklist', 1)->count();
-            $pctOutputLidar = $totalOut > 0 ? ($selesaiOut / $totalOut) * 100 : 0;
-
-            $lidarProgress = ($pctPengolahanLidar + $pctOutputLidar) / 2;
-        }
+        // ==========================================
+        // 4. HITUNG PROGRESS LIDAR (TERBARU)
+        // ==========================================
+        // Sama seperti Foto Udara, langsung panggil ->overall_progress dari Model
+        $lidarReport = \App\Models\LidarReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
+        $lidarProgress = $lidarReport ? $lidarReport->overall_progress : 0;
 
         // Batasi nilai maksimal 100% untuk masing-masing
         $groundProgress = min($groundProgress, 100);
@@ -179,12 +159,11 @@ class ProjectController extends Controller
         // 5. HITUNG RATA-RATA TOTAL KESELURUHAN PROYEK
         $totalProjectProgress = ($groundProgress + $uavProgress + $photoProgress + $lidarProgress) / 4;
 
-        // Load data karyawan untuk modal
-        $employees = \App\Models\Employee::all();
-
-        return view('projects.show', compact('project', 'employees', 'totalProjectProgress'));
-
-        // return view('projects.show', compact('project', 'employees'));
+        // Pastikan semua variabel progress dikirim ke view compact
+        return view('projects.show', compact(
+            'project', 'employees', 'totalProjectProgress',
+            'groundProgress', 'uavProgress', 'photoProgress', 'lidarProgress'
+        ));
     }
     // --- FUNGSI TAMBAH PERSONIL ---
     public function storePersonnel(Request $request, Project $project)

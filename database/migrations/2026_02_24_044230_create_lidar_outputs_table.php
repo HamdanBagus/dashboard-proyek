@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lidar_outputs', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('lidar_report_id')->constrained('lidar_reports')->onDelete('cascade');
+        $table->foreignId('lidar_hamparan_id')->constrained('lidar_hamparans')->onDelete('cascade');
 
         $table->string('filename'); // Jenis Output (Ex: DTM, Kontur)
         $table->string('format'); // LAS, SHP, DWG

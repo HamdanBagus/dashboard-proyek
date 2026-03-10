@@ -21,4 +21,8 @@ class PhotoHamparan extends Model
     {
         return $this->hasMany(PhotoProgress::class);
     }
+    public function outputs()
+    {
+        return $this->hasMany(PhotoOutput::class, 'photo_hamparan_id');
+    }
 }

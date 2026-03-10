@@ -7,4 +7,8 @@ class PhotoOutput extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    public function hamparan()
+    {
+        return $this->belongsTo(PhotoHamparan::class, 'photo_hamparan_id');
+    }
 }

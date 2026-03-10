@@ -14,7 +14,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl p-6 border-l-4 border-indigo-500">
                 <h3 class="text-xl font-extrabold text-gray-900">Statistik Performa Pilot UAV</h3>
-                <p class="text-sm text-gray-500 mt-1">Data berikut hanya dihitung berdasarkan log penerbangan yang berstatus <strong>"Finished Flight"</strong> pada proyek <span class="font-bold text-indigo-600">{{ $project->name }}</span>.</p>
+                <p class="text-sm text-gray-500 mt-1">Data berikut menampilkan rekapitulasi <strong>seluruh log penerbangan</strong> (semua status) yang dikerjakan oleh masing-masing pilot pada proyek <span class="font-bold text-indigo-600">{{ $project->name }}</span>.</p>
             </div>
 
             <<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -106,7 +106,7 @@
                     </div>
                 @empty
                     <div class="col-span-full bg-white p-8 rounded-xl shadow-sm text-center border border-gray-200">
-                        <p class="text-gray-500 italic">Belum ada data penerbangan sukses ("Finished Flight") yang tercatat di proyek ini.</p>
+                        <p class="text-gray-500 italic">Belum ada data log penerbangan yang tercatat di proyek ini.</p>
                     </div>
                 @endforelse
             </div>
