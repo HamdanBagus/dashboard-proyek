@@ -13,7 +13,6 @@ class GroundReportController extends Controller
      */
     public function index(Project $project)
     {
-        // Cari laporan ground milik proyek ini, atau buat baru jika belum ada
         $report = GroundReport::firstOrCreate(
             ['project_id' => $project->id],
             [
@@ -24,6 +23,9 @@ class GroundReportController extends Controller
             ]
         );
         $report->load('points');
+        
+        // Load data personil yang ada di proyek ini
+        $project->load('personnel');
 
         return view('projects.progress.ground', compact('project', 'report'));
     }
@@ -33,16 +35,15 @@ class GroundReportController extends Controller
      */
     public function update(Request $request, GroundReport $report)
     {
-        // 1. Validasi hanya untuk tanggal
         $validated = $request->validate([
             'start_date' => 'nullable|date',
             'end_date'   => 'nullable|date|after_or_equal:start_date',
+            // Tambahkan validasi untuk nama koordinator
+            'coordinator_name' => 'nullable|string|max:255',
         ]);
 
-        // 2. Simpan ke database
         $report->update($validated);
 
-        // 3. Kembali dengan pesan sukses
-        return back()->with('success', 'Tanggal pelaksanaan berhasil diperbarui!');
+        return back()->with('success', 'Informasi pelaksanaan berhasil diperbarui!');
     }
 }

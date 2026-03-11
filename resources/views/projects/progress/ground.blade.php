@@ -46,45 +46,61 @@
                     <h3 class="text-lg font-bold text-gray-800">Informasi Pelaksanaan & Statistik Titik</h3>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <form action="{{ route('ground-reports.update', $report->id) }}" method="POST">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    
+                    <form action="{{ route('ground-reports.update', $report->id) }}" method="POST" class="bg-indigo-50 p-5 rounded-xl border border-indigo-100 shadow-sm h-full flex flex-col justify-between">
                         @csrf
                         @method('PUT')
-                        <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="grid grid-cols-1 gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Tgl Mulai Ground</label>
-                                <input type="date" name="start_date" value="{{ $report->start_date }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1">Koordinator Tim Ground</label>
+                                <select name="coordinator_name" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-semibold text-gray-700">
+                                    <option value="">-- Pilih Koordinator --</option>
+                                    @foreach($project->personnel as $personil)
+                                        <option value="{{ $personil->name }}" {{ $report->coordinator_name == $personil->name ? 'selected' : '' }}>
+                                            {{ $personil->name }} ({{ $personil->pivot->role }})
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Tgl Selesai Ground</label>
-                                <input type="date" name="end_date" value="{{ $report->end_date }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1">Tgl Mulai</label>
+                                    <input type="date" name="start_date" value="{{ $report->start_date }}" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1">Tgl Selesai</label>
+                                    <input type="date" name="end_date" value="{{ $report->end_date }}" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
                             </div>
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm font-bold">
-                            Simpan Tanggal
+                        <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 text-sm font-bold shadow transition mt-auto">
+                            Simpan Informasi
                         </button>
                     </form>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <div class="grid grid-cols-4 gap-2 text-center">
-                            <div class="bg-white p-2 rounded shadow-sm border border-gray-200">
-                                <span class="block text-xs text-gray-500 font-bold">BM</span>
-                                <span class="text-xl font-bold text-gray-800">{{ $countBM }}</span>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 h-full flex flex-col justify-center">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-center">
+                            <div class="bg-white py-4 px-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                <span class="block text-xs text-gray-500 font-extrabold mb-1">BM</span>
+                                <span class="text-2xl font-black text-gray-800">{{ $countBM }}</span>
                             </div>
-                            <div class="bg-white p-2 rounded shadow-sm border border-gray-200">
-                                <span class="block text-xs text-gray-500 font-bold">ICP</span>
-                                <span class="text-xl font-bold text-gray-800">{{ $countICP }}</span>
+                            <div class="bg-white py-4 px-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                <span class="block text-xs text-gray-500 font-extrabold mb-1">ICP</span>
+                                <span class="text-2xl font-black text-gray-800">{{ $countICP }}</span>
                             </div>
-                            <div class="bg-white p-2 rounded shadow-sm border border-gray-200">
-                                <span class="block text-xs text-gray-500 font-bold">GCP</span>
-                                <span class="text-xl font-bold text-gray-800">{{ $countGCP }}</span>
+                            <div class="bg-white py-4 px-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                <span class="block text-xs text-gray-500 font-extrabold mb-1">GCP</span>
+                                <span class="text-2xl font-black text-gray-800">{{ $countGCP }}</span>
                             </div>
-                            <div class="bg-indigo-50 p-2 rounded shadow-sm border border-indigo-200">
-                                <span class="block text-xs text-indigo-600 font-bold uppercase tracking-wider">Total</span>
-                                <span class="text-xl font-bold text-indigo-900">{{ $totalTitik }}</span>
+                            <div class="bg-indigo-600 py-4 px-2 rounded-lg shadow-md border border-indigo-700 transform hover:scale-105 transition">
+                                <span class="block text-xs text-indigo-200 font-black uppercase tracking-wider mb-1">Total</span>
+                                <span class="text-2xl font-black text-white">{{ $totalTitik }}</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
