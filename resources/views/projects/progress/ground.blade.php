@@ -30,15 +30,32 @@
                 $measuredCount = $report->points->where('measure_status', true)->count();
                 $processedCount = $report->points->where('process_status', true)->count();
 
-                // 3. Menghitung persentase (mencegah pembagian dengan 0 jika belum ada titik)
+                // 3. Menghitung persentase
                 $divisor = $totalTitik > 0 ? $totalTitik : 1;
-
                 $pctInstall = ($installedCount / $divisor) * 100;
                 $pctMeasure = ($measuredCount / $divisor) * 100;
                 $pctProcess = ($processedCount / $divisor) * 100;
 
-                // 4. Persentase Overall (Rata-rata dari ketiganya)
+                // 4. Persentase Overall
                 $pctOverall = ($pctInstall + $pctMeasure + $pctProcess) / 3;
+
+                // ==========================================
+                // 5. PERHITUNGAN PERFORMA SURVEYOR
+                // ==========================================
+                
+                // A. Jumlah Surveyor (Berdasarkan Role 'Surveyor' di pivot table)
+                $jumlahSurveyor = $project->personnel->where('pivot.role', 'Surveyor')->count();
+
+                // B. Jumlah Hari Kerja Lapangan (Tanggal Pasang + Tanggal Ukur yang unik)
+                $installDates = $report->points->whereNotNull('install_date')->pluck('install_date')->toArray();
+                $measureDates = $report->points->whereNotNull('measure_date')->pluck('measure_date')->toArray();
+                $jumlahHari = collect(array_merge($installDates, $measureDates))->unique()->count();
+
+                // C. Performa Harian (Titik / Orang / Hari)
+                $performa = 0;
+                if ($jumlahSurveyor > 0 && $jumlahHari > 0) {
+                    $performa = $totalTitik / $jumlahSurveyor / $jumlahHari;
+                }
             @endphp
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
@@ -100,7 +117,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -108,14 +124,12 @@
                 <h3 class="text-lg font-bold mb-4 border-b pb-2 text-indigo-700">Persentase Progress Pekerjaan</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-
                     <div class="md:col-span-1 bg-indigo-50 p-6 rounded-lg border border-indigo-200 text-center flex flex-col justify-center h-full shadow-sm">
                         <span class="block text-sm font-bold text-indigo-700 uppercase tracking-wider mb-2">Overall Progress</span>
                         <span class="text-5xl font-extrabold text-indigo-900">{{ number_format($pctOverall, 1) }}<span class="text-2xl">%</span></span>
                     </div>
 
                     <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                             <div class="flex justify-between items-end mb-2">
                                 <span class="text-sm font-bold text-gray-700">Pemasangan</span>
@@ -148,18 +162,40 @@
                             </div>
                             <p class="text-xs text-gray-500 mt-2 font-medium">{{ $processedCount }} dari {{ $totalTitik }} Titik Selesai</p>
                         </div>
-
                     </div>
                 </div>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold">Tabel Monitoring Titik</h3>
+                    <h3 class="text-lg font-bold text-indigo-700">Monitoring Titik & Performa Lapangan</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white border border-gray-200 p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow transition">
+                        <div class="bg-indigo-100 p-3 rounded-lg text-indigo-700 text-xl">👷‍♂️</div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Jumlah Surveyor</p>
+                            <p class="text-2xl font-black text-indigo-900">{{ $jumlahSurveyor }} <span class="text-sm font-medium text-gray-500">Orang</span></p>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-gray-200 p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow transition">
+                        <div class="bg-blue-100 p-3 rounded-lg text-blue-700 text-xl">⏱️</div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Hari Kerja Eksekusi</p>
+                            <p class="text-2xl font-black text-blue-900">{{ $jumlahHari }} <span class="text-sm font-medium text-gray-500">Hari</span></p>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow transition">
+                        <div class="bg-green-200 p-3 rounded-lg text-green-800 text-xl">📈</div>
+                        <div>
+                            <p class="text-xs font-bold text-green-700 uppercase tracking-wider">Performa Rata-rata</p>
+                            <p class="text-2xl font-black text-green-900">{{ number_format($performa, 1) }} <span class="text-xs font-bold text-green-700">Titik / Orang / Hari</span></p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-0">
-
                     <div class="mb-6 bg-gray-50 p-4 rounded border">
                         <h3 class="font-bold text-sm mb-2">Tambah Titik Baru</h3>
                         <form action="{{ route('ground-points.store', $report->id) }}" method="POST" class="flex gap-4 items-end">
@@ -177,7 +213,7 @@
                                 </select>
                             </div>
                             <div class="w-1/3">
-                                <button type="submit" class="w-full bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm font-bold">
+                                <button type="submit" class="w-full bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm font-bold shadow transition">
                                     + Tambah Titik
                                 </button>
                             </div>
@@ -206,7 +242,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($point->install_status)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Selesai</span>
-                                            <div class="text-xs text-gray-500 mt-1">{{ $point->install_date }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($point->install_date)->format('d/m/Y') }}</div>
                                             @if($point->install_surveyor)
                                                 <div class="text-xs font-semibold text-indigo-600 mt-1">👤 {{ $point->install_surveyor }}</div>
                                             @endif
@@ -218,7 +254,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($point->measure_status)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Selesai</span>
-                                            <div class="text-xs text-gray-500 mt-1">{{ $point->measure_date }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($point->measure_date)->format('d/m/Y') }}</div>
                                             @if($point->measure_surveyor)
                                                 <div class="text-xs font-semibold text-blue-600 mt-1">👤 {{ $point->measure_surveyor }}</div>
                                             @endif
@@ -230,7 +266,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($point->process_status)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Selesai</span>
-                                            <div class="text-xs text-gray-500 mt-1">{{ $point->process_date }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($point->process_date)->format('d/m/Y') }}</div>
                                             @if($point->process_surveyor)
                                                 <div class="text-xs font-semibold text-green-600 mt-1">👤 {{ $point->process_surveyor }}</div>
                                             @endif
