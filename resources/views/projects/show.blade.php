@@ -247,6 +247,7 @@
                                                     <option value="Pilot">Pilot UAV</option>
                                                     <option value="Asisten Pilot">Asisten Pilot</option>
                                                     <option value="Pengolah Data">Pengolah Data</option>
+                                                    <option value="Koordinator Tim Ground">Koordinator Tim Ground</option>
                                                 </select>
                                             </div>
                                         </div>

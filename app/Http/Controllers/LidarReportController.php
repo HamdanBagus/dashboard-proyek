@@ -67,6 +67,7 @@ class LidarReportController extends Controller
         $pcs = AssetPc::all();
         $project->load('personnel');
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
+        $totalHariPengolahan = $hamparan->total_processing_days;
 
         // --- HITUNG PROGRESS HAMPARAN INI ---
         
@@ -91,7 +92,7 @@ class LidarReportController extends Controller
         // Kirim semua variabel ke tampilan Blade
         return view('projects.progress.lidar.show_hamparan', compact(
             'hamparan', 'project', 'pcs', 'pengolahData',
-            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase'
+            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase','totalHariPengolahan'
         ));
     }
 

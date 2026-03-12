@@ -21,8 +21,11 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
                     <h3 class="text-2xl font-extrabold text-gray-900 mb-1">{{ $hamparan->name }}</h3>
-                    <p class="text-sm text-gray-500 font-medium mb-4">Luas Area: <span class="text-gray-800 font-bold">{{ $hamparan->size }} Ha</span></p>
-
+                    <div class="flex items-center gap-4 text-sm text-gray-500 font-medium mb-4">
+                        <span>Luas Area: <span class="text-gray-800 font-bold">{{ $hamparan->size }} Ha</span></span>
+                        <span class="text-gray-300">|</span>
+                        <span>Total Waktu Pengolahan: <span class="text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{{ $totalHariPengolahan }} Hari</span></span>
+                    </div>
                     <div class="flex flex-wrap gap-2">
                         <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded border border-indigo-200">
                             ⚙️ Tahapan: {{ $tahapanSelesai }} / {{ $totalTahapan }} Selesai

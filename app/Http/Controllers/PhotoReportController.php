@@ -112,6 +112,7 @@ class PhotoReportController extends Controller
         $pcs = AssetPc::all();
         $project->load('personnel');
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
+        $totalHariPengolahan = $hamparan->total_processing_days;
 
         // --- HITUNG PROGRESS HAMPARAN INI (Gabungan Tahapan & Output) ---
         
@@ -134,7 +135,7 @@ class PhotoReportController extends Controller
 
         return view('projects.progress.photo.show_hamparan', compact(
             'hamparan', 'project', 'pcs', 'pengolahData',
-            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase'
+            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase','totalHariPengolahan'
         ));
     }
 
