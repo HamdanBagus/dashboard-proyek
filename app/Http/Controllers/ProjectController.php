@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Employee;
 use Illuminate\Support\Facades\DB;
+use App\Services\ProgressCalculatorService;
 
 
 
@@ -137,11 +138,12 @@ class ProjectController extends Controller
 
         // ==========================================
         // 3. HITUNG PROGRESS FOTO UDARA (TERBARU)
-        // ==========================================
-        // Kita tetap me-load relasi agar query database hemat, tapi perhitungannya
-        // langsung mengambil dari Model (Single Source of Truth) -> $photoReport->overall_progress
         $photoReport = \App\Models\PhotoReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
-        $photoProgress = $photoReport ? $photoReport->overall_progress : 0;
+        
+        $photoProgress = 0;
+        if ($photoReport) {
+            $photoProgress = \App\Services\ProgressCalculatorService::calculatePhotoReportOverallProgress($photoReport);
+        }
 
         // ==========================================
         // 4. HITUNG PROGRESS LIDAR (TERBARU)

@@ -47,4 +47,23 @@ class PhotoHamparan extends Model
         // Jadi kita tambahkan +1 pada selisihnya (diffInDays).
         return $start->diffInDays($end) + 1;
     }
+    // --- 1. Hitung Persentase Tahapan (Hanya dari tabel progresses) ---
+    public function getProgressPercentageAttribute()
+    {
+        $total = $this->progresses()->count();
+        if ($total === 0) return 0;
+        
+        $selesai = $this->progresses()->where('status', 'Selesai')->count();
+        return ($selesai / $total) * 100;
+    }
+
+    // --- 2. Hitung Persentase Output (Hanya dari tabel outputs) ---
+    public function getOutputPercentageAttribute()
+    {
+        $total = $this->outputs()->count();
+        if ($total === 0) return 0;
+
+        $selesai = $this->outputs()->where('checklist', 1)->count();
+        return ($selesai / $total) * 100;
+    }
 }

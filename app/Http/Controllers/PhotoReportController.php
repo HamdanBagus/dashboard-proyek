@@ -9,6 +9,7 @@ use App\Models\PhotoOutput;
 use App\Models\PhotoProgress;
 use App\Models\AssetPc; // Untuk dropdown PC
 use Illuminate\Http\Request;
+use App\Services\ProgressCalculatorService;
 
 class PhotoReportController extends Controller
 {
@@ -114,24 +115,15 @@ class PhotoReportController extends Controller
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
         $totalHariPengolahan = $hamparan->total_processing_days;
 
-        // --- HITUNG PROGRESS HAMPARAN INI (Gabungan Tahapan & Output) ---
+        // Statistik Angka Mentah (Untuk Badge)
+        $totalTahapan = $hamparan->progresses()->count();
+        $tahapanSelesai = $hamparan->progresses()->where('status', 'Selesai')->count();
+        $totalOutput = $hamparan->outputs()->count();
+        $outputSelesai = $hamparan->outputs()->where('checklist', 1)->count();
         
-        // 1. Progress Tahapan Pengolahan
-        $totalTahapan = $hamparan->progresses->count();
-        $tahapanSelesai = $hamparan->progresses->where('status', 'Selesai')->count();
-        $pctTahapan = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
-
-        // 2. Progress Ketersediaan Output
-        $totalOutput = $hamparan->outputs->count();
-        $outputSelesai = $hamparan->outputs->where('checklist', 1)->count();
-        $pctOutput = $totalOutput > 0 ? ($outputSelesai / $totalOutput) * 100 : 0;
-
-        // 3. Persentase Gabungan Area Ini
-        if ($totalOutput > 0) {
-            $persentase = ($pctTahapan + $pctOutput) / 2;
-        } else {
-            $persentase = $pctTahapan;
-        }
+        // Panggil Rumus dari Service Class
+        $persentase = ProgressCalculatorService::calculateHamparanProgress($hamparan);
+        
 
         return view('projects.progress.photo.show_hamparan', compact(
             'hamparan', 'project', 'pcs', 'pengolahData',
