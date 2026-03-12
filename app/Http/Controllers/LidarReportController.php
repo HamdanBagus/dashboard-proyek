@@ -9,6 +9,7 @@ use App\Models\LidarOutput;
 use App\Models\LidarProgress;
 use App\Models\AssetPc;
 use Illuminate\Http\Request;
+use App\Services\ProgressCalculatorService;
 
 class LidarReportController extends Controller
 {
@@ -69,25 +70,14 @@ class LidarReportController extends Controller
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
         $totalHariPengolahan = $hamparan->total_processing_days;
 
-        // --- HITUNG PROGRESS HAMPARAN INI ---
-        
-        // 1. Progress Tahapan Pengolahan
-        $totalTahapan = $hamparan->progresses->count();
-        $tahapanSelesai = $hamparan->progresses->where('status', 'Selesai')->count();
-        $pctTahapan = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
+        // Statistik Angka Mentah (Untuk Badge di View)
+        $totalTahapan = $hamparan->progresses()->count();
+        $tahapanSelesai = $hamparan->progresses()->where('status', 'Selesai')->count();
+        $totalOutput = $hamparan->outputs()->count();
+        $outputSelesai = $hamparan->outputs()->where('checklist', 1)->count();
 
-        // 2. Progress Ketersediaan Output
-        $totalOutput = $hamparan->outputs->count();
-        $outputSelesai = $hamparan->outputs->where('checklist', 1)->count();
-        $pctOutput = $totalOutput > 0 ? ($outputSelesai / $totalOutput) * 100 : 0;
-
-        // 3. Persentase Gabungan
-        // Jika belum ada output yang didaftarkan, nilai diambil 100% dari tahapan saja
-        if ($totalOutput > 0) {
-            $persentase = ($pctTahapan + $pctOutput) / 2;
-        } else {
-            $persentase = $pctTahapan;
-        }
+        // 1. Panggil Rumus Persentase dari Service Class
+        $persentase = ProgressCalculatorService::calculateLidarHamparanProgress($hamparan);
 
         // Kirim semua variabel ke tampilan Blade
         return view('projects.progress.lidar.show_hamparan', compact(

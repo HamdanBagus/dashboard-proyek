@@ -150,7 +150,11 @@ class ProjectController extends Controller
         // ==========================================
         // Sama seperti Foto Udara, langsung panggil ->overall_progress dari Model
         $lidarReport = \App\Models\LidarReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
-        $lidarProgress = $lidarReport ? $lidarReport->overall_progress : 0;
+        
+        $lidarProgress = 0;
+        if ($lidarReport) {
+            $lidarProgress = \App\Services\ProgressCalculatorService::calculateLidarReportOverallProgress($lidarReport);
+        }
 
         // Batasi nilai maksimal 100% untuk masing-masing
         $groundProgress = min($groundProgress, 100);

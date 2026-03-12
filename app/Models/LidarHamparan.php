@@ -36,4 +36,23 @@ class LidarHamparan extends Model
         // Jadi kita tambahkan +1 pada selisihnya (diffInDays).
         return $start->diffInDays($end) + 1;
     }
+    // --- 1. Hitung Persentase Tahapan ---
+    public function getProgressPercentageAttribute()
+    {
+        $total = $this->progresses()->count();
+        if ($total === 0) return 0;
+        
+        $selesai = $this->progresses()->where('status', 'Selesai')->count();
+        return ($selesai / $total) * 100;
+    }
+
+    // --- 2. Hitung Persentase Output ---
+    public function getOutputPercentageAttribute()
+    {
+        $total = $this->outputs()->count();
+        if ($total === 0) return 0;
+
+        $selesai = $this->outputs()->where('checklist', 1)->count();
+        return ($selesai / $total) * 100;
+    }
 }
