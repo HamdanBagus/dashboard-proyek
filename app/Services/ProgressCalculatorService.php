@@ -76,4 +76,44 @@ class ProgressCalculatorService
 
         return $totalSemuaPersentase / $count;
     }
+    /**
+     * Menghitung Performa Surveyor Tim Ground (Titik / Orang / Hari)
+     */
+    public static function calculateGroundSurveyorPerformance($project, $report) 
+    {
+        // A. Jumlah Surveyor
+        $jumlahSurveyor = $project->personnel()->where('role', 'Surveyor')->count();
+
+        // B. Jumlah Hari Kerja Lapangan (Rentang / Timespan)
+        // Ambil semua tanggal pemasangan dan pengukuran yang tidak kosong
+        $installDates = $report->points()->whereNotNull('install_date')->pluck('install_date');
+        $measureDates = $report->points()->whereNotNull('measure_date')->pluck('measure_date');
+        
+        // Gabungkan kedua array tanggal tersebut
+        $allDates = $installDates->merge($measureDates)->filter();
+
+        $jumlahHari = 0;
+        if ($allDates->isNotEmpty()) {
+            // Cari tanggal paling awal dan paling akhir dari seluruh kumpulan data
+            $startDate = \Carbon\Carbon::parse($allDates->min());
+            $endDate = \Carbon\Carbon::parse($allDates->max());
+            
+            // Hitung selisih hari (+1 agar hari eksekusi di tanggal yang sama terhitung 1 hari)
+            $jumlahHari = $startDate->diffInDays($endDate) + 1;
+        }
+
+        // C. Performa Harian
+        $performa = 0;
+        $totalTitik = $report->points()->count();
+
+        if ($jumlahSurveyor > 0 && $jumlahHari > 0) {
+            $performa = $totalTitik / $jumlahSurveyor / $jumlahHari;
+        }
+
+        return [
+            'jumlah_surveyor' => $jumlahSurveyor,
+            'jumlah_hari'     => $jumlahHari,
+            'performa_harian' => $performa
+        ];
+    }
 }

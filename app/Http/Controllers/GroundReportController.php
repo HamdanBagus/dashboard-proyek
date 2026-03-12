@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\GroundReport;
 use Illuminate\Http\Request;
+use App\Services\ProgressCalculatorService;
 
 class GroundReportController extends Controller
 {
@@ -26,8 +27,10 @@ class GroundReportController extends Controller
         
         // Load data personil yang ada di proyek ini
         $project->load('personnel');
+        // Panggil Service untuk Kalkulasi Performa
+        $performaData = ProgressCalculatorService::calculateGroundSurveyorPerformance($project, $report);
 
-        return view('projects.progress.ground', compact('project', 'report'));
+        return view('projects.progress.ground', compact('project', 'report', 'performaData'));
     }
 
     /**

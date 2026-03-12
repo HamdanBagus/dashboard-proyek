@@ -18,46 +18,6 @@
                 </div>
             @endif
 
-            @php
-                // 1. Menghitung statistik jenis titik
-                $countBM = $report->points->where('point_type', 'BM')->count();
-                $countICP = $report->points->where('point_type', 'ICP')->count();
-                $countGCP = $report->points->where('point_type', 'GCP')->count();
-                $totalTitik = $report->points->count();
-
-                // 2. Menghitung jumlah titik yang sudah selesai tiap tahapan
-                $installedCount = $report->points->where('install_status', true)->count();
-                $measuredCount = $report->points->where('measure_status', true)->count();
-                $processedCount = $report->points->where('process_status', true)->count();
-
-                // 3. Menghitung persentase
-                $divisor = $totalTitik > 0 ? $totalTitik : 1;
-                $pctInstall = ($installedCount / $divisor) * 100;
-                $pctMeasure = ($measuredCount / $divisor) * 100;
-                $pctProcess = ($processedCount / $divisor) * 100;
-
-                // 4. Persentase Overall
-                $pctOverall = ($pctInstall + $pctMeasure + $pctProcess) / 3;
-
-                // ==========================================
-                // 5. PERHITUNGAN PERFORMA SURVEYOR
-                // ==========================================
-                
-                // A. Jumlah Surveyor (Berdasarkan Role 'Surveyor' di pivot table)
-                $jumlahSurveyor = $project->personnel->where('pivot.role', 'Surveyor')->count();
-
-                // B. Jumlah Hari Kerja Lapangan (Tanggal Pasang + Tanggal Ukur yang unik)
-                $installDates = $report->points->whereNotNull('install_date')->pluck('install_date')->toArray();
-                $measureDates = $report->points->whereNotNull('measure_date')->pluck('measure_date')->toArray();
-                $jumlahHari = collect(array_merge($installDates, $measureDates))->unique()->count();
-
-                // C. Performa Harian (Titik / Orang / Hari)
-                $performa = 0;
-                if ($jumlahSurveyor > 0 && $jumlahHari > 0) {
-                    $performa = $totalTitik / $jumlahSurveyor / $jumlahHari;
-                }
-            @endphp
-
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h3 class="text-lg font-bold text-gray-800">Informasi Pelaksanaan & Statistik Titik</h3>
@@ -101,19 +61,19 @@
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-center">
                             <div class="bg-white py-4 px-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
                                 <span class="block text-xs text-gray-500 font-extrabold mb-1">BM</span>
-                                <span class="text-2xl font-black text-gray-800">{{ $countBM }}</span>
+                                <span class="text-2xl font-black text-gray-800">{{ $report->count_bm }}</span>
                             </div>
                             <div class="bg-white py-4 px-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
                                 <span class="block text-xs text-gray-500 font-extrabold mb-1">ICP</span>
-                                <span class="text-2xl font-black text-gray-800">{{ $countICP }}</span>
+                                <span class="text-2xl font-black text-gray-800">{{ $report->count_icp }}</span>
                             </div>
                             <div class="bg-white py-4 px-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
                                 <span class="block text-xs text-gray-500 font-extrabold mb-1">GCP</span>
-                                <span class="text-2xl font-black text-gray-800">{{ $countGCP }}</span>
+                                <span class="text-2xl font-black text-gray-800">{{ $report->count_gcp }}</span>
                             </div>
                             <div class="bg-indigo-600 py-4 px-2 rounded-lg shadow-md border border-indigo-700 transform hover:scale-105 transition">
                                 <span class="block text-xs text-indigo-200 font-black uppercase tracking-wider mb-1">Total</span>
-                                <span class="text-2xl font-black text-white">{{ $totalTitik }}</span>
+                                <span class="text-2xl font-black text-white">{{ $report->total_titik }}</span>
                             </div>
                         </div>
                     </div>
@@ -126,41 +86,47 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
                     <div class="md:col-span-1 bg-indigo-50 p-6 rounded-lg border border-indigo-200 text-center flex flex-col justify-center h-full shadow-sm">
                         <span class="block text-sm font-bold text-indigo-700 uppercase tracking-wider mb-2">Overall Progress</span>
-                        <span class="text-5xl font-extrabold text-indigo-900">{{ number_format($pctOverall, 1) }}<span class="text-2xl">%</span></span>
+                        <span class="text-5xl font-extrabold text-indigo-900">{{ number_format($report->overall_progress, 1) }}<span class="text-2xl">%</span></span>
                     </div>
 
                     <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                             <div class="flex justify-between items-end mb-2">
                                 <span class="text-sm font-bold text-gray-700">Pemasangan</span>
-                                <span class="text-lg font-bold text-blue-600">{{ number_format($pctInstall, 1) }}%</span>
+                                <span class="text-lg font-bold text-blue-600">
+                                    {{ number_format($report->total_titik > 0 ? ($report->installed_count / $report->total_titik) * 100 : 0, 1) }}%
+                                </span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($pctInstall, 100) }}%"></div>
+                                <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($report->total_titik > 0 ? ($report->installed_count / $report->total_titik) * 100 : 0, 100) }}%"></div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $installedCount }} dari {{ $totalTitik }} Titik Selesai</p>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $report->installed_count }} dari {{ $report->total_titik }} Titik Selesai</p>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                             <div class="flex justify-between items-end mb-2">
                                 <span class="text-sm font-bold text-gray-700">Pengukuran</span>
-                                <span class="text-lg font-bold text-teal-600">{{ number_format($pctMeasure, 1) }}%</span>
+                                <span class="text-lg font-bold text-teal-600">
+                                    {{ number_format($report->total_titik > 0 ? ($report->measured_count / $report->total_titik) * 100 : 0, 1) }}%
+                                </span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($pctMeasure, 100) }}%"></div>
+                                <div class="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($report->total_titik > 0 ? ($report->measured_count / $report->total_titik) * 100 : 0, 100) }}%"></div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $measuredCount }} dari {{ $totalTitik }} Titik Selesai</p>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $report->measured_count }} dari {{ $report->total_titik }} Titik Selesai</p>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                             <div class="flex justify-between items-end mb-2">
                                 <span class="text-sm font-bold text-gray-700">Pengolahan</span>
-                                <span class="text-lg font-bold text-purple-600">{{ number_format($pctProcess, 1) }}%</span>
+                                <span class="text-lg font-bold text-purple-600">
+                                    {{ number_format($report->total_titik > 0 ? ($report->processed_count / $report->total_titik) * 100 : 0, 1) }}%
+                                </span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-purple-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($pctProcess, 100) }}%"></div>
+                                <div class="bg-purple-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ min($report->total_titik > 0 ? ($report->processed_count / $report->total_titik) * 100 : 0, 100) }}%"></div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $processedCount }} dari {{ $totalTitik }} Titik Selesai</p>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $report->processed_count }} dari {{ $report->total_titik }} Titik Selesai</p>
                         </div>
                     </div>
                 </div>
@@ -176,21 +142,21 @@
                         <div class="bg-indigo-100 p-3 rounded-lg text-indigo-700 text-xl">👷‍♂️</div>
                         <div>
                             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Jumlah Surveyor</p>
-                            <p class="text-2xl font-black text-indigo-900">{{ $jumlahSurveyor }} <span class="text-sm font-medium text-gray-500">Orang</span></p>
+                            <p class="text-2xl font-black text-indigo-900">{{ $performaData['jumlah_surveyor'] }} <span class="text-sm font-medium text-gray-500">Orang</span></p>
                         </div>
                     </div>
                     <div class="bg-white border border-gray-200 p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow transition">
                         <div class="bg-blue-100 p-3 rounded-lg text-blue-700 text-xl">⏱️</div>
                         <div>
                             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Hari Kerja Eksekusi</p>
-                            <p class="text-2xl font-black text-blue-900">{{ $jumlahHari }} <span class="text-sm font-medium text-gray-500">Hari</span></p>
+                            <p class="text-2xl font-black text-blue-900">{{ $performaData['jumlah_hari'] }} <span class="text-sm font-medium text-gray-500">Hari</span></p>
                         </div>
                     </div>
                     <div class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow transition">
                         <div class="bg-green-200 p-3 rounded-lg text-green-800 text-xl">📈</div>
                         <div>
                             <p class="text-xs font-bold text-green-700 uppercase tracking-wider">Performa Rata-rata</p>
-                            <p class="text-2xl font-black text-green-900">{{ number_format($performa, 1) }} <span class="text-xs font-bold text-green-700">Titik / Orang / Hari</span></p>
+                            <p class="text-2xl font-black text-green-900">{{ number_format($performaData['performa_harian'], 1) }} <span class="text-xs font-bold text-green-700">Titik / Org / Hari</span></p>
                         </div>
                     </div>
                 </div>
