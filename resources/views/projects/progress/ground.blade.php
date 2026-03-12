@@ -31,14 +31,14 @@
                         <div class="grid grid-cols-1 gap-4 mb-4">
                             <div>
                                 <label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1">Koordinator Tim Ground</label>
-                                <select name="coordinator_name" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-semibold text-gray-700">
-                                    <option value="">-- Pilih Koordinator --</option>
-                                    @foreach($project->personnel as $personil)
-                                        <option value="{{ $personil->name }}" {{ $report->coordinator_name == $personil->name ? 'selected' : '' }}>
-                                            {{ $personil->name }} ({{ $personil->pivot->role }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                
+                                <div class="block w-full border border-gray-300 bg-gray-100 rounded-md shadow-sm sm:text-sm font-semibold text-gray-600 px-3 py-2 cursor-not-allowed flex items-center gap-2">
+                                    <span>👤</span>
+                                    <span>
+                                        {{ $project->personnel->where('pivot.role', 'Koordinator Tim Ground')->first()->name ?? '-- Belum Diatur di Personil Proyek --' }}
+                                    </span>
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-1 italic">*Diatur melalui menu Manajemen Personil Proyek</p>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">

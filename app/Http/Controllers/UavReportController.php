@@ -8,6 +8,7 @@ use App\Models\UavPilotLog;
 use App\Models\Employee;
 use App\Models\AssetUav;
 use Illuminate\Http\Request;
+use App\Services\ProgressCalculatorService;
 
 class UavReportController extends Controller
 {
@@ -25,15 +26,20 @@ class UavReportController extends Controller
         $employees = Employee::all();
         $uavs = AssetUav::all();
 
-        // 3. Hitung Progres Otomatis (PERBAIKAN: Hanya hitung yang berstatus 'Finished Flight')
-        $totalAcquired = $report->logs()->where('status', 'Finished Flight')->sum('area_acquired');
+        // PANGGIL RUMUS DARI SERVICE
+        $uavData = ProgressCalculatorService::calculateUavProgress($project, $report);
+        $luasTercapai = $uavData['luas_tercapai'];
+        $persentase = $uavData['persentase'];
 
-        // 4. Hitung Persentase
-        $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
-        $percentage = ($totalAcquired / $luasProyek) * 100;
+        // // 3. Hitung Progres Otomatis (PERBAIKAN: Hanya hitung yang berstatus 'Finished Flight')
+        // $totalAcquired = $report->logs()->where('status', 'Finished Flight')->sum('area_acquired');
+
+        // // 4. Hitung Persentase
+        // $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
+        // $percentage = ($totalAcquired / $luasProyek) * 100;
 
         return view('projects.progress.uav', compact(
-            'project', 'report', 'employees', 'uavs', 'totalAcquired', 'percentage'
+            'project', 'report', 'employees', 'uavs','luasTercapai', 'persentase'
         ));
     }
 
@@ -125,37 +131,13 @@ class UavReportController extends Controller
      */
     public function pilotSummary(Project $project)
     {
-        $report = UavReport::with(['logs.pilot', 'logs.uav', 'logs.assistant'])->where('project_id', $project->id)->firstOrFail();
+        // Tetap gunakan eager loading untuk mencegah N+1 query issue
+        $report = \App\Models\UavReport::with(['logs.pilot', 'logs.uav', 'logs.assistant'])
+                    ->where('project_id', $project->id)
+                    ->firstOrFail();
 
-        // 1. Ambil SEMUA log
-        $allLogs = $report->logs;
-
-        // 2. PASTIKAN BARIS INI MENGGUNAKAN $allLogs (Bukan $successfulLogs)
-        $groupedLogs = $allLogs->groupBy('pilot_id');
-
-        $pilotStats = [];
-
-        foreach ($groupedLogs as $pilotId => $logs) {
-            $pilotName = $logs->first()->pilot->name ?? 'Pilot Tidak Diketahui';
-            $totalArea = $logs->sum('area_acquired');
-            $daysFlown = $logs->pluck('date')->unique()->count();
-            $averagePerDay = $daysFlown > 0 ? ($totalArea / $daysFlown) : 0;
-
-            $pilotStats[] = [
-                'name' => $pilotName,
-                'total_area' => $totalArea,
-                'days_flown' => $daysFlown,
-                'average_per_day' => $averagePerDay,
-                'flight_count' => $logs->sum('flight_count'),
-                
-                'logs' => $logs->sortByDesc('date') 
-            ];
-        }
-
-        // Urutkan berdasarkan total area terbanyak
-        usort($pilotStats, function($a, $b) {
-            return $b['total_area'] <=> $a['total_area'];
-        });
+        // PANGGIL SERVICE
+        $pilotStats = ProgressCalculatorService::calculateUavPilotSummary($report);
 
         return view('projects.progress.uav_pilots', compact('project', 'pilotStats'));
     }

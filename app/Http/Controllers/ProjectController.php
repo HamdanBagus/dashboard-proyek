@@ -129,12 +129,8 @@ class ProjectController extends Controller
         // ==========================================
         // 2. HITUNG PROGRESS UAV
         // ==========================================
-        $uavProgress = 0;
         $uavReport = \App\Models\UavReport::with('logs')->where('project_id', $project->id)->first();
-        if ($uavReport && $project->area_size > 0) {
-            $luasTercapai = $uavReport->logs->where('status', 'Finished Flight')->sum('area_acquired');
-            $uavProgress = ($luasTercapai / $project->area_size) * 100;
-        }
+        $uavProgress = $uavReport ? $uavReport->overall_progress : 0;
 
         // ==========================================
         // 3. HITUNG PROGRESS FOTO UDARA (TERBARU)

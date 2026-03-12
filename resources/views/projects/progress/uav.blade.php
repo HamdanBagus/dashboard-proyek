@@ -5,7 +5,7 @@
                 Log Progress
             </a>
             <span class="text-gray-400 mx-2">/</span>
-            Laporan Tim UAV
+            Laporan Tim UAV 🚁
         </h2>
     </x-slot>
 
@@ -43,14 +43,7 @@
                             </div>
                         </div>
 
-                        @php
-                            $luasTercapai = $report->logs->where('status', 'Finished Flight')->sum('area_acquired');
-                            $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
-                            $persentaseBaru = ($luasTercapai / $luasProyek) * 100;
-                            $persentaseTampil = min($persentaseBaru, 100);
-                        @endphp
-
-                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 flex items-center justify-between h-full">
+                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 flex items-center justify-between h-full shadow-sm">
                             <div class="flex-1 pr-4">
                                 <h3 class="text-lg font-bold mb-3 text-blue-800 border-b border-blue-200 pb-2">Target & Realisasi</h3>
                                 <div class="mb-2">
@@ -59,23 +52,24 @@
                                 </div>
                                 <div>
                                     <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Telah Diakuisisi</p>
-                                    <p class="text-lg font-bold {{ $persentaseBaru >= 100 ? 'text-green-600' : 'text-blue-700' }}">{{ $luasTercapai }} <span class="text-sm font-normal">Hektar</span></p>
+                                    <p class="text-lg font-bold {{ $persentase >= 100 ? 'text-green-600' : 'text-blue-700' }}">{{ $luasTercapai }} <span class="text-sm font-normal">Hektar</span></p>
                                 </div>
                             </div>
 
                             <div class="relative w-28 h-28 shrink-0">
                                 <svg class="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 36 36">
                                     <path class="text-blue-200" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path class="{{ $persentaseBaru >= 100 ? 'text-green-500' : 'text-blue-600' }}" stroke-width="3.5" stroke-dasharray="{{ $persentaseTampil }}, 100" stroke="currentColor" fill="none" stroke-linecap="round" style="transition: stroke-dasharray 1s ease-in-out;" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="{{ $persentase >= 100 ? 'text-green-500' : 'text-blue-600' }}" stroke-width="3.5" stroke-dasharray="{{ min($persentase, 100) }}, 100" stroke="currentColor" fill="none" stroke-linecap="round" style="transition: stroke-dasharray 1s ease-in-out;" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                                 </svg>
                                 <div class="absolute inset-0 flex items-center justify-center">
-                                    <span class="text-xl font-extrabold {{ $persentaseBaru >= 100 ? 'text-green-600' : 'text-blue-900' }}">
-                                        {{ number_format($persentaseBaru, 1) }}%
+                                    <span class="text-xl font-extrabold {{ $persentase >= 100 ? 'text-green-600' : 'text-blue-900' }}">
+                                        {{ number_format($persentase, 1) }}%
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="mt-4 border-t border-gray-200 pt-4 flex justify-end">
                         <a href="{{ route('projects.uav.pilots', $project->id) }}" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold py-2 px-6 rounded-lg transition border border-indigo-300 shadow-sm flex items-center gap-2">
                             <span> Detail Performa Pilot</span>
@@ -203,12 +197,12 @@
                                 
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex justify-center space-x-2">
-                                        <button @click="openEditModal = true" class="text-blue-600 hover:text-blue-900 font-bold">Edit</button>
+                                        <button @click="openEditModal = true" class="text-indigo-600 hover:text-white hover:bg-indigo-600 font-bold border border-indigo-600 px-3 py-1 rounded transition">Edit</button>
                                         
                                         <form action="{{ route('uav-logs.destroy', $log->id) }}" method="POST" onsubmit="return confirm('Hapus log ini?');" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 font-bold ml-2">Hapus</button>
+                                            <button type="submit" class="text-red-500 hover:text-white hover:bg-red-500 font-bold border border-red-500 px-3 py-1 rounded transition ml-1">Hapus</button>
                                         </form>
                                     </div>
 
@@ -291,7 +285,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    </td>
+                                </td>
                             </tr>
                             @empty
                             <tr>

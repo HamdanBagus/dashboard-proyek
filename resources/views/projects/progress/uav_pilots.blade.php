@@ -17,7 +17,7 @@
                 <p class="text-sm text-gray-500 mt-1">Data berikut menampilkan rekapitulasi <strong>seluruh log penerbangan</strong> (semua status) yang dikerjakan oleh masing-masing pilot pada proyek <span class="font-bold text-indigo-600">{{ $project->name }}</span>.</p>
             </div>
 
-            <<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                 @forelse($pilotStats as $index => $stat)
                     <div x-data="{ open: false }" class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 hover:shadow-md transition flex flex-col min-w-0">
                         

@@ -116,4 +116,61 @@ class ProgressCalculatorService
             'performa_harian' => $performa
         ];
     }
+    /**
+     * Menghitung Progress UAV (Luas Tercapai & Persentase)
+     */
+    public static function calculateUavProgress($project, $uavReport)
+    {
+        // Total luas yang sudah berstatus Finished Flight
+        $luasTercapai = $uavReport->logs()->where('status', 'Finished Flight')->sum('area_acquired');
+        
+        // Mencegah pembagian dengan 0
+        $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
+
+        $persentase = ($luasTercapai / $luasProyek) * 100;
+
+        return [
+            'luas_tercapai' => $luasTercapai,
+            'persentase'    => $persentase
+        ];
+    }
+    /**
+     * Menghitung Rekapitulasi Performa Pilot UAV
+     */
+    public static function calculateUavPilotSummary($uavReport)
+    {
+        // 1. Ambil SEMUA log
+        $allLogs = $uavReport->logs;
+
+        // 2. Kelompokkan log berdasarkan ID pilot
+        $groupedLogs = $allLogs->groupBy('pilot_id');
+
+        $pilotStats = [];
+
+        foreach ($groupedLogs as $pilotId => $logs) {
+            $pilotName = $logs->first()->pilot->name ?? 'Pilot Tidak Diketahui';
+            $totalArea = $logs->sum('area_acquired');
+            
+            // Hitung jumlah hari unik terbang
+            $daysFlown = $logs->pluck('date')->unique()->count();
+            
+            $averagePerDay = $daysFlown > 0 ? ($totalArea / $daysFlown) : 0;
+
+            $pilotStats[] = [
+                'name' => $pilotName,
+                'total_area' => $totalArea,
+                'days_flown' => $daysFlown,
+                'average_per_day' => $averagePerDay,
+                'flight_count' => $logs->sum('flight_count'),
+                'logs' => $logs->sortByDesc('date') 
+            ];
+        }
+
+        // 3. Urutkan berdasarkan total area terbanyak secara menurun (descending)
+        usort($pilotStats, function($a, $b) {
+            return $b['total_area'] <=> $a['total_area'];
+        });
+
+        return $pilotStats;
+    }
 }
