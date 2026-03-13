@@ -151,8 +151,19 @@ class ProgressCalculatorService
             $pilotName = $logs->first()->pilot->name ?? 'Pilot Tidak Diketahui';
             $totalArea = $logs->sum('area_acquired');
             
-            // Hitung jumlah hari unik terbang
-            $daysFlown = $logs->pluck('date')->unique()->count();
+            // Ambil semua tanggal penerbangan dari log pilot ini dan filter yang tidak kosong
+            $dates = $logs->pluck('date')->filter();
+            
+            $daysFlown = 0;
+            if ($dates->isNotEmpty()) {
+                // Cari tanggal paling awal dan paling akhir
+                $minDate = \Carbon\Carbon::parse($dates->min());
+                $maxDate = \Carbon\Carbon::parse($dates->max());
+                
+                // Hitung selisih hari (+1 agar hari eksekusi di tanggal yang sama terhitung 1 hari)
+                // Dengan ini, hari jeda / weekend di antara min dan max akan tetap terhitung
+                $daysFlown = $minDate->diffInDays($maxDate) + 1;
+            }
             
             $averagePerDay = $daysFlown > 0 ? ($totalArea / $daysFlown) : 0;
 
