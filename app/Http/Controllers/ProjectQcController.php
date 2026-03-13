@@ -34,36 +34,87 @@ class ProjectQcController extends Controller
     {
         $qc = QcGround::where('project_id', $project->id)->first();
 
-        // Validasi input & file max 2MB
+        // 1. Validasi input & file max 2MB (Termasuk file revisi)
         $request->validate([
             'file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $data = $request->except(['_token', '_method', 'file_tolerance', 'file_inacors', 'file_google_earth']);
+        // Ambil semua data teks/inputan selain file
+        $data = $request->except([
+            '_token', '_method', 
+            'file_tolerance', 'file_inacors', 'file_google_earth',
+            'rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth'
+        ]);
 
-        // Handle Checkbox (karena HTML tidak mengirim nilai jika tidak dicentang)
-        $data['chk_form_log'] = $request->has('chk_form_log');
-        $data['chk_raw_gps'] = $request->has('chk_raw_gps');
-        $data['chk_report_gps'] = $request->has('chk_report_gps');
-        $data['chk_coordinate'] = $request->has('chk_coordinate');
-        $data['chk_photo_utsb'] = $request->has('chk_photo_utsb');
-
-        // Handle File Upload
-        if ($request->hasFile('file_tolerance')) {
-            if ($qc->file_tolerance) Storage::disk('public')->delete($qc->file_tolerance); // Hapus file lama
-            $data['file_tolerance'] = $request->file('file_tolerance')->store('qc_files/ground', 'public');
-        }
-        if ($request->hasFile('file_inacors')) {
-            if ($qc->file_inacors) Storage::disk('public')->delete($qc->file_inacors);
-            $data['file_inacors'] = $request->file('file_inacors')->store('qc_files/ground', 'public');
-        }
-        if ($request->hasFile('file_google_earth')) {
-            if ($qc->file_google_earth) Storage::disk('public')->delete($qc->file_google_earth);
-            $data['file_google_earth'] = $request->file('file_google_earth')->store('qc_files/ground', 'public');
+        // 2. Handle Checkbox QC UTAMA
+        $items = ['form_log', 'raw_gps', 'report_gps', 'coordinate', 'photo_utsb'];
+        foreach ($items as $item) {
+            $data["chk_complete_{$item}"] = $request->has("chk_complete_{$item}");
+            $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
+        // 3. Handle Status Revisi Mayor
+        $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
+        $data['has_major_revision'] = $hasRevision;
+
+        // 4. Handle Checkbox & Pembersihan QC REVISI
+        if ($hasRevision) {
+            foreach ($items as $item) {
+                $data["rev_chk_complete_{$item}"] = $request->has("rev_chk_complete_{$item}");
+                $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
+            }
+        } else {
+            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
+            foreach ($items as $item) {
+                $data["rev_chk_complete_{$item}"] = 0;
+                $data["rev_chk_folder_{$item}"] = 0;
+                $data["rev_note_{$item}"] = null;
+            }
+            $data['rev_qc_date'] = null;
+            $data['rev_qc_officer_name'] = null;
+            
+            // Hapus file revisi fisik
+            $revFiles = ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth'];
+            foreach ($revFiles as $rf) {
+                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                $data[$rf] = null;
+            }
+        }
+
+        // 5. Handle File Uploads & Tombol Hapus File
+        // Hanya proses file revisi jika statusnya memang "Ada Revisi"
+        $fileFields = ['file_tolerance', 'file_inacors', 'file_google_earth'];
+        if ($hasRevision) {
+            $fileFields = array_merge($fileFields, ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth']);
+        }
+
+        foreach ($fileFields as $field) {
+            // Cek apakah user menekan tombol hapus (remove_namafile = 1)
+            $isRemoved = $request->input("remove_{$field}") == '1';
+
+            // Jika dihapus ATAU ada file baru, hapus file fisik lama
+            if ($isRemoved || $request->hasFile($field)) {
+                if ($qc->$field) {
+                    Storage::disk('public')->delete($qc->$field);
+                }
+                $data[$field] = null; // Defaultkan ke null
+            }
+
+            // Jika ada upload file baru, simpan
+            if ($request->hasFile($field)) {
+                $data[$field] = $request->file($field)->store('qc_files/ground', 'public');
+            } elseif (!$isRemoved) {
+                // Jika tidak diapa-apakan, cegah kolom database tertimpa null
+                unset($data[$field]);
+            }
+        }
+
+        // 6. Update Database
         $qc->update($data);
 
         return back()->with('success', 'Data QC Tim Ground berhasil disimpan!');

@@ -7,7 +7,7 @@
     </x-slot>
 
     <div class="py-12 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-        @if(session('success')) <div class="bg-green-100 text-green-700 p-4 rounded">{{ session('success') }}</div> @endif
+        @if(session('success')) <div class="bg-green-100 text-green-700 p-4 rounded shadow-sm">{{ session('success') }}</div> @endif
 
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h3 class="font-bold text-lg mb-4 text-gray-800">Informasi Proyek</h3>
@@ -25,90 +25,214 @@
             </div>
         </div>
 
-        <form action="{{ route('projects.qc.ground.update', $project->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        @php
+            $checklists = [
+                ['id' => 'form_log', 'label' => 'Form dan log'],
+                ['id' => 'raw_gps', 'label' => 'Raw data GPS'],
+                ['id' => 'report_gps', 'label' => 'Report pengolahan GPS'],
+                ['id' => 'coordinate', 'label' => 'Daftar koordinat'],
+                ['id' => 'photo_utsb', 'label' => 'Foto UTSB']
+            ];
+        @endphp
+
+        <form action="{{ route('projects.qc.ground.update', $project->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ hasRevision: '{{ $qc->has_major_revision ?? 0 }}' }">
             @csrf
 
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 class="font-bold text-lg mb-4 text-red-700 border-b pb-2">A. Checklist Kelengkapan Dokumen & Folder</h3>
-                <table class="w-full text-sm text-left border">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-3 border">Kategori Kelengkapan</th>
-                            <th class="p-3 border text-center w-32">Sesuai & Lengkap?</th>
-                            <th class="p-3 border">Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $checklists = [
-                                ['id' => 'form_log', 'label' => 'Form dan log'],
-                                ['id' => 'raw_gps', 'label' => 'Raw data GPS'],
-                                ['id' => 'report_gps', 'label' => 'Report pengolahan GPS'],
-                                ['id' => 'coordinate', 'label' => 'Daftar koordinat'],
-                                ['id' => 'photo_utsb', 'label' => 'Foto UTSB']
-                            ];
-                        @endphp
-                        @foreach($checklists as $chk)
-                        <tr>
-                            <td class="p-3 border font-medium">{{ $chk['label'] }}</td>
-                            <td class="p-3 border text-center">
-                                <input type="checkbox" name="chk_{{ $chk['id'] }}" value="1" {{ $qc->{'chk_'.$chk['id']} ? 'checked' : '' }} class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-5 w-5">
-                            </td>
-                            <td class="p-3 border">
-                                <input type="text" name="note_{{ $chk['id'] }}" value="{{ $qc->{'note_'.$chk['id']} }}" class="w-full border-gray-300 rounded-md text-sm" placeholder="Isi keterangan bila perlu...">
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 class="font-bold text-lg mb-4 text-red-700 border-b pb-2">B. Poin Pengecekan Kualitas Data (Max 2MB/file)</h3>
-                <div class="space-y-6">
-
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <p class="font-bold text-sm mb-2 text-gray-800">1. Ketelitian pada report pengolahan masuk toleransi (BM Hz <3cm, V <5cm. GCP/ICP Hz <5cm, V <5cm).</p>
-                        <input type="file" name="file_tolerance" class="text-sm">
-                        @if($qc->file_tolerance)
-                            <a href="{{ asset('storage/' . $qc->file_tolerance) }}" target="_blank" class="text-blue-600 text-xs ml-4 underline">Lihat File Bukti Saat Ini</a>
-                        @endif
-                    </div>
-
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <p class="font-bold text-sm mb-2 text-gray-800">2. Selisih hasil koordinat dibandingkan pengolahan Inacors Spiderweb kurang dari 10cm.</p>
-                        <input type="file" name="file_inacors" class="text-sm">
-                        @if($qc->file_inacors)
-                            <a href="{{ asset('storage/' . $qc->file_inacors) }}" target="_blank" class="text-blue-600 text-xs ml-4 underline">Lihat File Bukti Saat Ini</a>
-                        @endif
-                    </div>
-
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <p class="font-bold text-sm mb-2 text-gray-800">3. Lokasi titik koordinat sudah sesuai ketika di plot pada Google Earth.</p>
-                        <input type="file" name="file_google_earth" class="text-sm">
-                        @if($qc->file_google_earth)
-                            <a href="{{ asset('storage/' . $qc->file_google_earth) }}" target="_blank" class="text-blue-600 text-xs ml-4 underline">Lihat File Bukti Saat Ini</a>
-                        @endif
-                    </div>
-
+            <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-indigo-600">
+                <h2 class="text-2xl font-black mb-6 text-indigo-800">QC TAHAP PERTAMA (UTAMA)</h2>
+                
+                <h3 class="font-bold text-lg mb-4 text-gray-700 border-b pb-2">A. Checklist Kelengkapan & Folderisasi</h3>
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full text-sm text-left border">
+                        <thead class="bg-indigo-50 text-indigo-800">
+                            <tr>
+                                <th class="p-3 border">Kategori Dokumen</th>
+                                <th class="p-3 border text-center w-32">Kelengkapan</th>
+                                <th class="p-3 border text-center w-32">Kesesuaian Folder</th>
+                                <th class="p-3 border">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($checklists as $chk)
+                            <tr class="hover:bg-gray-50">
+                                <td class="p-3 border font-medium">{{ $chk['label'] }}</td>
+                                <td class="p-3 border text-center bg-blue-50">
+                                    <input type="checkbox" name="chk_complete_{{ $chk['id'] }}" value="1" {{ $qc->{'chk_complete_'.$chk['id']} ? 'checked' : '' }} class="rounded border-gray-400 text-blue-600 focus:ring-blue-500 h-5 w-5 cursor-pointer">
+                                </td>
+                                <td class="p-3 border text-center bg-green-50">
+                                    <input type="checkbox" name="chk_folder_{{ $chk['id'] }}" value="1" {{ $qc->{'chk_folder_'.$chk['id']} ? 'checked' : '' }} class="rounded border-gray-400 text-green-600 focus:ring-green-500 h-5 w-5 cursor-pointer">
+                                </td>
+                                <td class="p-3 border">
+                                    <input type="text" name="note_{{ $chk['id'] }}" value="{{ $qc->{'note_'.$chk['id']} }}" class="w-full border-gray-300 rounded-md text-sm" placeholder="Isi keterangan...">
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h3 class="font-bold text-lg mb-4 text-gray-700 border-b pb-2">B. Pengecekan Kualitas Data</h3>
+                <div class="space-y-4 mb-8">
+                    
+                    <div class="bg-gray-50 p-4 rounded border" x-data="{ removed: false }">
+                        <p class="font-bold text-sm mb-2 text-gray-800">1. Ketelitian report masuk toleransi (BM Hz <3cm, V <5cm. GCP/ICP Hz <5cm, V <5cm).</p>
+                        <input type="file" name="file_tolerance" class="text-sm">
+                        @if($qc->file_tolerance) 
+                            <div x-show="!removed" class="inline-flex items-center ml-4 gap-3 bg-white px-3 py-1 rounded border shadow-sm">
+                                <a href="{{ asset('storage/' . $qc->file_tolerance) }}" target="_blank" class="text-blue-600 text-xs font-bold hover:underline">Lihat Bukti Saat Ini</a>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">❌ Hapus File</button>
+                            </div>
+                            <input type="hidden" name="remove_file_tolerance" x-bind:value="removed ? '1' : '0'">
+                            <span x-show="removed" class="text-xs text-red-500 italic ml-4 font-medium" style="display: none;">⚠️ File lama akan dihapus permanen saat tombol Simpan ditekan.</span>
+                        @endif
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded border" x-data="{ removed: false }">
+                        <p class="font-bold text-sm mb-2 text-gray-800">2. Selisih hasil koordinat dibandingkan Inacors Spiderweb < 10cm.</p>
+                        <input type="file" name="file_inacors" class="text-sm">
+                        @if($qc->file_inacors) 
+                            <div x-show="!removed" class="inline-flex items-center ml-4 gap-3 bg-white px-3 py-1 rounded border shadow-sm">
+                                <a href="{{ asset('storage/' . $qc->file_inacors) }}" target="_blank" class="text-blue-600 text-xs font-bold hover:underline">Lihat Bukti Saat Ini</a>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">❌ Hapus File</button>
+                            </div>
+                            <input type="hidden" name="remove_file_inacors" x-bind:value="removed ? '1' : '0'">
+                            <span x-show="removed" class="text-xs text-red-500 italic ml-4 font-medium" style="display: none;">⚠️ File lama akan dihapus permanen saat tombol Simpan ditekan.</span>
+                        @endif
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded border" x-data="{ removed: false }">
+                        <p class="font-bold text-sm mb-2 text-gray-800">3. Plotting lokasi pada Google Earth sesuai.</p>
+                        <input type="file" name="file_google_earth" class="text-sm">
+                        @if($qc->file_google_earth) 
+                            <div x-show="!removed" class="inline-flex items-center ml-4 gap-3 bg-white px-3 py-1 rounded border shadow-sm">
+                                <a href="{{ asset('storage/' . $qc->file_google_earth) }}" target="_blank" class="text-blue-600 text-xs font-bold hover:underline">Lihat Bukti Saat Ini</a>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">❌ Hapus File</button>
+                            </div>
+                            <input type="hidden" name="remove_file_google_earth" x-bind:value="removed ? '1' : '0'">
+                            <span x-show="removed" class="text-xs text-red-500 italic ml-4 font-medium" style="display: none;">⚠️ File lama akan dihapus permanen saat tombol Simpan ditekan.</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Tanggal QC</label>
+                        <label class="block text-sm font-bold text-indigo-800">Tanggal QC Utama</label>
                         <input type="date" name="qc_date" value="{{ $qc->qc_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Nama Petugas QC</label>
-                        <input type="text" name="qc_officer_name" value="{{ $qc->qc_officer_name }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="Ketik nama pemeriksa...">
+                        <label class="block text-sm font-bold text-indigo-800">Nama Petugas QC</label>
+                        <input type="text" name="qc_officer_name" value="{{ $qc->qc_officer_name }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="Nama pemeriksa...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-red-600">Apakah Ada Revisi Mayor?</label>
+                        <select name="has_major_revision" x-model="hasRevision" class="mt-1 block w-full rounded-md border-red-300 text-red-700 shadow-sm bg-red-50 focus:ring-red-500 focus:border-red-500 font-bold cursor-pointer">
+                            <option value="0" class="text-green-600 font-bold bg-green-50">TIDAK ADA (Selesai)</option>
+                            <option value="1" class="text-red-600 font-bold bg-red-50">YA, ADA REVISI</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end">
-                <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-md font-bold hover:bg-red-700 text-lg shadow-lg">Simpan Laporan QC Ground</button>
+            <div x-show="hasRevision == '1'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-red-500 mt-8">
+                <h2 class="text-2xl font-black mb-6 text-red-700 flex items-center gap-2">
+                    <span>⚠️</span> QC TAHAP KEDUA (REVISI)
+                </h2>
+                
+                <h3 class="font-bold text-lg mb-4 text-gray-700 border-b pb-2">A. Checklist Hasil Revisi</h3>
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full text-sm text-left border">
+                        <thead class="bg-red-50 text-red-800">
+                            <tr>
+                                <th class="p-3 border">Kategori Dokumen</th>
+                                <th class="p-3 border text-center w-32">Kelengkapan</th>
+                                <th class="p-3 border text-center w-32">Kesesuaian Folder</th>
+                                <th class="p-3 border">Keterangan Revisi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($checklists as $chk)
+                            <tr class="hover:bg-gray-50">
+                                <td class="p-3 border font-medium">{{ $chk['label'] }}</td>
+                                <td class="p-3 border text-center bg-blue-50">
+                                    <input type="checkbox" name="rev_chk_complete_{{ $chk['id'] }}" value="1" {{ $qc->{'rev_chk_complete_'.$chk['id']} ? 'checked' : '' }} class="rounded border-gray-400 text-blue-600 focus:ring-blue-500 h-5 w-5 cursor-pointer">
+                                </td>
+                                <td class="p-3 border text-center bg-green-50">
+                                    <input type="checkbox" name="rev_chk_folder_{{ $chk['id'] }}" value="1" {{ $qc->{'rev_chk_folder_'.$chk['id']} ? 'checked' : '' }} class="rounded border-gray-400 text-green-600 focus:ring-green-500 h-5 w-5 cursor-pointer">
+                                </td>
+                                <td class="p-3 border">
+                                    <input type="text" name="rev_note_{{ $chk['id'] }}" value="{{ $qc->{'rev_note_'.$chk['id']} }}" class="w-full border-gray-300 rounded-md text-sm" placeholder="Isi catatan revisi...">
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="font-bold text-lg mb-4 text-gray-700 border-b pb-2">B. Bukti Kualitas Data Revisi</h3>
+                <div class="space-y-4 mb-8">
+                    
+                    <div class="bg-gray-50 p-4 rounded border" x-data="{ removed: false }">
+                        <p class="font-bold text-sm mb-2 text-gray-800">1. Bukti Ketelitian Terbaru</p>
+                        <input type="file" name="rev_file_tolerance" class="text-sm">
+                        @if($qc->rev_file_tolerance) 
+                            <div x-show="!removed" class="inline-flex items-center ml-4 gap-3 bg-white px-3 py-1 rounded border shadow-sm">
+                                <a href="{{ asset('storage/' . $qc->rev_file_tolerance) }}" target="_blank" class="text-blue-600 text-xs font-bold hover:underline">Lihat Bukti Revisi</a>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">❌ Hapus File</button>
+                            </div>
+                            <input type="hidden" name="remove_rev_file_tolerance" x-bind:value="removed ? '1' : '0'">
+                            <span x-show="removed" class="text-xs text-red-500 italic ml-4 font-medium" style="display: none;">⚠️ File lama akan dihapus permanen saat tombol Simpan ditekan.</span>
+                        @endif
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded border" x-data="{ removed: false }">
+                        <p class="font-bold text-sm mb-2 text-gray-800">2. Bukti Inacors Terbaru</p>
+                        <input type="file" name="rev_file_inacors" class="text-sm">
+                        @if($qc->rev_file_inacors) 
+                            <div x-show="!removed" class="inline-flex items-center ml-4 gap-3 bg-white px-3 py-1 rounded border shadow-sm">
+                                <a href="{{ asset('storage/' . $qc->rev_file_inacors) }}" target="_blank" class="text-blue-600 text-xs font-bold hover:underline">Lihat Bukti Revisi</a>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">❌ Hapus File</button>
+                            </div>
+                            <input type="hidden" name="remove_rev_file_inacors" x-bind:value="removed ? '1' : '0'">
+                            <span x-show="removed" class="text-xs text-red-500 italic ml-4 font-medium" style="display: none;">⚠️ File lama akan dihapus permanen saat tombol Simpan ditekan.</span>
+                        @endif
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded border" x-data="{ removed: false }">
+                        <p class="font-bold text-sm mb-2 text-gray-800">3. Bukti Google Earth Terbaru</p>
+                        <input type="file" name="rev_file_google_earth" class="text-sm">
+                        @if($qc->rev_file_google_earth) 
+                            <div x-show="!removed" class="inline-flex items-center ml-4 gap-3 bg-white px-3 py-1 rounded border shadow-sm">
+                                <a href="{{ asset('storage/' . $qc->rev_file_google_earth) }}" target="_blank" class="text-blue-600 text-xs font-bold hover:underline">Lihat Bukti Revisi</a>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1">❌ Hapus File</button>
+                            </div>
+                            <input type="hidden" name="remove_rev_file_google_earth" x-bind:value="removed ? '1' : '0'">
+                            <span x-show="removed" class="text-xs text-red-500 italic ml-4 font-medium" style="display: none;">⚠️ File lama akan dihapus permanen saat tombol Simpan ditekan.</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-red-50 p-4 rounded-lg border border-red-200">
+                    <div>
+                        <label class="block text-sm font-bold text-red-800">Tanggal QC Revisi</label>
+                        <input type="date" name="rev_qc_date" value="{{ $qc->rev_qc_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-red-800">Nama Petugas QC Revisi</label>
+                        <input type="text" name="rev_qc_officer_name" value="{{ $qc->rev_qc_officer_name }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="Nama pemeriksa revisi...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button type="submit" class="bg-gray-900 text-white px-8 py-3 rounded-lg font-bold hover:bg-black text-lg shadow-lg flex items-center gap-2">
+                    <span>💾 Simpan Keseluruhan Laporan QC</span>
+                </button>
             </div>
         </form>
 
