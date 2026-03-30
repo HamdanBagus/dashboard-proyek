@@ -2,11 +2,11 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('projects.qc.index', $project->id) }}" class="text-teal-600 hover:underline">Formulir & QC</a>
-            <span class="text-gray-400 mx-2">/</span> QC Pengolah Data 🖥️
+            <span class="text-gray-400 mx-2">/</span> QC Pengolah Data 
         </h2>
     </x-slot>
 
-    <div class="py-12 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-12 mx-auto sm:px-6 lg:px-8 space-y-6">
         @if(session('success')) <div class="bg-green-100 text-green-700 p-4 rounded">{{ session('success') }}</div> @endif
 
         <form action="{{ route('projects.qc.processing.update', $project->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">

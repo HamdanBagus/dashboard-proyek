@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-12 mx-auto sm:px-6 lg:px-8 space-y-6">
         @if(session('success')) <div class="bg-green-100 text-green-700 p-4 rounded shadow-sm">{{ session('success') }}</div> @endif
 
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">

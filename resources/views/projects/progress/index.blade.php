@@ -10,13 +10,14 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <!-- max-w-7xl mx-auto sm:px-6 lg:px-8 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-indigo-700">Tim Ground 🌍</h3>
+                            <h3 class="text-lg font-bold text-indigo-700">Tim Ground </h3>
                             <span class="text-xs px-2 py-1 rounded font-bold shadow-sm
                                 {{ $groundProgress == 100 ? 'bg-green-100 text-green-800' : ($groundProgress > 0 ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-600') }}">
                                 {{ number_format($groundProgress, 1) }}% Selesai
@@ -35,7 +36,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-blue-700">Tim UAV 🚁</h3>
+                            <h3 class="text-lg font-bold text-blue-700">Tim UAV </h3>
                             <span class="text-xs px-2 py-1 rounded font-bold shadow-sm
                                 {{ $uavProgress == 100 ? 'bg-green-100 text-green-800' : ($uavProgress > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600') }}">
                                 {{ number_format($uavProgress, 1) }}% Selesai
@@ -54,7 +55,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-green-700">Olah Foto Udara 📸</h3>
+                            <h3 class="text-lg font-bold text-green-700">Olah Foto Udara </h3>
                             <span class="text-xs px-2 py-1 rounded font-bold shadow-sm
                                 {{ $photoProgress == 100 ? 'bg-green-100 text-green-800' : ($photoProgress > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600') }}">
                                 {{ number_format($photoProgress, 1) }}% Selesai
@@ -73,7 +74,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-orange-500 hover:shadow-lg transition">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-orange-700">Olah LiDAR 📡</h3>
+                            <h3 class="text-lg font-bold text-orange-700">Olah LiDAR </h3>
                             <span class="text-xs px-2 py-1 rounded font-bold shadow-sm
                                 {{ $lidarProgress == 100 ? 'bg-green-100 text-green-800' : ($lidarProgress > 0 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-600') }}">
                                 {{ number_format($lidarProgress, 1) }}% Selesai
