@@ -10,7 +10,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl p-6 border-l-4 border-indigo-500">
                 <h3 class="text-xl font-extrabold text-gray-900">Statistik Performa Pilot UAV</h3>

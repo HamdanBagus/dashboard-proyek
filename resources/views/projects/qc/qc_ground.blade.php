@@ -230,8 +230,8 @@
             </div>
 
             <div class="flex justify-end pt-4">
-                <button type="submit" class="bg-gray-900 text-white px-8 py-3 rounded-lg font-bold hover:bg-black text-lg shadow-lg flex items-center gap-2">
-                    <span>💾 Simpan Keseluruhan Laporan QC</span>
+                <button type="submit" class="bg-gray-900 text-white px-4 py-2 rounded-md font-bold hover:bg-black text-base shadow-md flex items-center gap-1.5">
+                    <span>Simpan Keseluruhan Laporan QC</span>
                 </button>
             </div>
         </form>
