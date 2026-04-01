@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use App\Models\QcGround; // Import Model
+use App\Models\QcGround;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Import Storage untuk File Upload
+use Illuminate\Support\Facades\Storage;
 use App\Models\QcUavPhoto;
 use App\Models\AssetUav;
 use App\Models\AssetCamera;
@@ -20,10 +20,11 @@ class ProjectQcController extends Controller
         return view('projects.qc.index', compact('project'));
     }
 
+    // =================================================================
     // --- QC TIM GROUND ---
+    // =================================================================
     public function showGround(Project $project)
     {
-        // Load relasi yg dibutuhkan
         $project->load(['personnel', 'groundReport']);
         $qc = QcGround::firstOrCreate(['project_id' => $project->id]);
 
@@ -34,7 +35,6 @@ class ProjectQcController extends Controller
     {
         $qc = QcGround::where('project_id', $project->id)->first();
 
-        // 1. Validasi input & file max 2MB (Termasuk file revisi)
         $request->validate([
             'file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -44,32 +44,23 @@ class ProjectQcController extends Controller
             'rev_file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Ambil semua data teks/inputan selain file
-        $data = $request->except([
-            '_token', '_method', 
-            'file_tolerance', 'file_inacors', 'file_google_earth',
-            'rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth'
-        ]);
+        $data = $request->except(['_token', '_method']);
 
-        // 2. Handle Checkbox QC UTAMA
         $items = ['form_log', 'raw_gps', 'report_gps', 'coordinate', 'photo_utsb'];
         foreach ($items as $item) {
             $data["chk_complete_{$item}"] = $request->has("chk_complete_{$item}");
             $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
-        // 3. Handle Status Revisi Mayor
         $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
         $data['has_major_revision'] = $hasRevision;
 
-        // 4. Handle Checkbox & Pembersihan QC REVISI
         if ($hasRevision) {
             foreach ($items as $item) {
                 $data["rev_chk_complete_{$item}"] = $request->has("rev_chk_complete_{$item}");
                 $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
             }
         } else {
-            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
             foreach ($items as $item) {
                 $data["rev_chk_complete_{$item}"] = 0;
                 $data["rev_chk_folder_{$item}"] = 0;
@@ -78,7 +69,6 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // Hapus file revisi fisik
             $revFiles = ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth'];
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
@@ -86,49 +76,41 @@ class ProjectQcController extends Controller
             }
         }
 
-        // 5. Handle File Uploads & Tombol Hapus File
-        // Hanya proses file revisi jika statusnya memang "Ada Revisi"
         $fileFields = ['file_tolerance', 'file_inacors', 'file_google_earth'];
         if ($hasRevision) {
             $fileFields = array_merge($fileFields, ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth']);
         }
 
         foreach ($fileFields as $field) {
-            // Cek apakah user menekan tombol hapus (remove_namafile = 1)
             $isRemoved = $request->input("remove_{$field}") == '1';
 
-            // Jika dihapus ATAU ada file baru, hapus file fisik lama
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) {
-                    Storage::disk('public')->delete($qc->$field);
-                }
-                $data[$field] = null; // Defaultkan ke null
+                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                $data[$field] = null;
             }
 
-            // Jika ada upload file baru, simpan
             if ($request->hasFile($field)) {
                 $data[$field] = $request->file($field)->store('qc_files/ground', 'public');
             } elseif (!$isRemoved) {
-                // Jika tidak diapa-apakan, cegah kolom database tertimpa null
                 unset($data[$field]);
             }
         }
 
-        // 6. Update Database
         $qc->update($data);
-
         return back()->with('success', 'Data QC Tim Ground berhasil disimpan!');
     }
+
+    // =================================================================
     // --- QC UAV FOTO UDARA ---
+    // =================================================================
     public function showUavPhoto(Project $project)
     {
-        $project->load(['personnel', 'uavReport.logs']); // Load relasi
+        $project->load(['personnel', 'uavReport.logs']);
         $qc = QcUavPhoto::firstOrCreate(['project_id' => $project->id]);
 
         $uavs = AssetUav::all();
         $cameras = AssetCamera::all();
 
-        // Hitung total flight dari uavReport jika ada
         $totalFlights = $project->uavReport ? $project->uavReport->logs->sum('flight_count') : 0;
 
         return view('projects.qc.qc_uav_photo', compact('project', 'qc', 'uavs', 'cameras', 'totalFlights'));
@@ -138,7 +120,6 @@ class ProjectQcController extends Controller
     {
         $qc = QcUavPhoto::where('project_id', $project->id)->first();
 
-        // 1. Validasi File (Utama & Revisi)
         $request->validate([
             'file_quality' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_geotag'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -154,18 +135,15 @@ class ProjectQcController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
-        // 2. Handle Checkbox QC UTAMA
         $items = ['raw_photo', 'raw_uav', 'base_gps', 'geotag'];
         foreach ($items as $item) {
             $data["chk_complete_{$item}"] = $request->has("chk_complete_{$item}");
             $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
-        // 3. Handle Status Revisi Mayor
         $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
         $data['has_major_revision'] = $hasRevision;
 
-        // 4. Handle Checkbox & Pembersihan QC REVISI
         $revFiles = ['rev_file_quality', 'rev_file_geotag', 'rev_file_blur', 'rev_file_overlap', 'rev_file_gsd'];
         
         if ($hasRevision) {
@@ -174,7 +152,6 @@ class ProjectQcController extends Controller
                 $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
             }
         } else {
-            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
             foreach ($items as $item) {
                 $data["rev_chk_complete_{$item}"] = 0;
                 $data["rev_chk_folder_{$item}"] = 0;
@@ -183,14 +160,12 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // Hapus file revisi fisik
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
 
-        // 5. Handle File Uploads & Tombol Hapus File
         $fileFields = ['file_quality', 'file_geotag', 'file_blur', 'file_overlap', 'file_gsd'];
         if ($hasRevision) {
             $fileFields = array_merge($fileFields, $revFiles);
@@ -214,7 +189,10 @@ class ProjectQcController extends Controller
         $qc->update($data);
         return back()->with('success', 'Data QC UAV Foto Udara berhasil disimpan!');
     }
+
+    // =================================================================
     // --- QC UAV LIDAR ---
+    // =================================================================
     public function showUavLidar(Project $project)
     {
         $project->load(['personnel', 'uavReport.logs']);
@@ -223,7 +201,6 @@ class ProjectQcController extends Controller
         $uavs = AssetUav::all();
         $cameras = AssetCamera::all();
 
-        // Hitung total flight dari uavReport jika ada
         $totalFlights = $project->uavReport ? $project->uavReport->logs->sum('flight_count') : 0;
 
         return view('projects.qc.qc_uav_lidar', compact('project', 'qc', 'uavs', 'cameras', 'totalFlights'));
@@ -233,7 +210,6 @@ class ProjectQcController extends Controller
     {
         $qc = QcUavLidar::where('project_id', $project->id)->first();
 
-        // 1. Validasi File (Utama & Revisi)
         $request->validate([
             'file_gap'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_accuracy' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -243,18 +219,15 @@ class ProjectQcController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
-        // 2. Handle Checkbox QC UTAMA
         $items = ['raw_lidar', 'base_gps', 'pre_processing'];
         foreach ($items as $item) {
             $data["chk_complete_{$item}"] = $request->has("chk_complete_{$item}");
             $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
-        // 3. Handle Status Revisi Mayor
         $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
         $data['has_major_revision'] = $hasRevision;
 
-        // 4. Handle Checkbox & Pembersihan QC REVISI
         $revFiles = ['rev_file_gap', 'rev_file_accuracy'];
         
         if ($hasRevision) {
@@ -263,7 +236,6 @@ class ProjectQcController extends Controller
                 $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
             }
         } else {
-            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
             foreach ($items as $item) {
                 $data["rev_chk_complete_{$item}"] = 0;
                 $data["rev_chk_folder_{$item}"] = 0;
@@ -272,14 +244,12 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // Hapus file revisi fisik
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
 
-        // 5. Handle File Uploads & Tombol Hapus File
         $fileFields = ['file_gap', 'file_accuracy'];
         if ($hasRevision) {
             $fileFields = array_merge($fileFields, $revFiles);
@@ -304,43 +274,92 @@ class ProjectQcController extends Controller
         return back()->with('success', 'Data QC UAV LiDAR berhasil disimpan!');
     }
 
+    // =================================================================
+    // --- QC PENGOLAH DATA ---
+    // =================================================================
+    public function showProcessing(Project $project)
+    {
+        $project->load(['lidarReport.hamparans']);
+        $qc = QcProcessing::firstOrCreate(['project_id' => $project->id]);
+        $totalHamparan = $project->lidarReport ? $project->lidarReport->hamparans->count() : 0;
+        return view('projects.qc.qc_processing', compact('project', 'qc', 'totalHamparan'));
+    }
+
     public function updateProcessing(Request $request, Project $project)
     {
         $qc = QcProcessing::where('project_id', $project->id)->first();
 
-        // Validasi ekstensi semua file
+        // 1. Validasi File (Utama & Revisi)
         $fileRules = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048';
         $request->validate([
-            'c1_file_accuracy' => $fileRules, 'c1_file_ortho' => $fileRules, 'c1_file_cloud' => $fileRules, 'c1_file_folder' => $fileRules, 'c1_file_hdd' => $fileRules,
-            'c2_file_accuracy' => $fileRules, 'c2_file_ortho' => $fileRules, 'c2_file_cloud' => $fileRules, 'c2_file_folder' => $fileRules, 'c2_file_hdd' => $fileRules,
+            'file_accuracy' => $fileRules, 'file_ortho' => $fileRules, 'file_cloud' => $fileRules, 'file_folder' => $fileRules, 'file_hdd' => $fileRules,
+            'rev_file_accuracy' => $fileRules, 'rev_file_ortho' => $fileRules, 'rev_file_cloud' => $fileRules, 'rev_file_folder' => $fileRules, 'rev_file_hdd' => $fileRules,
         ]);
 
         $data = $request->except(['_token', '_method']);
 
-        // Handle Checkbox
-        $checklists = ['chk_project_file', 'chk_ortho', 'chk_dsm', 'chk_dtm', 'chk_accuracy', 'chk_report', 'chk_other'];
-        foreach ($checklists as $chk) {
-            $data[$chk] = $request->has($chk);
+        // 2. Handle Checkbox UTAMA
+        $items = ['project_file', 'ortho', 'dsm', 'dtm', 'accuracy', 'report', 'other'];
+        foreach ($items as $item) {
+            $data["chk_{$item}"] = $request->has("chk_{$item}");
+            $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
-        // Handle File Uploads
-        $fileFields = [
-            'c1_file_accuracy', 'c1_file_ortho', 'c1_file_cloud', 'c1_file_folder', 'c1_file_hdd',
-            'c2_file_accuracy', 'c2_file_ortho', 'c2_file_cloud', 'c2_file_folder', 'c2_file_hdd'
-        ];
+        // 3. Handle Status Revisi Mayor
+        $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
+        $data['has_major_revision'] = $hasRevision;
+
+        // 4. Handle Checkbox & Pembersihan QC REVISI
+        $revFiles = ['rev_file_accuracy', 'rev_file_ortho', 'rev_file_cloud', 'rev_file_folder', 'rev_file_hdd'];
+
+        if ($hasRevision) {
+            foreach ($items as $item) {
+                $data["rev_chk_{$item}"] = $request->has("rev_chk_{$item}");
+                $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
+            }
+        } else {
+            foreach ($items as $item) {
+                $data["rev_chk_{$item}"] = 0;
+                $data["rev_chk_folder_{$item}"] = 0;
+                $data["rev_note_{$item}"] = null;
+            }
+            $data['rev_qc_date'] = null;
+            $data['rev_qc_officer_name'] = null;
+            
+            foreach ($revFiles as $rf) {
+                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                $data[$rf] = null;
+            }
+        }
+
+        // 5. Handle File Uploads & Tombol Hapus
+        $fileFields = ['file_accuracy', 'file_ortho', 'file_cloud', 'file_folder', 'file_hdd'];
+        if ($hasRevision) {
+            $fileFields = array_merge($fileFields, $revFiles);
+        }
+
         foreach ($fileFields as $field) {
-            if ($request->hasFile($field)) {
+            $isRemoved = $request->input("remove_{$field}") == '1';
+
+            if ($isRemoved || $request->hasFile($field)) {
                 if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                $data[$field] = null;
+            }
+
+            if ($request->hasFile($field)) {
                 $data[$field] = $request->file($field)->store('qc_files/processing', 'public');
-            } else {
-                unset($data[$field]); // Cegah nimpa null jika tidak upload baru
+            } elseif (!$isRemoved) {
+                unset($data[$field]); 
             }
         }
 
         $qc->update($data);
-        return back()->with('success', 'Data QC Pengolahan berhasil disimpan!');
+        return back()->with('success', 'Data QC Pengolah Data berhasil disimpan!');
     }
 
+    // =================================================================
+    // --- QC PROJECT MANAGER (FINAL) ---
+    // =================================================================
     public function showManager(Project $project)
     {
         $qc = QcManager::firstOrCreate(['project_id' => $project->id]);
@@ -351,7 +370,6 @@ class ProjectQcController extends Controller
     {
         $qc = QcManager::where('project_id', $project->id)->first();
 
-        // 1. Validasi File (Utama & Revisi)
         $fileRules = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048';
         $request->validate([
             'file_report' => $fileRules,
@@ -362,19 +380,15 @@ class ProjectQcController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
-        // 2. Handle Checkbox QC UTAMA
         $items = ['report', 'other_docs'];
         foreach ($items as $item) {
-            // Karena nama awalnya tanpa prefix "complete", kita handle manual
             $data["chk_{$item}"] = $request->has("chk_{$item}");
             $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
-        // 3. Handle Status Revisi Mayor
         $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
         $data['has_major_revision'] = $hasRevision;
 
-        // 4. Handle Checkbox & Pembersihan QC REVISI
         $revFiles = ['rev_file_report', 'rev_file_other'];
 
         if ($hasRevision) {
@@ -383,7 +397,6 @@ class ProjectQcController extends Controller
                 $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
             }
         } else {
-            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
             foreach ($items as $item) {
                 $data["rev_chk_{$item}"] = 0;
                 $data["rev_chk_folder_{$item}"] = 0;
@@ -392,14 +405,12 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_name'] = null;
             
-            // Hapus file revisi fisik
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
 
-        // 5. Handle File Uploads & Tombol Hapus File
         $fileFields = ['file_report', 'file_other'];
         if ($hasRevision) {
             $fileFields = array_merge($fileFields, $revFiles);

@@ -6,22 +6,37 @@
         </h2>
     </x-slot>
 
-    <div class="py-12 mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="pt-6 pb-12 mx-auto sm:px-6 lg:px-8 space-y-6">
         @if(session('success')) <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-sm font-medium">{{ session('success') }}</div> @endif
 
         <form action="{{ route('projects.qc.manager.update', $project->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ hasRevision: '{{ $qc->has_major_revision ?? 0 }}' }">
             @csrf
 
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-lg mb-1 text-gray-800">Informasi Proyek (Tahap Akhir)</h3>
-                    <p class="text-sm text-gray-500">Pastikan seluruh tim sudah menyelesaikan QC di tahap sebelumnya.</p>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+                
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-5 h-5 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h3 class="font-bold text-lg text-gray-800">Informasi Proyek (Tahap Akhir)</h3>
+                    </div>
+                    <p class="text-sm text-gray-500 xl:ml-7">Pastikan seluruh tim sudah menyelesaikan QC di tahap sebelumnya sebelum pengesahan.</p>
                 </div>
-                <div class="flex gap-6 bg-gray-50 px-6 py-4 rounded-lg border border-gray-200 text-right">
-                    <div><span class="block text-[10px] text-gray-400 uppercase tracking-widest font-bold">Nama Project</span><span class="font-black text-gray-800 text-base">{{ $project->name }}</span></div>
-                    <div><span class="block text-[10px] text-gray-400 uppercase tracking-widest font-bold">Kode Project</span><span class="font-black text-[#F8931F] text-base">{{ $project->code }}</span></div>
-                    <div><span class="block text-[10px] text-gray-400 uppercase tracking-widest font-bold">Luas Area</span><span class="font-black text-[#144C4D] text-base">{{ $project->area_size }} Ha</span></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 bg-gray-50 rounded-lg border border-gray-200 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 shrink-0">
+                    <div class="px-6 py-4 text-left">
+                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Nama Project</span>
+                        <span class="font-black text-gray-800 text-base leading-tight block">{{ $project->name }}</span>
+                    </div>
+                    <div class="px-6 py-4 text-left">
+                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Kode Project</span>
+                        <span class="font-black text-[#F8931F] text-base leading-tight block">{{ $project->code }}</span>
+                    </div>
+                    <div class="px-6 py-4 text-left">
+                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Luas Area</span>
+                        <span class="font-black text-[#144C4D] text-base leading-tight block">{{ $project->area_size }} Ha</span>
+                    </div>
                 </div>
+                
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#144C4D]">
