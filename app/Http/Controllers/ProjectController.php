@@ -106,62 +106,64 @@ class ProjectController extends Controller
     }
     public function show(Project $project)
     {
-        // Load data proyek beserta relasi pivot personilnya
-        $project->load('personnel');
+        // 1. Load relasi agar tidak N+1 Query
+        $project->load([
+            'personnel', 
+            'groundReport.points', 
+            'uavReport.logs', 
+            'photoReport.hamparans.outputs', 'photoReport.hamparans.progresses',
+            'lidarReport.hamparans.outputs', 'lidarReport.hamparans.progresses'
+        ]);
 
-        // Ambil semua data master karyawan untuk dropdown
-        $employees = Employee::orderBy('name', 'asc')->get();
+        $employees = \App\Models\Employee::orderBy('name', 'asc')->get();
 
         // ==========================================
-        // 1. HITUNG PROGRESS GROUND
+        // 2. HITUNG PROGRESS DARI SERVICE (SINGLE SOURCE OF TRUTH)
         // ==========================================
+
+        // -- A. PROGRESS GROUND --
+        // (Tetap menggunakan hitungan titik karena di Service belum ada fungsi persentase Ground)
         $groundProgress = 0;
-        $groundReport = \App\Models\GroundReport::with('points')->where('project_id', $project->id)->first();
-        if ($groundReport && $groundReport->points->count() > 0) {
-            $totalTitik = $groundReport->points->count();
-            $installed = $groundReport->points->where('install_status', true)->count();
-            $measured = $groundReport->points->where('measure_status', true)->count();
-            $processed = $groundReport->points->where('process_status', true)->count();
+        if ($project->groundReport && $project->groundReport->points->count() > 0) {
+            $totalTitik = $project->groundReport->points->count();
+            $installed  = $project->groundReport->points->where('install_status', true)->count();
+            $measured   = $project->groundReport->points->where('measure_status', true)->count();
+            $processed  = $project->groundReport->points->where('process_status', true)->count();
 
             $groundProgress = (( ($installed/$totalTitik) + ($measured/$totalTitik) + ($processed/$totalTitik) ) / 3) * 100;
         }
 
-        // ==========================================
-        // 2. HITUNG PROGRESS UAV
-        // ==========================================
-        $uavReport = \App\Models\UavReport::with('logs')->where('project_id', $project->id)->first();
-        $uavProgress = $uavReport ? $uavReport->overall_progress : 0;
+        // -- B. PROGRESS UAV --
+        $uavProgress = 0;
+        if ($project->uavReport) {
+            // Gunakan Service yang membagi Luas Tercapai / Luas Proyek
+            $uavData = \App\Services\ProgressCalculatorService::calculateUavProgress($project, $project->uavReport);
+            $uavProgress = $uavData['persentase'];
+        }
 
-        // ==========================================
-        // 3. HITUNG PROGRESS FOTO UDARA (TERBARU)
-        $photoReport = \App\Models\PhotoReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
-        
+        // -- C. PROGRESS FOTO UDARA --
         $photoProgress = 0;
-        if ($photoReport) {
-            $photoProgress = \App\Services\ProgressCalculatorService::calculatePhotoReportOverallProgress($photoReport);
+        if ($project->photoReport) {
+            $photoProgress = \App\Services\ProgressCalculatorService::calculatePhotoReportOverallProgress($project->photoReport);
         }
 
-        // ==========================================
-        // 4. HITUNG PROGRESS LIDAR (TERBARU)
-        // ==========================================
-        // Sama seperti Foto Udara, langsung panggil ->overall_progress dari Model
-        $lidarReport = \App\Models\LidarReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
-        
+        // -- D. PROGRESS LIDAR --
         $lidarProgress = 0;
-        if ($lidarReport) {
-            $lidarProgress = \App\Services\ProgressCalculatorService::calculateLidarReportOverallProgress($lidarReport);
+        if ($project->lidarReport) {
+            $lidarProgress = \App\Services\ProgressCalculatorService::calculateLidarReportOverallProgress($project->lidarReport);
         }
 
-        // Batasi nilai maksimal 100% untuk masing-masing
+        // Batasi nilai maksimal 100%
         $groundProgress = min($groundProgress, 100);
-        $uavProgress = min($uavProgress, 100);
-        $photoProgress = min($photoProgress, 100);
-        $lidarProgress = min($lidarProgress, 100);
+        $uavProgress    = min($uavProgress, 100);
+        $photoProgress  = min($photoProgress, 100);
+        $lidarProgress  = min($lidarProgress, 100);
 
-        // 5. HITUNG RATA-RATA TOTAL KESELURUHAN PROYEK
+        // ==========================================
+        // 3. HITUNG RATA-RATA TOTAL KESELURUHAN PROYEK
+        // ==========================================
         $totalProjectProgress = ($groundProgress + $uavProgress + $photoProgress + $lidarProgress) / 4;
 
-        // Pastikan semua variabel progress dikirim ke view compact
         return view('projects.show', compact(
             'project', 'employees', 'totalProjectProgress',
             'groundProgress', 'uavProgress', 'photoProgress', 'lidarProgress'
