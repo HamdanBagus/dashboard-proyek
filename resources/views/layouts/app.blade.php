@@ -23,23 +23,20 @@
                 
                 <div class="flex items-center justify-center h-16 bg-[#114243] border-b border-[#114243] shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
+                        <img src="/images/logo-perusahaan.png" alt="Logo Perusahaan"class="w-10 h-10 object-contain"style="filter: brightness(0) invert(1);">
                         <span class="text-white font-black text-xl tracking-widest mr-2">SI-MONITOR</span>
                     </a>
                 </div>
 
                 <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-hide">
-                    
+    
+                    <p class="px-4 pt-5 pb-2 text-xs font-black text-gray-400 uppercase tracking-widest">Manajemen Operasional</p>
                     <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-[#F4F7F6] hover:bg-[#F8931F] hover:text-white rounded-lg transition-all font-medium {{ request()->routeIs('dashboard') ? 'bg-[#F8931F] text-white shadow-md' : '' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                         <span>Dashboard</span>
                     </a>
-
-                    <p class="px-4 pt-5 pb-2 text-xs font-black text-gray-400 uppercase tracking-widest">Manajemen Operasional</p>
 
                     <a href="{{ route('projects.index') }}" class="flex items-center px-4 py-3 text-[#F4F7F6] hover:bg-[#F8931F] hover:text-white rounded-lg transition-all font-medium {{ request()->routeIs('projects.*') ? 'bg-[#F8931F] text-white shadow-md' : '' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

@@ -154,16 +154,28 @@ class ProjectQcController extends Controller
         $data['chk_base_gps'] = $request->has('chk_base_gps');
         $data['chk_geotag'] = $request->has('chk_geotag');
 
-        // Jika uav_used atau camera_used kosong, set sebagai array kosong agar tidak error
-        $data['uav_used'] = $request->uav_used ?? [];
-        $data['camera_used'] = $request->camera_used ?? [];
+        // CATATAN: Input uav_used dan camera_used sudah dihapus karena sekarang Read-Only dari data Proyek
 
-        // Handle File Uploads (Looping biar rapi)
+        // Handle File Uploads & Fitur Hapus File
         $fileFields = ['file_quality', 'file_geotag', 'file_blur', 'file_overlap', 'file_gsd'];
         foreach ($fileFields as $field) {
+            // Cek apakah user menekan tombol hapus di UI (remove_namafile = 1)
+            $isRemoved = $request->input("remove_{$field}") == '1';
+
+            // Jika dihapus ATAU ada file baru, hapus file fisik lama di storage
+            if ($isRemoved || $request->hasFile($field)) {
+                if ($qc->$field) {
+                    Storage::disk('public')->delete($qc->$field);
+                }
+                $data[$field] = null; // Defaultkan ke null di database
+            }
+
+            // Jika ada upload file baru, simpan ke storage
             if ($request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
                 $data[$field] = $request->file($field)->store('qc_files/uav_photo', 'public');
+            } elseif (!$isRemoved) {
+                // Jika tidak diapa-apakan, cegah kolom database tertimpa null
+                unset($data[$field]);
             }
         }
 
@@ -201,16 +213,28 @@ class ProjectQcController extends Controller
         $data['chk_base_gps'] = $request->has('chk_base_gps');
         $data['chk_pre_processing'] = $request->has('chk_pre_processing');
 
-        // Handle arrays
-        $data['uav_used'] = $request->uav_used ?? [];
-        $data['camera_used'] = $request->camera_used ?? [];
+        // CATATAN: Input uav_used dan camera_used sudah dihapus karena sekarang Read-Only dari data Proyek
 
-        // Handle File Uploads
+        // Handle File Uploads & Fitur Hapus File
         $fileFields = ['file_gap', 'file_accuracy'];
         foreach ($fileFields as $field) {
+            // Cek apakah user menekan tombol hapus di UI (remove_namafile = 1)
+            $isRemoved = $request->input("remove_{$field}") == '1';
+
+            // Jika dihapus ATAU ada file baru, hapus file fisik lama di storage
+            if ($isRemoved || $request->hasFile($field)) {
+                if ($qc->$field) {
+                    Storage::disk('public')->delete($qc->$field);
+                }
+                $data[$field] = null; // Defaultkan ke null di database
+            }
+
+            // Jika ada upload file baru, simpan ke storage
             if ($request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
                 $data[$field] = $request->file($field)->store('qc_files/uav_lidar', 'public');
+            } elseif (!$isRemoved) {
+                // Jika tidak diapa-apakan, cegah kolom database tertimpa null
+                unset($data[$field]);
             }
         }
 
