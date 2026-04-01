@@ -138,43 +138,75 @@ class ProjectQcController extends Controller
     {
         $qc = QcUavPhoto::where('project_id', $project->id)->first();
 
+        // 1. Validasi File (Utama & Revisi)
         $request->validate([
             'file_quality' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_geotag'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_blur'    => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_overlap' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_gsd'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_quality' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_geotag'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_blur'    => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_overlap' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_gsd'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $data = $request->except(['_token', '_method', 'file_quality', 'file_geotag', 'file_blur', 'file_overlap', 'file_gsd']);
+        $data = $request->except(['_token', '_method']);
 
-        // Handle Checkbox boolean
-        $data['chk_raw_photo'] = $request->has('chk_raw_photo');
-        $data['chk_raw_uav'] = $request->has('chk_raw_uav');
-        $data['chk_base_gps'] = $request->has('chk_base_gps');
-        $data['chk_geotag'] = $request->has('chk_geotag');
+        // 2. Handle Checkbox QC UTAMA
+        $items = ['raw_photo', 'raw_uav', 'base_gps', 'geotag'];
+        foreach ($items as $item) {
+            $data["chk_complete_{$item}"] = $request->has("chk_complete_{$item}");
+            $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
+        }
 
-        // CATATAN: Input uav_used dan camera_used sudah dihapus karena sekarang Read-Only dari data Proyek
+        // 3. Handle Status Revisi Mayor
+        $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
+        $data['has_major_revision'] = $hasRevision;
 
-        // Handle File Uploads & Fitur Hapus File
+        // 4. Handle Checkbox & Pembersihan QC REVISI
+        $revFiles = ['rev_file_quality', 'rev_file_geotag', 'rev_file_blur', 'rev_file_overlap', 'rev_file_gsd'];
+        
+        if ($hasRevision) {
+            foreach ($items as $item) {
+                $data["rev_chk_complete_{$item}"] = $request->has("rev_chk_complete_{$item}");
+                $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
+            }
+        } else {
+            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
+            foreach ($items as $item) {
+                $data["rev_chk_complete_{$item}"] = 0;
+                $data["rev_chk_folder_{$item}"] = 0;
+                $data["rev_note_{$item}"] = null;
+            }
+            $data['rev_qc_date'] = null;
+            $data['rev_qc_officer_name'] = null;
+            
+            // Hapus file revisi fisik
+            foreach ($revFiles as $rf) {
+                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                $data[$rf] = null;
+            }
+        }
+
+        // 5. Handle File Uploads & Tombol Hapus File
         $fileFields = ['file_quality', 'file_geotag', 'file_blur', 'file_overlap', 'file_gsd'];
+        if ($hasRevision) {
+            $fileFields = array_merge($fileFields, $revFiles);
+        }
+
         foreach ($fileFields as $field) {
-            // Cek apakah user menekan tombol hapus di UI (remove_namafile = 1)
             $isRemoved = $request->input("remove_{$field}") == '1';
 
-            // Jika dihapus ATAU ada file baru, hapus file fisik lama di storage
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) {
-                    Storage::disk('public')->delete($qc->$field);
-                }
-                $data[$field] = null; // Defaultkan ke null di database
+                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                $data[$field] = null; 
             }
 
-            // Jika ada upload file baru, simpan ke storage
             if ($request->hasFile($field)) {
                 $data[$field] = $request->file($field)->store('qc_files/uav_photo', 'public');
             } elseif (!$isRemoved) {
-                // Jika tidak diapa-apakan, cegah kolom database tertimpa null
                 unset($data[$field]);
             }
         }
