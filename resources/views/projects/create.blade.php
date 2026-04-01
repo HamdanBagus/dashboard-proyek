@@ -1,287 +1,277 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Proyek Baru') }}
-        </h2>
+        <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <a href="{{ route('projects.index') }}" class="text-[#F8931F] hover:underline transition">
+                    Daftar Proyek
+                </a>
+                <span class="text-gray-400 mx-2">/</span>
+                {{ __('Tambah Proyek Baru') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+    <div class="pt-6 pb-12 max-w-9xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                    @if ($errors->any())
-                        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                            <strong class="font-bold">Gagal Menyimpan!</strong>
-                            <ul class="list-disc pl-5 mt-2 text-sm">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-5 rounded-xl shadow-sm mb-6">
+                <div class="flex items-center gap-2 font-black text-lg mb-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                    Gagal Menyimpan Proyek!
+                </div>
+                <ul class="list-disc pl-8 text-sm font-medium space-y-1 text-red-600">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-                    <form action="{{ route('projects.store') }}" method="POST">
-                        @csrf
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
+            <div class="p-6 sm:p-8">
+                
+                <form action="{{ route('projects.store') }}" method="POST">
+                    @csrf
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                            {{-- Kolom Kiri --}}
-                            <div class="space-y-6">
+                        <div class="lg:col-span-7 space-y-8">
 
-                                {{-- Informasi Dasar --}}
-                                <div class="space-y-4">
-                                    <h3 class="font-bold border-b pb-2 text-blue-700">Informasi Dasar</h3>
+                            <div class="space-y-5">
+                                <h3 class="text-lg font-black border-b border-gray-100 pb-2 text-gray-800 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Informasi Dasar
+                                </h3>
 
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Kode Proyek</label>
-                                        <input type="text" name="code" value="{{ old('code') }}" required
-                                            placeholder="Contoh: PRJ-001"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Kode Proyek</label>
+                                        <input type="text" name="code" value="{{ old('code') }}" required placeholder="Contoh: PRJ-001"
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
                                     </div>
-
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Nama Proyek</label>
-                                        <input type="text" name="name" value="{{ old('name') }}" required
-                                            placeholder="Nama Pekerjaan"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Nama Klien</label>
-                                        <input type="text" name="client_name" value="{{ old('client_name') }}" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Alamat Klien</label>
-                                        <textarea name="client_address" rows="3"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">{{ old('client_address') }}</textarea>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Lokasi Proyek</label>
-                                        <textarea name="project_location" rows="3"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">{{ old('project_location') }}</textarea>
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Nama Proyek</label>
+                                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="Nama Pekerjaan"
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
                                     </div>
                                 </div>
 
-                                {{-- Detail Pelaksanaan --}}
-                                <div class="space-y-4">
-                                    <h3 class="font-bold border-b pb-2 text-blue-700">Detail Pelaksanaan</h3>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Luas Area (Ha)</label>
-                                        <input type="number" step="0.01" name="area_size" value="{{ old('area_size') }}" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
-                                    </div>
-
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
-                                            <input type="date" name="start_date" value="{{ old('start_date') }}" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
-                                            <input type="date" name="end_date" value="{{ old('end_date') }}" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200">
-                                        </div>
-                                    </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Nama Klien</label>
+                                    <input type="text" name="client_name" value="{{ old('client_name') }}" required placeholder="Nama Instansi/Perusahaan"
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
                                 </div>
 
-                                {{-- Rencana Kebutuhan Alat --}}
-                                <div class="space-y-4">
-                                    <h3 class="font-bold border-b pb-2 text-blue-700">Rencana Kebutuhan Alat</h3>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Alamat Klien</label>
+                                    <textarea name="client_address" rows="2" placeholder="Alamat lengkap instansi..."
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">{{ old('client_address') }}</textarea>
+                                </div>
 
-                                    {{-- UAV / Drone --}}
-                                    <div x-data="{ items: {{ json_encode(old('planned_uavs', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border">
-                                        <label class="block text-xs font-bold text-gray-700 mb-2">UAV / Drone</label>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Lokasi Proyek</label>
+                                    <textarea name="project_location" rows="2" placeholder="Kecamatan, Kabupaten/Kota, Provinsi..."
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">{{ old('project_location') }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="space-y-5">
+                                <h3 class="text-lg font-black border-b border-gray-100 pb-2 text-gray-800 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-[#F8931F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    Detail Pelaksanaan
+                                </h3>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Luas Area (Hektar)</label>
+                                    <input type="number" step="0.01" name="area_size" value="{{ old('area_size') }}" required placeholder="0.00"
+                                        class="block w-full sm:w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Tanggal Mulai</label>
+                                        <input type="date" name="start_date" value="{{ old('start_date') }}" required
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Tanggal Selesai</label>
+                                        <input type="date" name="end_date" value="{{ old('end_date') }}" required
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-black border-b border-gray-100 pb-2 text-gray-800 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                    Rencana Kebutuhan Alat
+                                </h3>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div x-data="{ items: {{ json_encode(old('planned_uavs', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-200 pb-1">UAV / Drone</label>
                                         <template x-for="(item, index) in items" :key="index">
-                                            <div class="flex gap-2 mb-2">
-                                                <select :name="'planned_uavs['+index+'][id]'" x-model="item.id"
-                                                    class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                            <div class="flex gap-2 mb-3">
+                                                <select :name="'planned_uavs['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
                                                     <option value="">-- Pilih UAV --</option>
                                                     @foreach($uavs as $uav)
                                                         <option value="{{ $uav->name }}">{{ $uav->name }}</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="number" :name="'planned_uavs['+index+'][qty]'" x-model="item.qty" min="1"
-                                                    placeholder="Qty"
-                                                    class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
-                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                    class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold">X</button>
+                                                <input type="number" :name="'planned_uavs['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg font-black transition flex justify-center items-center">X</button>
                                             </div>
                                         </template>
-                                        <button type="button" @click="items.push({id: '', qty: 1})"
-                                            class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah UAV</button>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-[10px] bg-white border border-gray-300 text-gray-600 font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition uppercase tracking-widest">+ Tambah UAV</button>
                                     </div>
 
-                                    {{-- Kamera / Sensor LiDAR --}}
-                                    <div x-data="{ items: {{ json_encode(old('planned_cameras', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border">
-                                        <label class="block text-xs font-bold text-gray-700 mb-2">Kamera / Sensor LiDAR</label>
+                                    <div x-data="{ items: {{ json_encode(old('planned_cameras', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-200 pb-1">Kamera / Sensor</label>
                                         <template x-for="(item, index) in items" :key="index">
-                                            <div class="flex gap-2 mb-2">
-                                                <select :name="'planned_cameras['+index+'][id]'" x-model="item.id"
-                                                    class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
-                                                    <option value="">-- Pilih Kamera/Sensor --</option>
+                                            <div class="flex gap-2 mb-3">
+                                                <select :name="'planned_cameras['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
+                                                    <option value="">-- Pilih Sensor --</option>
                                                     @foreach($cameras as $cam)
                                                         <option value="{{ $cam->name }}">{{ $cam->name }}</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="number" :name="'planned_cameras['+index+'][qty]'" x-model="item.qty" min="1"
-                                                    placeholder="Qty"
-                                                    class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
-                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                    class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold">X</button>
+                                                <input type="number" :name="'planned_cameras['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg font-black transition flex justify-center items-center">X</button>
                                             </div>
                                         </template>
-                                        <button type="button" @click="items.push({id: '', qty: 1})"
-                                            class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah Kamera</button>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-[10px] bg-white border border-gray-300 text-gray-600 font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition uppercase tracking-widest">+ Tambah Sensor</button>
                                     </div>
 
-                                    {{-- GPS --}}
-                                    <div x-data="{ items: {{ json_encode(old('planned_gps', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border">
-                                        <label class="block text-xs font-bold text-gray-700 mb-2">GPS (Geodetik/Handheld)</label>
+                                    <div x-data="{ items: {{ json_encode(old('planned_gps', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-200 pb-1">GPS (Geodetik)</label>
                                         <template x-for="(item, index) in items" :key="index">
-                                            <div class="flex gap-2 mb-2">
-                                                <select :name="'planned_gps['+index+'][id]'" x-model="item.id"
-                                                    class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                            <div class="flex gap-2 mb-3">
+                                                <select :name="'planned_gps['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
                                                     <option value="">-- Pilih GPS --</option>
                                                     @foreach($gps_units as $gps)
                                                         <option value="{{ $gps->name }}">{{ $gps->name }} ({{ $gps->type }})</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="number" :name="'planned_gps['+index+'][qty]'" x-model="item.qty" min="1"
-                                                    placeholder="Qty"
-                                                    class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
-                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                    class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold">X</button>
+                                                <input type="number" :name="'planned_gps['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg font-black transition flex justify-center items-center">X</button>
                                             </div>
                                         </template>
-                                        <button type="button" @click="items.push({id: '', qty: 1})"
-                                            class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah GPS</button>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-[10px] bg-white border border-gray-300 text-gray-600 font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition uppercase tracking-widest">+ Tambah GPS</button>
                                     </div>
 
-                                    {{-- PC Pengolahan --}}
-                                    <div x-data="{ items: {{ json_encode(old('planned_pcs', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-3 rounded border">
-                                        <label class="block text-xs font-bold text-gray-700 mb-2">PC Pengolahan (Workstation)</label>
+                                    <div x-data="{ items: {{ json_encode(old('planned_pcs', [['id' => '', 'qty' => 1]])) }} }" class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-200 pb-1">PC / Workstation</label>
                                         <template x-for="(item, index) in items" :key="index">
-                                            <div class="flex gap-2 mb-2">
-                                                <select :name="'planned_pcs['+index+'][id]'" x-model="item.id"
-                                                    class="block w-2/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm">
+                                            <div class="flex gap-2 mb-3">
+                                                <select :name="'planned_pcs['+index+'][id]'" x-model="item.id" class="block w-2/3 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
                                                     <option value="">-- Pilih PC --</option>
                                                     @foreach($pcs as $pc)
                                                         <option value="{{ $pc->name }}">{{ $pc->name }}</option>
                                                     @endforeach
                                                     <option value="Laptop Pribadi">Laptop Pribadi</option>
                                                 </select>
-                                                <input type="number" :name="'planned_pcs['+index+'][qty]'" x-model="item.qty" min="1"
-                                                    placeholder="Qty"
-                                                    class="block w-1/4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 text-sm text-center">
-                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                    class="w-10 bg-red-500 text-white rounded hover:bg-red-600 font-bold">X</button>
+                                                <input type="number" :name="'planned_pcs['+index+'][qty]'" x-model="item.qty" min="1" placeholder="Qty" class="block w-1/4 rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium text-center">
+                                                <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1" class="w-10 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg font-black transition flex justify-center items-center">X</button>
                                             </div>
                                         </template>
-                                        <button type="button" @click="items.push({id: '', qty: 1})"
-                                            class="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded hover:bg-blue-200 mt-1 transition">+ Tambah PC</button>
+                                        <button type="button" @click="items.push({id: '', qty: 1})" class="text-[10px] bg-white border border-gray-300 text-gray-600 font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition uppercase tracking-widest">+ Tambah PC</button>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Kolom Kanan --}}
-                            <div class="space-y-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                                <h3 class="font-bold border-b border-gray-300 pb-2 text-indigo-700 text-lg">Detail Persiapan Proyek</h3>
+                        </div>
 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Jml Rencana Take OFF</label>
+                        <div class="lg:col-span-5 space-y-6">
+                            <div class="bg-[#F4F7F6] p-6 rounded-2xl border border-[#144C4D]/20 shadow-inner h-full flex flex-col">
+                                <h3 class="font-black border-b border-[#144C4D]/20 pb-3 text-[#144C4D] text-lg flex items-center gap-2 mb-5">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                    Detail Persiapan & Output
+                                </h3>
+
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Rencana Take OFF</label>
                                         <input type="number" name="takeoff_count" value="{{ old('takeoff_count', 0) }}" min="0"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500">
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F8931F] focus:ring-[#F8931F] font-bold text-lg text-[#F8931F]">
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Jml Titik Kontrol</label>
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Rencana Titik Kontrol</label>
                                         <input type="number" name="control_point_count" value="{{ old('control_point_count', 0) }}" min="0"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500">
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] font-bold text-lg text-[#144C4D]">
                                     </div>
                                 </div>
 
-                                {{-- Produk Yang Dihasilkan --}}
-                                <div x-data="{ items: {{ json_encode(old('products', [''])) }} }">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Produk Yang Dihasilkan</label>
+                                <div x-data="{ items: {{ json_encode(old('products', [''])) }} }" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Produk Yang Dihasilkan</label>
                                     <template x-for="(item, index) in items" :key="index">
                                         <div class="flex gap-2 mb-2">
-                                            <input type="text" x-model="items[index]" name="products[]"
-                                                placeholder="Contoh: Peta Ortho"
-                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 text-sm">
+                                            <input type="text" x-model="items[index]" name="products[]" placeholder="Contoh: Peta Ortho"
+                                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
                                             <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                class="bg-red-500 text-white px-3 rounded hover:bg-red-600 font-bold transition">X</button>
+                                                class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg font-black transition flex justify-center items-center">X</button>
                                         </div>
                                     </template>
-                                    <button type="button" @click="items.push('')"
-                                        class="text-xs bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded hover:bg-indigo-200 mt-1 transition">+ Tambah Produk</button>
+                                    <button type="button" @click="items.push('')" class="text-[10px] bg-[#E8F1F1] text-[#144C4D] font-bold px-3 py-1.5 rounded-lg hover:bg-[#144C4D] hover:text-white mt-1 transition uppercase tracking-widest">+ Tambah Produk</button>
                                 </div>
 
-                                {{-- Spesifikasi Produk --}}
-                                <div x-data="{ items: {{ json_encode(old('product_specs', [''])) }} }">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Spesifikasi Produk</label>
+                                <div x-data="{ items: {{ json_encode(old('product_specs', [''])) }} }" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Spesifikasi Produk</label>
                                     <template x-for="(item, index) in items" :key="index">
                                         <div class="flex gap-2 mb-2">
-                                            <input type="text" x-model="items[index]" name="product_specs[]"
-                                                placeholder="Contoh: Skala 1:1000"
-                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 text-sm">
+                                            <input type="text" x-model="items[index]" name="product_specs[]" placeholder="Contoh: Skala 1:1000"
+                                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
                                             <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                class="bg-red-500 text-white px-3 rounded hover:bg-red-600 font-bold transition">X</button>
+                                                class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg font-black transition flex justify-center items-center">X</button>
                                         </div>
                                     </template>
-                                    <button type="button" @click="items.push('')"
-                                        class="text-xs bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded hover:bg-indigo-200 mt-1 transition">+ Tambah Spesifikasi</button>
+                                    <button type="button" @click="items.push('')" class="text-[10px] bg-[#E8F1F1] text-[#144C4D] font-bold px-3 py-1.5 rounded-lg hover:bg-[#144C4D] hover:text-white mt-1 transition uppercase tracking-widest">+ Tambah Spesifikasi</button>
                                 </div>
 
-                                {{-- Kode Nama Titik --}}
-                                <div x-data="{ items: {{ json_encode(old('point_codes', [''])) }} }">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Kode Nama Titik (GCP/ICP)</label>
+                                <div x-data="{ items: {{ json_encode(old('point_codes', [''])) }} }" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Kode Titik (GCP/ICP)</label>
                                     <template x-for="(item, index) in items" :key="index">
                                         <div class="flex gap-2 mb-2">
-                                            <input type="text" x-model="items[index]" name="point_codes[]"
-                                                placeholder="Contoh: BMDSG"
-                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 text-sm">
+                                            <input type="text" x-model="items[index]" name="point_codes[]" placeholder="Contoh: BMDSG"
+                                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium uppercase">
                                             <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                class="bg-red-500 text-white px-3 rounded hover:bg-red-600 font-bold transition">X</button>
+                                                class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg font-black transition flex justify-center items-center">X</button>
                                         </div>
                                     </template>
-                                    <button type="button" @click="items.push('')"
-                                        class="text-xs bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded hover:bg-indigo-200 mt-1 transition">+ Tambah Kode Titik</button>
+                                    <button type="button" @click="items.push('')" class="text-[10px] bg-[#E8F1F1] text-[#144C4D] font-bold px-3 py-1.5 rounded-lg hover:bg-[#144C4D] hover:text-white mt-1 transition uppercase tracking-widest">+ Tambah Kode Titik</button>
                                 </div>
 
-                                {{-- Rencana Titik Ikat --}}
-                                <div x-data="{ items: {{ json_encode(old('tie_points', [''])) }} }">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Rencana Titik Ikat</label>
+                                <div x-data="{ items: {{ json_encode(old('tie_points', [''])) }} }" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Rencana Titik Ikat</label>
                                     <template x-for="(item, index) in items" :key="index">
                                         <div class="flex gap-2 mb-2">
-                                            <input type="text" x-model="items[index]" name="tie_points[]"
-                                                placeholder="Contoh: BIG / CORS"
-                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 text-sm">
+                                            <input type="text" x-model="items[index]" name="tie_points[]" placeholder="Contoh: BIG / CORS"
+                                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium uppercase">
                                             <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
-                                                class="bg-red-500 text-white px-3 rounded hover:bg-red-600 font-bold transition">X</button>
+                                                class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg font-black transition flex justify-center items-center">X</button>
                                         </div>
                                     </template>
-                                    <button type="button" @click="items.push('')"
-                                        class="text-xs bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded hover:bg-indigo-200 mt-1 transition">+ Tambah Titik Ikat</button>
+                                    <button type="button" @click="items.push('')" class="text-[10px] bg-[#E8F1F1] text-[#144C4D] font-bold px-3 py-1.5 rounded-lg hover:bg-[#144C4D] hover:text-white mt-1 transition uppercase tracking-widest">+ Tambah Titik Ikat</button>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Tombol Aksi --}}
-                        <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-3">
-                            <a href="{{ route('projects.index') }}"
-                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded transition">Batal</a>
-                            <button type="submit"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md transition">Simpan Proyek</button>
-                        </div>
-                    </form>
+                    </div>
 
-                </div>
+                    <div class="mt-8 pt-6 border-t border-gray-200 flex flex-col-reverse sm:flex-row justify-end gap-3">
+                        <a href="{{ route('projects.index') }}" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2.5 px-6 rounded-lg transition shadow-sm text-center text-sm">
+                            Batal
+                        </a>
+                        <button type="submit" class="bg-[#144C4D] hover:bg-[#0c2e2e] text-white font-bold py-2.5 px-8 rounded-lg shadow-md transition text-center text-sm flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                            Simpan Proyek Baru
+                        </button>
+                    </div>
+
+                </form>
+
             </div>
         </div>
     </div>
