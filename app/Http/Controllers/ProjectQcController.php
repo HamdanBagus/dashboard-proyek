@@ -233,56 +233,75 @@ class ProjectQcController extends Controller
     {
         $qc = QcUavLidar::where('project_id', $project->id)->first();
 
+        // 1. Validasi File (Utama & Revisi)
         $request->validate([
             'file_gap'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_accuracy' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_gap'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_accuracy' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $data = $request->except(['_token', '_method', 'file_gap', 'file_accuracy']);
+        $data = $request->except(['_token', '_method']);
 
-        // Handle Checkbox
-        $data['chk_raw_lidar'] = $request->has('chk_raw_lidar');
-        $data['chk_base_gps'] = $request->has('chk_base_gps');
-        $data['chk_pre_processing'] = $request->has('chk_pre_processing');
+        // 2. Handle Checkbox QC UTAMA
+        $items = ['raw_lidar', 'base_gps', 'pre_processing'];
+        foreach ($items as $item) {
+            $data["chk_complete_{$item}"] = $request->has("chk_complete_{$item}");
+            $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
+        }
 
-        // CATATAN: Input uav_used dan camera_used sudah dihapus karena sekarang Read-Only dari data Proyek
+        // 3. Handle Status Revisi Mayor
+        $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
+        $data['has_major_revision'] = $hasRevision;
 
-        // Handle File Uploads & Fitur Hapus File
+        // 4. Handle Checkbox & Pembersihan QC REVISI
+        $revFiles = ['rev_file_gap', 'rev_file_accuracy'];
+        
+        if ($hasRevision) {
+            foreach ($items as $item) {
+                $data["rev_chk_complete_{$item}"] = $request->has("rev_chk_complete_{$item}");
+                $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
+            }
+        } else {
+            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
+            foreach ($items as $item) {
+                $data["rev_chk_complete_{$item}"] = 0;
+                $data["rev_chk_folder_{$item}"] = 0;
+                $data["rev_note_{$item}"] = null;
+            }
+            $data['rev_qc_date'] = null;
+            $data['rev_qc_officer_name'] = null;
+            
+            // Hapus file revisi fisik
+            foreach ($revFiles as $rf) {
+                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                $data[$rf] = null;
+            }
+        }
+
+        // 5. Handle File Uploads & Tombol Hapus File
         $fileFields = ['file_gap', 'file_accuracy'];
+        if ($hasRevision) {
+            $fileFields = array_merge($fileFields, $revFiles);
+        }
+
         foreach ($fileFields as $field) {
-            // Cek apakah user menekan tombol hapus di UI (remove_namafile = 1)
             $isRemoved = $request->input("remove_{$field}") == '1';
 
-            // Jika dihapus ATAU ada file baru, hapus file fisik lama di storage
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) {
-                    Storage::disk('public')->delete($qc->$field);
-                }
-                $data[$field] = null; // Defaultkan ke null di database
+                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                $data[$field] = null; 
             }
 
-            // Jika ada upload file baru, simpan ke storage
             if ($request->hasFile($field)) {
                 $data[$field] = $request->file($field)->store('qc_files/uav_lidar', 'public');
             } elseif (!$isRemoved) {
-                // Jika tidak diapa-apakan, cegah kolom database tertimpa null
                 unset($data[$field]);
             }
         }
 
         $qc->update($data);
         return back()->with('success', 'Data QC UAV LiDAR berhasil disimpan!');
-    }
-    // --- QC PENGOLAH DATA ---
-    public function showProcessing(Project $project)
-    {
-        // Load data proyek dan laporan lidar untuk menghitung hamparan
-        $project->load(['lidarReport.hamparans']);
-        $qc = QcProcessing::firstOrCreate(['project_id' => $project->id]);
-
-        $totalHamparan = $project->lidarReport ? $project->lidarReport->hamparans->count() : 0;
-
-        return view('projects.qc.qc_processing', compact('project', 'qc', 'totalHamparan'));
     }
 
     public function updateProcessing(Request $request, Project $project)
