@@ -351,27 +351,72 @@ class ProjectQcController extends Controller
     {
         $qc = QcManager::where('project_id', $project->id)->first();
 
-        // Validasi ekstensi file
+        // 1. Validasi File (Utama & Revisi)
         $fileRules = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048';
         $request->validate([
             'file_report' => $fileRules,
-            'file_other' => $fileRules,
+            'file_other'  => $fileRules,
+            'rev_file_report' => $fileRules,
+            'rev_file_other'  => $fileRules,
         ]);
 
         $data = $request->except(['_token', '_method']);
 
-        // Handle Checkbox
-        $data['chk_report'] = $request->has('chk_report');
-        $data['chk_other_docs'] = $request->has('chk_other_docs');
+        // 2. Handle Checkbox QC UTAMA
+        $items = ['report', 'other_docs'];
+        foreach ($items as $item) {
+            // Karena nama awalnya tanpa prefix "complete", kita handle manual
+            $data["chk_{$item}"] = $request->has("chk_{$item}");
+            $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
+        }
 
-        // Handle File Uploads (1 Pengecek saja)
+        // 3. Handle Status Revisi Mayor
+        $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
+        $data['has_major_revision'] = $hasRevision;
+
+        // 4. Handle Checkbox & Pembersihan QC REVISI
+        $revFiles = ['rev_file_report', 'rev_file_other'];
+
+        if ($hasRevision) {
+            foreach ($items as $item) {
+                $data["rev_chk_{$item}"] = $request->has("rev_chk_{$item}");
+                $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
+            }
+        } else {
+            // Bersihkan data revisi jika diganti ke "TIDAK ADA"
+            foreach ($items as $item) {
+                $data["rev_chk_{$item}"] = 0;
+                $data["rev_chk_folder_{$item}"] = 0;
+                $data["rev_note_{$item}"] = null;
+            }
+            $data['rev_qc_date'] = null;
+            $data['rev_qc_name'] = null;
+            
+            // Hapus file revisi fisik
+            foreach ($revFiles as $rf) {
+                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                $data[$rf] = null;
+            }
+        }
+
+        // 5. Handle File Uploads & Tombol Hapus File
         $fileFields = ['file_report', 'file_other'];
+        if ($hasRevision) {
+            $fileFields = array_merge($fileFields, $revFiles);
+        }
+
         foreach ($fileFields as $field) {
-            if ($request->hasFile($field)) {
+            $isRemoved = $request->input("remove_{$field}") == '1';
+
+            if ($isRemoved || $request->hasFile($field)) {
                 if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                $data[$field] = null; 
+            }
+
+            if ($request->hasFile($field)) {
                 $data[$field] = $request->file($field)->store('qc_files/manager', 'public');
-            } else {
-                unset($data[$field]); // Cegah nimpa null
+            } elseif (!$isRemoved) {
+                unset($data[$field]);
             }
         }
 
