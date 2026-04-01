@@ -14,7 +14,7 @@
         </div>
     </x-slot>
 
-    <div class="pt-6 pb-12 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="pt-6 pb-12 max-w-9xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
         <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
