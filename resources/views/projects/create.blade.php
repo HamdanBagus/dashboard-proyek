@@ -193,12 +193,12 @@
 
                                 <div class="grid grid-cols-2 gap-4 mb-6">
                                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Rencana Take OFF</label>
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">JumlahRencana Take OFF</label>
                                         <input type="number" name="takeoff_count" value="{{ old('takeoff_count', 0) }}" min="0"
                                             class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F8931F] focus:ring-[#F8931F] font-bold text-lg text-[#F8931F]">
                                     </div>
                                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Rencana Titik Kontrol</label>
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Jumlah Rencana Titik Kontrol</label>
                                         <input type="number" name="control_point_count" value="{{ old('control_point_count', 0) }}" min="0"
                                             class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] font-bold text-lg text-[#144C4D]">
                                     </div>

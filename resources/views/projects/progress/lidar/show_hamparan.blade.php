@@ -236,6 +236,7 @@
                             <option value="Kontur">
                             <option value="Peta Kontur">
                             <option value="Laporan">
+                            <option value="ECW">
                         </datalist>
                         <input type="hidden" name="format" value="-">
                         <input type="hidden" name="checklist" value="0">

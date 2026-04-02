@@ -27,7 +27,7 @@
 
         <!-- ================= HEADER ================= -->
         <header class="absolute top-0 left-0 w-full z-20">
-            <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+            <div class="max-w-8xl mx-auto px-6 py-6 flex justify-between items-center">
                 <div  class="flex items-center space-x-3">
                     <img src="{{ asset('images/logo-perusahaan-bgputih.png') }}"class="w-20 h-20 object-contain">
                 <h1 class="text-xl font-bold">
