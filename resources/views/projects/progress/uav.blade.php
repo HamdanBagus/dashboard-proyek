@@ -110,8 +110,8 @@
                             <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Pilot Utama</label>
                             <select name="pilot_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
                                 <option value="">Pilih Pilot...</option>
-                                @foreach($employees as $emp)
-                                    <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+                                @foreach($project->personnel as $person)
+                                    <option value="{{ $person->id }}">{{ $person->name }} ({{ $person->pivot->role }})</option>
                                 @endforeach
                             </select>
                         </div>
@@ -119,8 +119,8 @@
                             <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Asisten Pilot</label>
                             <select name="assistant_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
                                 <option value="">(Opsional)</option>
-                                @foreach($employees as $emp)
-                                    <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+                                @foreach($project->personnel as $person)
+                                    <option value="{{ $person->id }}">{{ $person->name }} ({{ $person->pivot->role }})</option>
                                 @endforeach
                             </select>
                         </div>
@@ -251,8 +251,8 @@
                                                         <div>
                                                             <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Pilot Utama</label>
                                                             <select name="pilot_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
-                                                                @foreach($employees as $emp)
-                                                                    <option value="{{ $emp->id }}" {{ $log->pilot_id == $emp->id ? 'selected' : '' }}>{{ $emp->name }}</option>
+                                                                @foreach($project->personnel as $person)
+                                                                    <option value="{{ $person->id }}" {{ $log->pilot_id == $person->id ? 'selected' : '' }}>{{ $person->name }} ({{ $person->pivot->role }})</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -260,8 +260,8 @@
                                                             <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Asisten Pilot</label>
                                                             <select name="assistant_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium">
                                                                 <option value="">(Opsional)</option>
-                                                                @foreach($employees as $emp)
-                                                                    <option value="{{ $emp->id }}" {{ $log->assistant_id == $emp->id ? 'selected' : '' }}>{{ $emp->name }}</option>
+                                                                @foreach($project->personnel as $person)
+                                                                    <option value="{{ $person->id }}" {{ $log->assistant_id == $person->id ? 'selected' : '' }}>{{ $person->name }} ({{ $person->pivot->role }})</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
