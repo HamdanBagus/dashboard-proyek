@@ -19,39 +19,58 @@
             </div>
         @endif
 
-        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-            <h3 class="text-lg font-black text-gray-800 flex items-center gap-2 w-full md:w-auto">
-                <svg class="w-5 h-5 text-[#F8931F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Daftar Proyek
-            </h3>
-
-            <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-                <form action="{{ route('projects.index') }}" method="GET" class="flex w-full sm:w-auto relative group">
-                    <div class="relative flex items-stretch flex-grow focus-within:z-10">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-4 w-4 text-gray-400 group-focus-within:text-[#144C4D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Nama / Kode..." class="block w-full rounded-none rounded-l-lg pl-10 border-gray-300 focus:border-[#144C4D] focus:ring focus:ring-[#144C4D]/20 sm:text-sm transition">
-                    </div>
-                    <button type="submit" class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-bold rounded-r-lg text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-[#144C4D] focus:border-[#144C4D] transition">
-                        Cari
-                    </button>
-                    @if(request('search'))
-                        <a href="{{ route('projects.index') }}" class="ml-3 inline-flex items-center text-red-500 hover:text-red-700 text-sm font-bold transition" title="Hapus Pencarian">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </a>
-                    @endif
-                </form>
+        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-5">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-4">
+                <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#F8931F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Daftar Proyek
+                </h3>
 
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('projects.create') }}" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-[#144C4D] hover:bg-[#0c2e2e] text-white font-bold py-2.5 px-4 rounded-lg shadow-sm transition whitespace-nowrap text-sm">
+                    <a href="{{ route('projects.create') }}" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-[#144C4D] hover:bg-[#0c2e2e] text-white font-bold py-2 px-5 rounded-lg shadow-sm transition whitespace-nowrap text-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Tambah Proyek
+                        Tambah Proyek Baru
                     </a>
                 @endif
             </div>
+
+            <form action="{{ route('projects.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 items-center w-full">
+                
+                <div class="w-full sm:flex-1 relative">
+                    <div class="relative flex items-stretch focus-within:z-10">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" onblur="this.form.submit()" placeholder="Cari Nama / Kode Proyek (Tekan Enter)..." class="block w-full rounded-lg pl-10 border-gray-300 focus:border-[#144C4D] focus:ring focus:ring-[#144C4D]/20 sm:text-sm font-medium transition h-[42px]">
+                    </div>
+                </div>
+
+                <div class="w-full sm:w-48 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                    </div>
+                    <select name="sort" class="block w-full pl-9 rounded-lg border-gray-300 focus:border-[#144C4D] focus:ring focus:ring-[#144C4D]/20 sm:text-sm font-bold text-gray-700 transition h-[42px]" onchange="this.form.submit()">
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                        <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                        <option value="az" {{ request('sort') == 'az' ? 'selected' : '' }}>Abjad (A - Z)</option>
+                        <option value="za" {{ request('sort') == 'za' ? 'selected' : '' }}>Abjad (Z - A)</option>
+                    </select>
+                </div>
+
+                @if(request('search') || request('sort'))
+                    <div class="w-full sm:w-auto flex shrink-0">
+                        <a href="{{ route('projects.index') }}" class="w-full inline-flex justify-center items-center px-3 border border-red-200 text-sm font-bold rounded-lg text-red-600 bg-red-50 hover:bg-red-500 hover:text-white transition shadow-sm h-[42px]" title="Reset Filter">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
+                    </div>
+                @endif
+
+            </form>
         </div>
 
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
@@ -61,6 +80,7 @@
                         <tr>
                             <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b w-32">Kode</th>
                             <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Nama Proyek & Klien</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Waktu Pelaksanaan</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Status</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b w-40">Aksi</th>
                         </tr>
@@ -69,16 +89,20 @@
                         @forelse($projects as $project)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="bg-orange-50 text-[#F8931F] font-black px-3 py-1 rounded-md border border-orange-100 text-sm">
+                                <span class="bg-orange-50 text-[#F8931F] font-black px-3 py-1.5 rounded-md border border-orange-100 text-sm tracking-wide">
                                     {{ $project->code }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="font-black text-gray-900 text-base mb-0.5">{{ $project->name }}</div>
-                                <div class="text-xs font-medium text-gray-500 flex items-center gap-1.5">
+                                <div class="font-black text-gray-900 text-base mb-1">{{ $project->name }}</div>
+                                <div class="text-xs font-bold text-gray-500 flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                     {{ $project->client_name }}
                                 </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-xs font-bold text-gray-700 mb-0.5">Mulai: <span class="text-gray-500 font-medium">{{ \Carbon\Carbon::parse($project->start_date)->format('d M Y') }}</span></div>
+                                <div class="text-xs font-bold text-gray-700">Target: <span class="text-gray-500 font-medium">{{ \Carbon\Carbon::parse($project->end_date)->format('d M Y') }}</span></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <span class="px-3 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-lg border
@@ -91,7 +115,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="{{ route('projects.show', $project->id) }}" class="text-[#144C4D] bg-[#E8F1F1] hover:bg-[#144C4D] hover:text-white border border-[#144C4D]/20 p-2 rounded-lg transition shadow-sm" title="Buka Proyek">
+                                    <a href="{{ route('projects.show', $project->id) }}" class="text-[#144C4D] bg-[#E8F1F1] hover:bg-[#144C4D] hover:text-white border border-[#144C4D]/20 p-2 rounded-lg transition shadow-sm" title="Buka Detail Proyek">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -121,8 +145,8 @@
                             <td colspan="5" class="px-6 py-12 text-center">
                                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                 <p class="text-gray-500 italic font-medium">
-                                    @if(request('search'))
-                                        Pencarian proyek dengan kata kunci "<strong class="text-gray-800">{{ request('search') }}</strong>" tidak ditemukan.
+                                    @if(request('search') || request('start_date') || request('sort'))
+                                        Pencarian proyek dengan filter tersebut tidak ditemukan.
                                     @else
                                         Belum ada data proyek yang terdaftar.
                                     @endif

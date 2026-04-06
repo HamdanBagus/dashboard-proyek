@@ -13,18 +13,40 @@ use App\Services\ProgressCalculatorService;
 
 class ProjectController extends Controller
 {
+    
     /**
      * Menampilkan daftar proyek.
      */
     public function index(Request $request)
     {
+        $query = Project::query();
         $search = $request->input('search');
 
-        // Mengambil data proyek, filter jika ada pencarian, lalu di-paginate
-        $projects = Project::when($search, function ($query, $search) {
-            return $query->where('name', 'like', "%{$search}%")
-                         ->orWhere('code', 'like', "%{$search}%");
-        })->latest()->paginate(10); // Sesuaikan angka paginate jika perlu
+        // 1. Filter Pencarian Teks (Kode atau Nama)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Filter Urutan (Sorting)
+        if ($request->filled('sort')) {
+            if ($request->sort === 'az') {
+                $query->orderBy('name', 'asc');
+            } elseif ($request->sort === 'za') {
+                $query->orderBy('name', 'desc');
+            } elseif ($request->sort === 'oldest') {
+                $query->orderBy('created_at', 'asc');
+            } else {
+                $query->latest(); // newest
+            }
+        } else {
+            // Default jika tidak ada pilihan sort
+            $query->latest(); 
+        }
+
+        $projects = $query->paginate(10);
 
         return view('projects.index', compact('projects', 'search'));
     }
