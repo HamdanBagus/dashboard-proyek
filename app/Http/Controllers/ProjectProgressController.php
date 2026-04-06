@@ -3,87 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use App\Models\GroundReport;
-use App\Models\UavReport;
-use App\Models\PhotoReport;
-use App\Models\LidarReport;
 use Illuminate\Http\Request;
+use App\Services\ProgressCalculatorService; // Wajib panggil Service
 
 class ProjectProgressController extends Controller
 {
     public function index(Project $project)
     {
-        // 1. HITUNG PROGRESS GROUND
+        // 1. Eager Load Relasi secara efisien untuk performa maksimal
+        $project->load([
+            'groundReport.points', 
+            'uavReport.logs', 
+            'photoReport.hamparans.outputs', 'photoReport.hamparans.progresses',
+            'lidarReport.hamparans.outputs', 'lidarReport.hamparans.progresses'
+        ]);
+
+        // ==========================================
+        // 2. HITUNG PROGRESS DARI SINGLE SOURCE OF TRUTH (SERVICE)
+        // ==========================================
+
+        // -- A. PROGRESS GROUND (Masih pakai hitungan manual karena Service Ground belum dibuat fungsi kembalian persentasenya) --
         $groundProgress = 0;
-        $groundReport = GroundReport::with('points')->where('project_id', $project->id)->first();
-        if ($groundReport && $groundReport->points->count() > 0) {
-            $totalTitik = $groundReport->points->count();
-            $installed = $groundReport->points->where('install_status', true)->count();
-            $measured = $groundReport->points->where('measure_status', true)->count();
-            $processed = $groundReport->points->where('process_status', true)->count();
-
-            $groundProgress = (( ($installed/$totalTitik) + ($measured/$totalTitik) + ($processed/$totalTitik) ) / 3) * 100;
+        if ($project->groundReport) {
+            $groundProgress = ProgressCalculatorService::calculateGroundProgress($project, $project->groundReport);
         }
 
-        // 2. HITUNG PROGRESS UAV
+        // -- B. PROGRESS UAV --
         $uavProgress = 0;
-        $uavReport = UavReport::with('logs')->where('project_id', $project->id)->first();
-        if ($uavReport && $project->area_size > 0) {
-            $luasTercapai = $uavReport->logs->where('status', 'Finished Flight')->sum('area_acquired');
-            $uavProgress = ($luasTercapai / $project->area_size) * 100;
+        if ($project->uavReport) {
+            // Panggil Service!
+            $uavData = ProgressCalculatorService::calculateUavProgress($project, $project->uavReport);
+            $uavProgress = $uavData['persentase'];
         }
 
-        // 3. HITUNG PROGRESS FOTO UDARA
+        // -- C. PROGRESS FOTO UDARA --
         $photoProgress = 0;
-        
-        // PERBAIKAN 1: Ubah 'outputs' menjadi 'hamparans.outputs'
-        $photoReport = \App\Models\PhotoReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
-        
-        if ($photoReport) {
-            $hamparanProgress = 0;
-            $hamparanCount = $photoReport->hamparans->count();
-            
-            // Siapkan wadah untuk menampung jumlah output dari seluruh hamparan
-            $totalOut = 0;
-            $selesaiOut = 0;
-
-            foreach($photoReport->hamparans as $h) {
-                // A. Hitung Progress Tahapan per Hamparan
-                $totalT = $h->progresses->count();
-                $selesaiT = $h->progresses->where('status', 'Selesai')->count();
-                $hamparanProgress += $totalT > 0 ? ($selesaiT / $totalT) * 100 : 0;
-
-                // B. PERBAIKAN 2: Hitung Progress Output dari DALAM Hamparan
-                $totalOut += $h->outputs->count();
-                $selesaiOut += $h->outputs->where('checklist', 1)->count();
-            }
-            
-            // Persentase Tahapan (Rata-rata dari semua area)
-            $pctPengolahanFoto = $hamparanCount > 0 ? ($hamparanProgress / $hamparanCount) : 0;
-
-            // Persentase Output (Gabungan dari semua output di semua area)
-            $pctOutputFoto = $totalOut > 0 ? ($selesaiOut / $totalOut) * 100 : 0;
-
-            // PERBAIKAN 3: Logika pembagian adil
-            // Jika belum ada output sama sekali yang didaftarkan, nilai diambil 100% dari pengolahan
-            if ($totalOut > 0) {
-                $photoProgress = ($pctPengolahanFoto + $pctOutputFoto) / 2;
-            } else {
-                $photoProgress = $pctPengolahanFoto;
-            }
+        if ($project->photoReport) {
+            // Panggil Service!
+            $photoProgress = ProgressCalculatorService::calculatePhotoReportOverallProgress($project->photoReport);
         }
 
-        // 4. HITUNG PROGRESS LIDAR
-        $lidarReport = \App\Models\LidarReport::with(['hamparans.progresses', 'hamparans.outputs'])->where('project_id', $project->id)->first();
-        $lidarProgress = $lidarReport ? $lidarReport->overall_progress : 0;
+        // -- D. PROGRESS LIDAR --
+        $lidarProgress = 0;
+        if ($project->lidarReport) {
+            // Panggil Service!
+            $lidarProgress = ProgressCalculatorService::calculateLidarReportOverallProgress($project->lidarReport);
+        }
 
-        // Batasi nilai maksimal 100%
+        // 3. Batasi nilai maksimal 100% untuk mencegah anomali desain UI meluber
         $groundProgress = min($groundProgress, 100);
-        $uavProgress = min($uavProgress, 100);
-        $photoProgress = min($photoProgress, 100);
-        $lidarProgress = min($lidarProgress, 100);
+        $uavProgress    = min($uavProgress, 100);
+        $photoProgress  = min($photoProgress, 100);
+        $lidarProgress  = min($lidarProgress, 100);
 
-        // Kirim semua variabel ke tampilan
+        // 4. Kirim semua angka murni ke tampilan Blade
         return view('projects.progress.index', compact(
             'project', 
             'groundProgress', 

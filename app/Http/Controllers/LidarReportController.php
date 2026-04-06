@@ -9,30 +9,30 @@ use App\Models\LidarOutput;
 use App\Models\LidarProgress;
 use App\Models\AssetPc;
 use Illuminate\Http\Request;
-use App\Services\ProgressCalculatorService;
+use App\Services\ProgressCalculatorService; // <-- Panggil Service Master Kita
 
 class LidarReportController extends Controller
 {
     public function index(Project $project)
     {
-        $report = LidarReport::firstOrCreate(['project_id' => $project->id]);
+        $report = LidarReport::firstOrCreate(
+            ['project_id' => $project->id],
+            ['status' => 'On Progress'] // Berikan default status jika baru dibuat
+        );
+        
+        // Eager load relasi agar hemat query
         $hamparans = $report->hamparans()->with(['progresses', 'outputs'])->get();
         
-        // Hitung untuk masing-masing baris tabel di view
+        // ====================================================================
+        // PERBAIKAN: Gunakan perhitungan persentase murni dari Service
+        // agar tidak ada perbedaan rumus dengan dashboard utama!
+        // ====================================================================
         foreach ($hamparans as $h) {
-            $totalT = $h->progresses->count();
-            $selesaiT = $h->progresses->where('status', 'Selesai')->count();
-            $pctTahapan = $totalT > 0 ? ($selesaiT / $totalT) * 100 : 0;
-
-            $totalO = $h->outputs->count();
-            $selesaiO = $h->outputs->where('checklist', 1)->count();
-            $pctOutput = $totalO > 0 ? ($selesaiO / $totalO) * 100 : 0;
-
-            $h->persentase_gabungan = ($totalO > 0) ? (($pctTahapan + $pctOutput) / 2) : $pctTahapan;
+            $h->persentase_gabungan = ProgressCalculatorService::calculateLidarHamparanProgress($h);
         }
 
-        // PANGGIL RUMUS DARI MODEL (Dijamin 100% sama persis dengan Dashboard)
-        $pctOverall = $report->overall_progress;
+        // PANGGIL RUMUS KESELURUHAN DARI SERVICE (Single Source of Truth)
+        $pctOverall = ProgressCalculatorService::calculateLidarReportOverallProgress($report);
         $hamparanCount = $hamparans->count();
 
         return view('projects.progress.lidar.index', compact('project', 'report', 'hamparans', 'pctOverall', 'hamparanCount'));
@@ -64,20 +64,26 @@ class LidarReportController extends Controller
 
     public function showHamparan(LidarHamparan $hamparan)
     {
+        // 1. Eager Load Relasi agar tidak N+1
+        $hamparan->load(['progresses', 'outputs', 'lidarReport.project.personnel']);
+        
         $project = $hamparan->lidarReport->project;
         $pcs = AssetPc::all();
-        $project->load('personnel');
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
         $totalHariPengolahan = $hamparan->total_processing_days;
 
-        // Statistik Angka Mentah (Untuk Badge di View)
-        $totalTahapan = $hamparan->progresses()->count();
-        $tahapanSelesai = $hamparan->progresses()->where('status', 'Selesai')->count();
-        $totalOutput = $hamparan->outputs()->count();
-        $outputSelesai = $hamparan->outputs()->where('checklist', 1)->count();
+        // =================================================================
+        // 2. PANGGIL SINGLE SOURCE OF TRUTH (FUNGSI MASTER)
+        // Fungsi ini otomatis memfilter tahap gagal & mengabaikan spasi!
+        // =================================================================
+        $stats = ProgressCalculatorService::getHamparanStats($hamparan);
 
-        // 1. Panggil Rumus Persentase dari Service Class
-        $persentase = ProgressCalculatorService::calculateLidarHamparanProgress($hamparan);
+        // 3. Pecah array dari Service untuk dikirim ke Blade
+        $totalTahapan = $stats['total_tahapan'];
+        $tahapanSelesai = $stats['tahapan_selesai'];
+        $totalOutput = $stats['total_output'];
+        $outputSelesai = $stats['output_selesai'];
+        $persentase = $stats['persentase_gabungan'];
 
         // Kirim semua variabel ke tampilan Blade
         return view('projects.progress.lidar.show_hamparan', compact(
@@ -98,7 +104,6 @@ class LidarReportController extends Controller
         return back()->with('success', 'Tahapan ditambahkan.');
     }
 
-    // FUNGSI BARU: Untuk Modal Update Tahapan Progress (Jika ada)
     public function updateProgress(Request $request, LidarProgress $progress)
     {
         $validated = $request->validate([
@@ -127,7 +132,6 @@ class LidarReportController extends Controller
 
     public function storeOutput(Request $request, LidarHamparan $hamparan)
     {
-        // Validasi disesuaikan agar bisa menerima input bebas (datalist)
         $validated = $request->validate([
             'filename' => 'required|string|max:255',
             'format' => 'required|string|max:255',
@@ -139,7 +143,6 @@ class LidarReportController extends Controller
         return back()->with('success', 'Output berhasil didaftarkan.');
     }
 
-    // FUNGSI BARU: Untuk Modal Update Output
     public function updateOutput(Request $request, LidarOutput $output)
     {
         $validated = $request->validate([

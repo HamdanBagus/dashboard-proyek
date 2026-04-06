@@ -10,24 +10,70 @@ use App\Models\LidarReport;
 class ProgressCalculatorService
 {
     /**
-     * Menghitung persentase gabungan (Tahapan + Output) untuk 1 Hamparan (Area) Spesifik.
+     * =====================================================================
+     * FUNGSI MASTER (SINGLE SOURCE OF TRUTH)
+     * Menghitung semua statistik (Tahapan & Output) untuk Hamparan apapun
+     * Dilengkapi logika kebal spasi & huruf (unique) untuk menghindari bug
+     * =====================================================================
      */
-    public static function calculateHamparanProgress(PhotoHamparan $hamparan)
+    public static function getHamparanStats($hamparan)
     {
-        $pctTahapan = $hamparan->progress_percentage; // Memanggil accessor dari Model
-        $pctOutput = $hamparan->output_percentage;    // Memanggil accessor dari Model
-        $totalOutput = $hamparan->outputs()->count();
+        $progresses = $hamparan->progresses;
+        $outputs = $hamparan->outputs;
 
-        // Jika belum ada output, nilai murni dari tahapan
-        if ($totalOutput > 0) {
-            return ($pctTahapan + $pctOutput) / 2;
-        }
+        // 1. Hitung Tahapan (Kebal Spasi & Huruf Besar/Kecil)
+        $totalTahapan = $progresses->map(function ($item) { 
+            return strtolower(trim($item->stage_name)); 
+        })->unique()->count();
 
-        return $pctTahapan;
+        $tahapanSelesai = $progresses->where('status', 'Selesai')->map(function ($item) { 
+            return strtolower(trim($item->stage_name)); 
+        })->unique()->count();
+
+        $pctTahapan = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
+
+        // 2. Hitung Output
+        $totalOutput = $outputs->count();
+        $outputSelesai = $outputs->where('checklist', 1)->count();
+        
+        $pctOutput = $totalOutput > 0 ? ($outputSelesai / $totalOutput) * 100 : 0;
+
+        // 3. Persentase Gabungan (Jika output belum ada, ambil dari tahapan saja)
+        $persentaseGabungan = $totalOutput > 0 ? ($pctTahapan + $pctOutput) / 2 : $pctTahapan;
+
+        return [
+            'total_tahapan'       => $totalTahapan,
+            'tahapan_selesai'     => $tahapanSelesai,
+            'pct_tahapan'         => $pctTahapan,
+            'total_output'        => $totalOutput,
+            'output_selesai'      => $outputSelesai,
+            'pct_output'          => $pctOutput,
+            'persentase_gabungan' => $persentaseGabungan
+        ];
     }
 
     /**
-     * Menghitung rata-rata persentase keseluruhan (Overall) untuk 1 Project Laporan Foto.
+     * Menghitung persentase gabungan untuk 1 Hamparan Foto.
+     */
+    public static function calculateHamparanProgress(PhotoHamparan $hamparan)
+    {
+        // Panggil Fungsi Master di atas, lalu ambil persentasenya saja
+        $stats = self::getHamparanStats($hamparan);
+        return $stats['persentase_gabungan'];
+    }
+
+    /**
+     * Menghitung persentase gabungan untuk 1 Hamparan LiDAR.
+     */
+    public static function calculateLidarHamparanProgress(LidarHamparan $hamparan)
+    {
+        // Panggil Fungsi Master di atas, lalu ambil persentasenya saja
+        $stats = self::getHamparanStats($hamparan);
+        return $stats['persentase_gabungan'];
+    }
+
+    /**
+     * Menghitung rata-rata persentase keseluruhan Laporan Foto Udara.
      */
     public static function calculatePhotoReportOverallProgress(PhotoReport $report)
     {
@@ -37,29 +83,15 @@ class ProgressCalculatorService
         if ($count === 0) return 0;
 
         $totalSemuaPersentase = 0;
-
         foreach ($hamparans as $h) {
-            // Memanggil fungsi kalkulasi hamparan di atas untuk setiap area
             $totalSemuaPersentase += self::calculateHamparanProgress($h);
         }
 
         return $totalSemuaPersentase / $count;
     }
-    public static function calculateLidarHamparanProgress(LidarHamparan $hamparan)
-    {
-        $pctTahapan = $hamparan->progress_percentage; 
-        $pctOutput = $hamparan->output_percentage;    
-        $totalOutput = $hamparan->outputs()->count();
-
-        if ($totalOutput > 0) {
-            return ($pctTahapan + $pctOutput) / 2;
-        }
-
-        return $pctTahapan;
-    }
 
     /**
-     * Menghitung rata-rata persentase keseluruhan (Overall) Laporan LiDAR.
+     * Menghitung rata-rata persentase keseluruhan Laporan LiDAR.
      */
     public static function calculateLidarReportOverallProgress(LidarReport $report)
     {
@@ -69,40 +101,30 @@ class ProgressCalculatorService
         if ($count === 0) return 0;
 
         $totalSemuaPersentase = 0;
-
         foreach ($hamparans as $h) {
             $totalSemuaPersentase += self::calculateLidarHamparanProgress($h);
         }
 
         return $totalSemuaPersentase / $count;
     }
+
     /**
      * Menghitung Performa Surveyor Tim Ground (Titik / Orang / Hari)
      */
     public static function calculateGroundSurveyorPerformance($project, $report) 
     {
-        // A. Jumlah Surveyor
         $jumlahSurveyor = $project->personnel()->where('role', 'Surveyor')->count();
-
-        // B. Jumlah Hari Kerja Lapangan (Rentang / Timespan)
-        // Ambil semua tanggal pemasangan dan pengukuran yang tidak kosong
         $installDates = $report->points()->whereNotNull('install_date')->pluck('install_date');
         $measureDates = $report->points()->whereNotNull('measure_date')->pluck('measure_date');
-        
-        // Gabungkan kedua array tanggal tersebut
         $allDates = $installDates->merge($measureDates)->filter();
 
         $jumlahHari = 0;
         if ($allDates->isNotEmpty()) {
-            // Cari tanggal paling awal dan paling akhir dari seluruh kumpulan data
             $startDate = \Carbon\Carbon::parse($allDates->min());
             $endDate = \Carbon\Carbon::parse($allDates->max());
-            
-            // Hitung selisih hari (+1 agar hari eksekusi di tanggal yang sama terhitung 1 hari)
             $jumlahHari = $startDate->diffInDays($endDate) + 1;
         }
 
-        // C. Performa Harian
         $performa = 0;
         $totalTitik = $report->points()->count();
 
@@ -116,17 +138,14 @@ class ProgressCalculatorService
             'performa_harian' => $performa
         ];
     }
+
     /**
      * Menghitung Progress UAV (Luas Tercapai & Persentase)
      */
     public static function calculateUavProgress($project, $uavReport)
     {
-        // Total luas yang sudah berstatus Finished Flight
         $luasTercapai = $uavReport->logs()->where('status', 'Finished Flight')->sum('area_acquired');
-        
-        // Mencegah pembagian dengan 0
         $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
-
         $persentase = ($luasTercapai / $luasProyek) * 100;
 
         return [
@@ -134,34 +153,25 @@ class ProgressCalculatorService
             'persentase'    => $persentase
         ];
     }
+
     /**
      * Menghitung Rekapitulasi Performa Pilot UAV
      */
     public static function calculateUavPilotSummary($uavReport)
     {
-        // 1. Ambil SEMUA log
         $allLogs = $uavReport->logs;
-
-        // 2. Kelompokkan log berdasarkan ID pilot
         $groupedLogs = $allLogs->groupBy('pilot_id');
-
         $pilotStats = [];
 
         foreach ($groupedLogs as $pilotId => $logs) {
             $pilotName = $logs->first()->pilot->name ?? 'Pilot Tidak Diketahui';
             $totalArea = $logs->sum('area_acquired');
-            
-            // Ambil semua tanggal penerbangan dari log pilot ini dan filter yang tidak kosong
             $dates = $logs->pluck('date')->filter();
             
             $daysFlown = 0;
             if ($dates->isNotEmpty()) {
-                // Cari tanggal paling awal dan paling akhir
                 $minDate = \Carbon\Carbon::parse($dates->min());
                 $maxDate = \Carbon\Carbon::parse($dates->max());
-                
-                // Hitung selisih hari (+1 agar hari eksekusi di tanggal yang sama terhitung 1 hari)
-                // Dengan ini, hari jeda / weekend di antara min dan max akan tetap terhitung
                 $daysFlown = $minDate->diffInDays($maxDate) + 1;
             }
             
@@ -177,11 +187,32 @@ class ProgressCalculatorService
             ];
         }
 
-        // 3. Urutkan berdasarkan total area terbanyak secara menurun (descending)
         usort($pilotStats, function($a, $b) {
             return $b['total_area'] <=> $a['total_area'];
         });
 
         return $pilotStats;
+    }
+    /**
+     * Menghitung Persentase Keseluruhan (Overall Progress) Tim Ground
+     * Berdasarkan rata-rata pemasangan, pengukuran, dan pengolahan titik.
+     */
+    public static function calculateGroundProgress($project, $groundReport)
+    {
+        if (!$groundReport || $groundReport->points->count() === 0) {
+            return 0;
+        }
+
+        $totalTitik = $groundReport->points->count();
+        
+        // Hitung masing-masing status yang true/selesai
+        $installed  = $groundReport->points->where('install_status', true)->count();
+        $measured   = $groundReport->points->where('measure_status', true)->count();
+        $processed  = $groundReport->points->where('process_status', true)->count();
+
+        // Rumus: ( (Persentase Pasang + Persentase Ukur + Persentase Olah) / 3 ) * 100
+        $persentase = (( ($installed / $totalTitik) + ($measured / $totalTitik) + ($processed / $totalTitik) ) / 3) * 100;
+
+        return min($persentase, 100); // Pastikan tidak lebih dari 100%
     }
 }
