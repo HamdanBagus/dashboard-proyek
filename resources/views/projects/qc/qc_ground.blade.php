@@ -2,7 +2,7 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('projects.qc.index', $project->id) }}" class="text-red-600 hover:underline">Formulir & QC</a>
-            <span class="text-gray-400 mx-2">/</span> QC Tim Ground 🌍
+            <span class="text-gray-400 mx-2">/</span> QC Tim Ground 
         </h2>
     </x-slot>
 
@@ -285,7 +285,7 @@
             <div class="flex justify-end pt-4">
                 <button type="submit" class="bg-[#144C4D] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#0e3536] transition text-base shadow-md flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                    <span>Simpan Keseluruhan Laporan QC</span>
+                    <span>Simpan Laporan</span>
                 </button>
             </div>
         </form>

@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-2">
-            <svg class="w-6 h-6 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+            
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                
                 <a href="{{ route('projects.show', $project->id) }}" class="text-[#F8931F] hover:underline transition">
+                    <span>Detail Proyek</span>
                     {{ $project->code }}
                 </a>
                 <span class="text-gray-400 mx-2">/</span>

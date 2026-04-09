@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <svg class="w-6 h-6 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
                 <h2 class="font-bold text-xl text-gray-800 leading-tight">
+                    <span>Proyek </span>
                     {{ $project->name }} <span class="text-sm font-semibold text-[#F8931F] bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100 ml-1">{{ $project->code }}</span>
                 </h2>
             </div>
@@ -28,9 +28,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <a href="{{ route('projects.progress.index', $project->id) }}" class="group relative bg-[#144C4D] rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 overflow-hidden flex items-center p-6 border border-[#0e3536]">
-                <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-                    <svg class="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                </div>
+                
                 <div class="relative z-10 flex-1">
                     <h5 class="text-2xl font-black text-white mb-1 flex items-center gap-2">Log Progress <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></h5>
                     <p class="text-[#89b8b9] text-sm font-medium">Input laporan harian Ground, UAV, dan Pengolahan.</p>
@@ -38,9 +36,6 @@
             </a>
 
             <a href="{{ route('projects.qc.index', $project->id) }}" class="group relative bg-[#F8931F] rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 overflow-hidden flex items-center p-6 border border-[#df8218]">
-                <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-                    <svg class="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
                 <div class="relative z-10 flex-1">
                     <h5 class="text-2xl font-black text-white mb-1 flex items-center gap-2">Menu Quality Control <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></h5>
                     <p class="text-[#ffe0bc] text-sm font-medium">Akses formulir pengesahan dan checklist kualitas (QC).</p>

@@ -2,7 +2,7 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('projects.qc.index', $project->id) }}" class="text-purple-600 hover:underline">Formulir & QC</a>
-            <span class="text-gray-400 mx-2">/</span> Persiapan Ground 🌍
+            <span class="text-gray-400 mx-2">/</span> Persiapan Ground 
         </h2>
     </x-slot>
 
