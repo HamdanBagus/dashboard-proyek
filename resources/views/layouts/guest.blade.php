@@ -15,7 +15,7 @@
 </head>
 
 <body class="relative min-h-screen flex items-center justify-center bg-cover bg-center"
-      style="background-image: url('{{ asset('images/bg-login.jpg') }}');">
+      style="background-image: url('{{ asset('images/tambang.webp') }}');">
 
     <!-- Overlay -->
     <div class="absolute inset-0 bg-black/60"></div>

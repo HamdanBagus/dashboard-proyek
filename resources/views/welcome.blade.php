@@ -14,7 +14,7 @@
 
     <!-- BACKGROUND IMAGE -->
     <div class="absolute inset-0">
-        <img src="{{ asset('images/background.jpg') }}"
+        <img src="{{ asset('images/jalan.webp') }}"
              class="w-full h-full object-cover "
              alt="Background">
     </div>

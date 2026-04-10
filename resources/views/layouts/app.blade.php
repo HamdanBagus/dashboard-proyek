@@ -24,7 +24,7 @@
                 <div class="flex items-center justify-center h-16 bg-[#114243] border-b border-[#114243] shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                         <img src="/images/logo-perusahaan.png" alt="Logo Perusahaan"class="w-10 h-10 object-contain"style="filter: brightness(0) invert(1);">
-                        <span class="text-white font-black text-xl tracking-widest mr-2">SI-MONITOR</span>
+                        <span class="text-white font-black text-xl tracking-widest mr-2">GSPI-TRACK</span>
                     </a>
                 </div>
 

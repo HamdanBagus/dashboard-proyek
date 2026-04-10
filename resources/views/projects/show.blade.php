@@ -1,19 +1,37 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <h2 class="font-bold text-xl text-gray-800 leading-tight">
-                    <span>Proyek </span>
-                    {{ $project->name }} <span class="text-sm font-semibold text-[#F8931F] bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100 ml-1">{{ $project->code }}</span>
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            
+            <div class="flex items-center">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center flex-wrap gap-2">
+                    
+                    <a href="{{ route('projects.index') }}" class="group flex flex-row items-center gap-2 text-[#144C4D] hover:text-[#F8931F] transition whitespace-nowrap" title="Kembali ke Daftar Proyek">
+                        <span class="bg-gray-100 text-[#144C4D] group-hover:bg-[#F8931F] group-hover:text-white p-1.5 rounded-lg transition shadow-sm flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                        </span>
+                        <span class="group-hover:underline text-base sm:text-lg">Daftar Proyek</span>
+                    </a>
+                    <span class="text-gray-400 text-lg mx-1 shrink-0">/</span>
+                    <span class="text-gray-700 truncate max-w-[150px] sm:max-w-xs md:max-w-md lg:max-w-lg" title="{{ $project->name }}">
+                        {{ $project->name }}
+                    </span>
+                    
+                    <span class="text-[10px] sm:text-xs font-black text-[#F8931F] bg-orange-50 px-2 py-1 rounded-md border border-orange-100 shadow-sm shrink-0 whitespace-nowrap">
+                        {{ $project->code }}
+                    </span>
                 </h2>
             </div>
-            <span class="px-4 py-1.5 text-xs rounded-full font-black shadow-sm uppercase tracking-widest
+
+            <span class="px-4 py-1.5 text-[10px] sm:text-xs rounded-full font-black shadow-sm uppercase tracking-widest shrink-0
                 @if($project->status == 'planning') bg-gray-100 text-gray-600 border border-gray-200
                 @elseif($project->status == 'ongoing') bg-blue-50 text-blue-700 border border-blue-200
                 @elseif($project->status == 'finished') bg-green-50 text-green-700 border border-green-200
                 @endif">
                 {{ $project->status == 'ongoing' ? 'Sedang Berjalan' : ($project->status == 'planning' ? 'Perencanaan' : 'Selesai') }}
             </span>
+            
         </div>
     </x-slot>
 

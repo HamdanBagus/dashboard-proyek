@@ -206,6 +206,7 @@
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Pemasangan</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Pengukuran</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Pengolahan</th>
+                            <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Catatan</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b w-32">Aksi</th>
                         </tr>
                     </thead>
@@ -251,6 +252,11 @@
                                 @else
                                     <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-gray-100 text-gray-400 border border-gray-200">Belum</span>
                                 @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-normal max-w-[250px] leading-relaxed text-center">
+                                <span class="italic text-gray-400 text-[11px]">
+                                    {{ !empty($point->notes) ? $point->notes : 'Tidak ada catatan' }}
+                                </span>
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">

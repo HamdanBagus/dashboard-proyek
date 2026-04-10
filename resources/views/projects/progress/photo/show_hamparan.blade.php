@@ -77,8 +77,8 @@
                         <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Target Tahapan Pengolahan</label>
                         <input type="text" name="stage_name" list="stages" placeholder="Ketik atau pilih tahapan..." class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
                         <datalist id="stages">
-                            <option value="Aerotriangulasi">
-                            <option value="Generate Dense Cloud">
+                            <option value="Align Photos">
+                            <option value="Build Dense Cloud">
                             <option value="Build DEM/DSM">
                             <option value="Build Orthomosaic">
                             <option value="Export Data">
@@ -236,6 +236,8 @@
                             <option value="DTM">
                             <option value="Point Cloud">
                             <option value="Tiling">
+                            <option value="Tapak Bangunan">
+                            <option value="Uji Akurasi CE90">
                             <option value="Laporan">
                         </datalist>
                         <input type="hidden" name="format" value="-">

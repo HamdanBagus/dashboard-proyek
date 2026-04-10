@@ -1,9 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-2">
-            <svg class="w-6 h-6 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 <a href="{{ route('projects.index') }}" class="text-[#F8931F] hover:underline transition">
                     Daftar Proyek
@@ -221,7 +218,7 @@
                                     <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Spesifikasi Produk</label>
                                     <template x-for="(item, index) in items" :key="index">
                                         <div class="flex gap-2 mb-2">
-                                            <input type="text" x-model="items[index]" name="product_specs[]" placeholder="Contoh: Skala 1:1000"
+                                            <input type="text" x-model="items[index]" name="product_specs[]" placeholder="Contoh: Resolusi (GSD) < 0.12m"
                                                 class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm font-medium">
                                             <button type="button" @click="items.splice(index, 1)" x-show="items.length > 1"
                                                 class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg font-black transition flex justify-center items-center">X</button>
