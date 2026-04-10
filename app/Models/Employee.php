@@ -11,11 +11,16 @@ class Employee extends Model
 
     protected $guarded = ['id'];
 
-    // Relasi balik: Satu Karyawan bisa ada di banyak Proyek
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'project_personnel')
                     ->withPivot('role')
                     ->withTimestamps();
+    }
+
+    // RELASI BARU: 1 Karyawan (bisa jadi) punya 1 Akun Login
+    public function user()
+    {
+        return $this->hasOne(User::class);
     }
 }

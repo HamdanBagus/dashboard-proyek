@@ -15,6 +15,8 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 
 // --- MENU MANAJEMEN ASSET & KARYAWAN (HANYA ADMIN) ---
 Route::middleware(['auth', 'admin'])->group(function () {
+    // Rute untuk Manajemen User (Hanya Admin)
+    Route::resource('users', \App\Http\Controllers\UserController::class)->except(['create', 'show', 'edit']);
     Route::get('/management', [\App\Http\Controllers\AssetManagementController::class, 'index'])->name('management.index');
 
     // Karyawan

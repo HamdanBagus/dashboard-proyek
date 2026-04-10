@@ -40,10 +40,6 @@
                         Login
                     </a>
 
-                    <a href="{{ route('register') }}"
-                       class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                        Register
-                    </a>
                 </div>
 
             </div>
