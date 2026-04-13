@@ -1,3 +1,20 @@
+/* 1. Import Font langsung dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Play:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 2. Buat Aturan Otomatis untuk Font */
+@layer base {
+    /* Aturan Default (Teks Kecil): Semua body, paragraf, tombol, dan form pakai Josefin Sans */
+    body, p, span, a, input, button, select, label, td, th, div {
+        font-family: 'Josefin Sans', sans-serif;
+    }
+    
+    /* Aturan Khusus (Teks Besar): Semua Heading dan class text besar pakai Play */
+    h1, h2, h3, h4, h5, h6, 
+    .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl, .text-7xl {
+        font-family: 'Play', sans-serif !important;
+    }
+}

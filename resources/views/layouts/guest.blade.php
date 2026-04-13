@@ -5,36 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <title>{{ config('app.name', 'GSPI-TRACK') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        .animate-zoom {
+            animation: slowZoom 25s ease-in-out infinite;
+        }
+    </style>
 </head>
 
-<body class="relative min-h-screen flex items-center justify-center bg-cover bg-center"
-      style="background-image: url('{{ asset('images/tambang.webp') }}');">
+<body class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900">
 
-    <!-- Overlay -->
-    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="absolute inset-0 z-0">
+        <img src="{{ asset('images/tambang.webp') }}"
+             class="w-full h-full object-cover animate-zoom"
+             alt="Background Tambang">
+    </div>
 
-    <div class="relative w-full max-w-md">
+    <div class="absolute inset-0 bg-black/60 z-0"></div>
 
-        <!-- Logo -->
-        <div class="flex justify-center mb-6">
-            <a href="/">
-                <x-application-logo class="w-16 h-16 fill-white" />
+    <div class="relative z-10 w-full max-w-md px-6 py-12 flex flex-col items-center">
+
+        <div class="flex justify-center mb-10">
+            <a href="/" class="flex items-center gap-4 hover:scale-105 transition-transform duration-300">
+                
+                <img src="{{ asset('images/logo-perusahaan.png') }}" 
+                     class="w-14 h-14 object-contain drop-shadow-lg" 
+                     style="filter: brightness(0) invert(1);" 
+                     alt="Logo GSPI">
+
+                <h1 class="text-3xl font-black tracking-widest text-white drop-shadow-lg">
+                    GSPI<span class="text-[#F8931F]">-TRACK</span>
+                </h1>
+
             </a>
         </div>
 
-        <!-- Glass Card -->
-        <div class="backdrop-blur-xl bg-white/10 border border-white/20
-                    shadow-2xl rounded-2xl px-8 py-8 text-white">
-
+        <div class="w-full">
             {{ $slot }}
-
         </div>
 
     </div>
