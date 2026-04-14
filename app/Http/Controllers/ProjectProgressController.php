@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
-use App\Services\ProgressCalculatorService; // Wajib panggil Service
+use App\Services\ProgressCalculatorService; 
 
 class ProjectProgressController extends Controller
 {
@@ -18,11 +18,9 @@ class ProjectProgressController extends Controller
             'lidarReport.hamparans.outputs', 'lidarReport.hamparans.progresses'
         ]);
 
-        // ==========================================
         // 2. HITUNG PROGRESS DARI SINGLE SOURCE OF TRUTH (SERVICE)
-        // ==========================================
 
-        // -- A. PROGRESS GROUND (Masih pakai hitungan manual karena Service Ground belum dibuat fungsi kembalian persentasenya) --
+        // -- A. PROGRESS GROUND
         $groundProgress = 0;
         if ($project->groundReport) {
             $groundProgress = ProgressCalculatorService::calculateGroundProgress($project, $project->groundReport);
@@ -31,7 +29,6 @@ class ProjectProgressController extends Controller
         // -- B. PROGRESS UAV --
         $uavProgress = 0;
         if ($project->uavReport) {
-            // Panggil Service!
             $uavData = ProgressCalculatorService::calculateUavProgress($project, $project->uavReport);
             $uavProgress = $uavData['persentase'];
         }
@@ -39,24 +36,21 @@ class ProjectProgressController extends Controller
         // -- C. PROGRESS FOTO UDARA --
         $photoProgress = 0;
         if ($project->photoReport) {
-            // Panggil Service!
             $photoProgress = ProgressCalculatorService::calculatePhotoReportOverallProgress($project->photoReport);
         }
 
         // -- D. PROGRESS LIDAR --
         $lidarProgress = 0;
         if ($project->lidarReport) {
-            // Panggil Service!
             $lidarProgress = ProgressCalculatorService::calculateLidarReportOverallProgress($project->lidarReport);
         }
 
-        // 3. Batasi nilai maksimal 100% untuk mencegah anomali desain UI meluber
+        // 3. Batasi nilai maksimal 100% 
         $groundProgress = min($groundProgress, 100);
         $uavProgress    = min($uavProgress, 100);
         $photoProgress  = min($photoProgress, 100);
         $lidarProgress  = min($lidarProgress, 100);
 
-        // 4. Kirim semua angka murni ke tampilan Blade
         return view('projects.progress.index', compact(
             'project', 
             'groundProgress', 

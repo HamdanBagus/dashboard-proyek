@@ -27,7 +27,6 @@ class GroundReportController extends Controller
         
         // Load data personil yang ada di proyek ini
         $project->load('personnel');
-        // Panggil Service untuk Kalkulasi Performa
         $performaData = ProgressCalculatorService::calculateGroundSurveyorPerformance($project, $report);
 
         return view('projects.progress.ground', compact('project', 'report', 'performaData'));
@@ -41,7 +40,6 @@ class GroundReportController extends Controller
         $validated = $request->validate([
             'start_date' => 'nullable|date',
             'end_date'   => 'nullable|date|after_or_equal:start_date',
-            // Tambahkan validasi untuk nama koordinator
             'coordinator_name' => 'nullable|string|max:255',
         ]);
 

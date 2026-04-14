@@ -31,21 +31,16 @@ class ProjectController extends Controller
         }
 
         // 2. Filter Urutan (Sorting)
-        if ($request->filled('sort')) {
-            if ($request->sort === 'az') {
-                $query->orderBy('name', 'asc');
-            } elseif ($request->sort === 'za') {
-                $query->orderBy('name', 'desc');
-            } elseif ($request->sort === 'oldest') {
-                $query->orderBy('created_at', 'asc');
-            } else {
-                $query->latest(); // newest
-            }
-        } else {
-            // Default jika tidak ada pilihan sort
-            $query->latest(); 
-        }
+        $sort = $request->input('sort', 'newest'); // Ambil nilai sort, default-nya 'newest'
 
+        match ($sort) {
+            'az'     => $query->orderBy('name', 'asc'),
+            'za'     => $query->orderBy('name', 'desc'),
+            'oldest' => $query->orderBy('start_date', 'asc'),
+            default  => $query->latest('start_date','desc'), // Menangani 'newest' atau input asing lainnya
+        };
+
+        // 3. Eksekusi Query dan Lempar ke View (TETAP WAJIB ADA)
         $projects = $query->paginate(10);
 
         return view('projects.index', compact('projects', 'search'));

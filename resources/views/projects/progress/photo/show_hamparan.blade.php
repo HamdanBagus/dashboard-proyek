@@ -1,9 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-2">
-            <svg class="w-6 h-6 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-            </svg>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 <a href="{{ route('projects.photo.index', $project->id) }}" class="text-[#F8931F] hover:underline transition">
                     Laporan Foto Udara

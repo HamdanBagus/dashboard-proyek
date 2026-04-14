@@ -17,21 +17,16 @@ class LidarReportController extends Controller
     {
         $report = LidarReport::firstOrCreate(
             ['project_id' => $project->id],
-            ['status' => 'On Progress'] // Berikan default status jika baru dibuat
+            ['status' => 'On Progress'] //  default status 
         );
         
         // Eager load relasi agar hemat query
         $hamparans = $report->hamparans()->with(['progresses', 'outputs'])->get();
-        
-        // ====================================================================
-        // PERBAIKAN: Gunakan perhitungan persentase murni dari Service
-        // agar tidak ada perbedaan rumus dengan dashboard utama!
-        // ====================================================================
         foreach ($hamparans as $h) {
             $h->persentase_gabungan = ProgressCalculatorService::calculateLidarHamparanProgress($h);
         }
 
-        // PANGGIL RUMUS KESELURUHAN DARI SERVICE (Single Source of Truth)
+        // Single Source of Truth
         $pctOverall = ProgressCalculatorService::calculateLidarReportOverallProgress($report);
         $hamparanCount = $hamparans->count();
 
@@ -72,10 +67,8 @@ class LidarReportController extends Controller
         $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
         $totalHariPengolahan = $hamparan->total_processing_days;
 
-        // =================================================================
+        
         // 2. PANGGIL SINGLE SOURCE OF TRUTH (FUNGSI MASTER)
-        // Fungsi ini otomatis memfilter tahap gagal & mengabaikan spasi!
-        // =================================================================
         $stats = ProgressCalculatorService::getHamparanStats($hamparan);
 
         // 3. Pecah array dari Service untuk dikirim ke Blade
