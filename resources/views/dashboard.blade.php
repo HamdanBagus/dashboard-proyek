@@ -12,6 +12,32 @@
 
     <div class="py-12">
         <div class="mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div class="bg-white rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row justify-between items-start md:items-center shadow-sm relative overflow-hidden">
+                
+                <div class="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-[#E8F1F1] to-transparent opacity-60 pointer-events-none"></div>
+
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-black text-gray-800">
+                        Selamat datang kembali, <span class="text-[#144C4D]">{{ Auth::user()->name ?? 'Tim GSPI' }}</span>! 
+                    </h3>
+                    <p class="text-sm font-medium text-gray-500 mt-1">
+                        Pantau keseluruhan progres proyek dan performa tim Anda hari ini.
+                    </p>
+                </div>
+
+                <div class="relative z-10 mt-5 md:mt-0 flex items-center bg-[#F4F7F6] border border-gray-200 px-4 py-3 rounded-xl shadow-inner">
+                    <div class="bg-white p-2 rounded-lg text-[#F8931F] mr-3 shadow-sm border border-gray-100 flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hari Ini</p>
+                        <p class="text-sm font-black text-gray-800">
+                            {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
+                        </p>
+                    </div>
+                </div>
+
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
@@ -123,7 +149,7 @@
                 <div class="p-5 border-b border-gray-200 flex items-center gap-2 bg-gray-50">
                     <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                     <h3 class="text-lg font-bold text-gray-800">
-                        Tren Total Proyek (5 Tahun Terakhir)
+                        Statistik Total Proyek 5 Tahun Terakhir
                     </h3>
                 </div>
 

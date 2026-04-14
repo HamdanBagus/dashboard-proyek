@@ -31,13 +31,6 @@ class UavReportController extends Controller
         $luasTercapai = $uavData['luas_tercapai'];
         $persentase = $uavData['persentase'];
 
-        // // 3. Hitung Progres Otomatis (PERBAIKAN: Hanya hitung yang berstatus 'Finished Flight')
-        // $totalAcquired = $report->logs()->where('status', 'Finished Flight')->sum('area_acquired');
-
-        // // 4. Hitung Persentase
-        // $luasProyek = $project->area_size > 0 ? $project->area_size : 1;
-        // $percentage = ($totalAcquired / $luasProyek) * 100;
-
         return view('projects.progress.uav', compact(
             'project', 'report', 'employees', 'uavs','luasTercapai', 'persentase'
         ));
@@ -54,8 +47,6 @@ class UavReportController extends Controller
         ]);
 
         $report->update($validated);
-
-        // Untuk ini masih aman menggunakan back() karena berada di halaman yang sama
         return back()->with('success', 'Waktu pelaksanaan UAV berhasil diperbarui.');
     }
 
@@ -64,8 +55,6 @@ class UavReportController extends Controller
      */
     public function storeLog(Request $request, UavReport $report)
     {
-        // PERBAIKAN: Ubah min:1 menjadi min:0 agar nilai 0 bisa masuk.
-        // Hapus rules 'exists' pada relasi untuk menghindari hidden error redirect.
         $validated = $request->validate([
             'date'          => 'required|date',
             'pilot_id'      => 'required',
@@ -79,7 +68,6 @@ class UavReportController extends Controller
 
         $report->logs()->create($validated);
 
-        // PERBAIKAN: Redirect eksplisit ke rute index
         return redirect()->route('projects.uav.index', $report->project_id)
                          ->with('success', 'Log penerbangan berhasil ditambahkan.');
     }
@@ -89,7 +77,6 @@ class UavReportController extends Controller
      */
     public function updateLog(Request $request, UavPilotLog $log)
     {
-        // Validasi diperlonggar
         $validated = $request->validate([
             'date'          => 'required|date',
             'pilot_id'      => 'required',
@@ -103,10 +90,8 @@ class UavReportController extends Controller
 
         $log->update($validated);
 
-        // CARA AMAN: Panggil UavReport secara manual menggunakan uav_report_id
         $report = \App\Models\UavReport::find($log->uav_report_id);
 
-        // Redirect eksplisit ke rute index
         return redirect()->route('projects.uav.index', $report->project_id)
                          ->with('success', 'Log penerbangan berhasil diperbarui.');
     }
@@ -121,7 +106,6 @@ class UavReportController extends Controller
         
         $log->delete();
         
-        // Redirect eksplisit
         return redirect()->route('projects.uav.index', $projectId)
                          ->with('success', 'Log penerbangan berhasil dihapus.');
     }
@@ -131,12 +115,10 @@ class UavReportController extends Controller
      */
     public function pilotSummary(Project $project)
     {
-        // Tetap gunakan eager loading untuk mencegah N+1 query issue
         $report = \App\Models\UavReport::with(['logs.pilot', 'logs.uav', 'logs.assistant'])
                     ->where('project_id', $project->id)
                     ->firstOrFail();
 
-        // PANGGIL SERVICE
         $pilotStats = ProgressCalculatorService::calculateUavPilotSummary($report);
 
         return view('projects.progress.uav_pilots', compact('project', 'pilotStats'));

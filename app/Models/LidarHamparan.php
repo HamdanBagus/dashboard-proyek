@@ -43,7 +43,4 @@ class LidarHamparan extends Model
         return $start->diffInDays($end) + 1;
     }
 
-    // =========================================================================
-    // FUNGSI PERSENTASE DIHAPUS - Dipusatkan ke ProgressCalculatorService
-    // =========================================================================
 }

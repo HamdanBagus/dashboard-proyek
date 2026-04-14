@@ -16,7 +16,7 @@ class Project extends Model
     public function personnel()
     {
         // Menyambung ke model Employee lewat tabel pivot 'project_personnel'
-        // withPivot('role') agar kita bisa akses kolom 'role' (PM, Pilot, dll)
+        // withPivot('role') agar bisa akses kolom 'role' (PM, Pilot, dll)
         return $this->belongsToMany(Employee::class, 'project_personnel')
                     ->withPivot('role')
                     ->withTimestamps();

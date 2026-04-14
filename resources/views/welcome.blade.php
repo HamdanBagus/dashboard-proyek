@@ -34,13 +34,24 @@
     <header class="relative z-20 w-full border-b border-white/10 bg-black/20 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             
-            <div class="flex items-center space-x-3">
-                <div class="bg-white p-1 rounded-full shadow-lg">
-                    <img src="{{ asset('images/logo-perusahaan-bgputih.png') }}" class="w-10 h-10 object-contain" alt="Logo GSPI">
+            <div class="flex items-center space-x-3 
+                bg-white/10 backdrop-blur-md 
+                border border-white/20 
+                px-2 py-1 
+                rounded-2xl 
+                shadow-lg">
+
+                <div>
+                    <img src="{{ asset('images/logo-perusahaan.png') }}" 
+                    class="h-14 object-contain drop-shadow-lg" 
+                    style="filter: brightness(0) invert(1);"  
+                    alt="Logo GSPI">
                 </div>
+
                 <h1 class="text-xl font-black tracking-widest text-white hidden sm:block">
                     GSPI<span class="text-[#F8931F]">-TRACK</span>
                 </h1>
+
             </div>
 
             <div>

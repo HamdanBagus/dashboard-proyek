@@ -15,15 +15,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Kunci pintu: Hanya Admin yang boleh masuk
+        //  Hanya Admin yang boleh masuk
         if (!Auth::check() || Auth::user()?->role !== 'admin') {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE HALAMAN INI.');
         }
-
-        // Ambil semua data user beserta data karyawan yang berelasi
         $users = User::with('employee')->latest()->get();
 
-        // LOGIKA CERDAS: Ambil karyawan yang BELUM punya akun login saja untuk ditampilkan di Dropdown
+        // Ambil karyawan yang BELUM punya akun login saja untuk ditampilkan di Dropdown
         $employeesWithoutAccount = Employee::doesntHave('user')->orderBy('name', 'asc')->get();
 
         return view('management.users.index', compact('users', 'employeesWithoutAccount'));
@@ -51,7 +49,7 @@ class UserController extends Controller
         // Cari data karyawan berdasarkan ID yang dipilih Admin
         $employee = Employee::findOrFail($request->employee_id);
 
-        // Buat akun baru, otomatis pakai nama asli dari data Karyawan
+        // Buat akun baru dari data karyawan 
         User::create([
             'name' => $employee->name, 
             'email' => $request->email,
@@ -72,7 +70,7 @@ class UserController extends Controller
             abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
         }
 
-        // Mencegah admin menghapus akunnya sendiri secara tidak sengaja
+        // Mencegah admin menghapus akunnya sendiri s
         if ($user->id === Auth::id()) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan!');
         }

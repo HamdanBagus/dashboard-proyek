@@ -357,9 +357,8 @@ class ProjectQcController extends Controller
         return back()->with('success', 'Data QC Pengolah Data berhasil disimpan!');
     }
 
-    // =================================================================
     // --- QC PROJECT MANAGER (FINAL) ---
-    // =================================================================
+    
     public function showManager(Project $project)
     {
         $qc = QcManager::firstOrCreate(['project_id' => $project->id]);
