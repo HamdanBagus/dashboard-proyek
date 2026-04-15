@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name'); // Contoh: Trimble R8s, Hi-Target V90
             $table->string('type')->nullable(); // Contoh: Geodetik Base, Geodetik Rover, Handheld
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

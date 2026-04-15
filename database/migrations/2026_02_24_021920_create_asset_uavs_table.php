@@ -17,6 +17,7 @@ return new class extends Migration
         $table->string('brand')->nullable();
         $table->string('status')->default('ready'); // ready/maintenance/rusak
         $table->timestamps();
+        $table->softDeletes();
     });
     }
 

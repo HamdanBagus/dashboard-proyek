@@ -44,8 +44,4 @@ class PhotoHamparan extends Model
         return $start->diffInDays($end) + 1;
     }
 
-    // =========================================================================
-    // TIDAK ADA LAGI HITUNG-HITUNGAN PERSENTASE DI SINI!
-    // Semua hitungan rumit sudah dipindahkan ke ProgressCalculatorService
-    // =========================================================================
 }

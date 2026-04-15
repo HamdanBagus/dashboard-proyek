@@ -17,6 +17,7 @@ return new class extends Migration
         $table->string('type')->nullable(); // Sensor/DSLR/Mirrorless
         $table->string('status')->default('baik');
         $table->timestamps();
+        $table->softDeletes();
     });
     }
 

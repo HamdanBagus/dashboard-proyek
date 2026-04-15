@@ -14,18 +14,18 @@ class UavPilotLog extends Model
     // Relasi ke Karyawan (Pilot)
     public function pilot()
     {
-        return $this->belongsTo(Employee::class, 'pilot_id');
+        return $this->belongsTo(Employee::class, 'pilot_id')->withTrashed();
     }
 
     // Relasi ke Karyawan (Asisten)
     public function assistant()
     {
-        return $this->belongsTo(Employee::class, 'assistant_id');
+        return $this->belongsTo(Employee::class, 'assistant_id')->withTrashed();
     }
 
     // Relasi ke Aset UAV
     public function uav()
     {
-        return $this->belongsTo(AssetUav::class, 'uav_id');
+        return $this->belongsTo(AssetUav::class, 'uav_id')->withTrashed();
     }
 }

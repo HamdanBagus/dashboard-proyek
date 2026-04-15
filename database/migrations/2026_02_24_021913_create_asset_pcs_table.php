@@ -17,6 +17,7 @@ return new class extends Migration
         $table->string('spec')->nullable(); // Spesifikasi singkat
         $table->string('status')->default('baik'); // baik/rusak
         $table->timestamps();
+        $table->softDeletes();
     });
     }
 

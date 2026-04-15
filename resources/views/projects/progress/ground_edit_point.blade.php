@@ -55,7 +55,7 @@
                                         <option value="">-- Pilih Surveyor --</option>
                                         @foreach($surveyors as $surveyor)
                                             <option value="{{ $surveyor->name }}" {{ $point->install_surveyor == $surveyor->name ? 'selected' : '' }}>
-                                                {{ $surveyor->name }}
+                                                {{ $surveyor->name }} {{ $surveyor->trashed() ? '(Non-Aktif)' : '' }} 
                                             </option>
                                         @endforeach
                                     </select>
@@ -83,7 +83,7 @@
                                         <option value="">-- Pilih Surveyor --</option>
                                         @foreach($surveyors as $surveyor)
                                             <option value="{{ $surveyor->name }}" {{ $point->measure_surveyor == $surveyor->name ? 'selected' : '' }}>
-                                                {{ $surveyor->name }}
+                                                {{ $surveyor->name }} {{ $surveyor->trashed() ? '(Non-Aktif)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -111,7 +111,7 @@
                                         <option value="">-- Pilih Surveyor --</option>
                                         @foreach($surveyors as $person) 
                                             <option value="{{ $person->name }}" {{ $point->process_surveyor == $person->name ? 'selected' : '' }}>
-                                                {{ $person->name }}
+                                                {{ $person->name }} {{ $person->trashed() ? '(Non-Aktif)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>

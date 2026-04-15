@@ -19,7 +19,8 @@ class Project extends Model
         // withPivot('role') agar bisa akses kolom 'role' (PM, Pilot, dll)
         return $this->belongsToMany(Employee::class, 'project_personnel')
                     ->withPivot('role')
-                    ->withTimestamps();
+                    ->withTimestamps()
+                    ->withTrashed();
     }
     // Relasi ke Laporan Tim Ground (HasOne karena 1 proyek = 1 laporan utama)
     public function groundReport()

@@ -16,6 +16,7 @@ return new class extends Migration
         $table->string('name');
         // Bisa tambah no_hp atau email jika perlu
         $table->timestamps();
+        $table->softDeletes();
     });
     }
 
