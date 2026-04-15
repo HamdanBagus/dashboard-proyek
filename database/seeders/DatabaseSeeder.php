@@ -13,13 +13,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // buat Akun admin
+        
         User::create([
             'name' => 'Super Administrator',
             'email' => 'admin@geosurvey.com',
-            'password' => Hash::make('admin123'), // Password default
+            'password' => Hash::make('admin123'), 
             'role' => 'admin',
-            'employee_id' => null, // Biarkan kosong!
+            'employee_id' => null, 
         ]);
     }
 }
