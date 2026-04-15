@@ -89,7 +89,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-[#144C4D] transition-all transform hover:-translate-y-1 flex flex-col h-full overflow-hidden group lg:col-span-1 md:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-[#144C4D] transition-all transform hover:-translate-y-1 flex flex-col h-full overflow-hidden group">
                     <div class="h-2 w-full bg-gray-200 group-hover:bg-[#144C4D] transition-colors"></div>
                     <div class="p-6 flex-1 flex flex-col">
                         <div class="flex items-center gap-3 mb-3">
