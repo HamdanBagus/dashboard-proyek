@@ -74,12 +74,15 @@
                         <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Target Tahapan Pengolahan</label>
                         <input type="text" name="stage_name" list="stages" placeholder="Ketik atau pilih tahapan..." class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
                         <datalist id="stages">
-                            <option value="Klasifikasi Otomatis Ground">
                             <option value="Noise Removal">
-                            <option value="Klasifikasi Manual">
-                            <option value="Editing Manual">
-                            <option value="QC">
-                            <option value="Combine Data">
+                            <option value="Auto Classification">
+                            <option value="Manual Classification">
+                            <option value="Manual Editing">
+                            <option value="Build DSM">
+                            <option value="Build DTM">
+                            <option value="Build Contour">
+                            <option value="Export Data">
+                            <option value="Uji Akurasi LE90">
                         </datalist>
                         <input type="hidden" name="status" value="Proses">
                     </div>

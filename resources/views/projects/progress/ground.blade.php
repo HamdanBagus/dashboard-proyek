@@ -178,11 +178,12 @@
                 <h3 class="font-black text-gray-800 text-sm mb-3">Tambah Titik Baru</h3>
                 <form action="{{ route('ground-points.store', $report->id) }}" method="POST" class="flex flex-col sm:flex-row gap-4 items-end">
                     @csrf
-                    <div class="w-full sm:w-1/3">
-                        <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Nama Titik</label>
-                        <input type="text" name="name" placeholder="Contoh: BM-01" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
+                    <div class="w-full sm:w-1/4">
+                        <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Prefix / Nama Titik</label>
+                        <input type="text" name="name" placeholder="Contoh: BM atau BDSG" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
                     </div>
-                    <div class="w-full sm:w-1/3">
+                    
+                    <div class="w-full sm:w-1/4">
                         <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Jenis Titik</label>
                         <select name="point_type" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
                             <option value="BM">BM (Benchmark)</option>
@@ -190,9 +191,15 @@
                             <option value="GCP">GCP (Ground Control Point)</option>
                         </select>
                     </div>
+
+                    <div class="w-full sm:w-1/6">
+                        <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1.5">Jumlah</label>
+                        <input type="number" name="quantity" min="1" value="1" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium text-center" required>
+                    </div>
+
                     <div class="w-full sm:w-1/3">
                         <button type="submit" class="w-full bg-[#144C4D] text-white px-4 py-2.5 rounded-lg hover:bg-[#0c2e2e] text-sm font-bold shadow-sm transition flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Tambah Titik
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Generate Titik
                         </button>
                     </div>
                 </form>

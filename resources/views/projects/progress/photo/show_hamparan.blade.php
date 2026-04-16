@@ -75,10 +75,26 @@
                         <input type="text" name="stage_name" list="stages" placeholder="Ketik atau pilih tahapan..." class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-medium" required>
                         <datalist id="stages">
                             <option value="Align Photos">
+                            <option value="Marking GCP">
+                            <option value="Optimize Camera">
                             <option value="Build Dense Cloud">
-                            <option value="Build DEM/DSM">
+                            <option value="Classify Ground Points">
+                            <option value="Build Mesh/Model">
+                            <option value="Smoothing Mesh/Model">
+                            <option value="Build DEM">
                             <option value="Build Orthomosaic">
-                            <option value="Export Data">
+                            <option value="Asign Images">
+                            <option value="Export Orthomosaic (TIF)">
+                            <option value="Export Orthomosaic (ECW)">
+                            <option value="Export DEM">
+                            <option value="Export Pointcloud">
+                            <option value="Ortho Rectifying">
+                            <option value="Tiling TIF">
+                            <option value="Tiling ECW">
+                            <option value="Tiling MBTiles">
+                            <option value="Tiling XYZ">
+                            <option value="Uji Akurasi CE90">
+                            <option value="Uji Akurasi LE90">
                         </datalist>
                         <input type="hidden" name="status" value="Proses">
                     </div>

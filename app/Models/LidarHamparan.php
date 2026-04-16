@@ -18,7 +18,22 @@ class LidarHamparan extends Model
     // Relasi KE BAWAH (Anak): Ke Progress Tahapan
     public function progresses() 
     { 
-        return $this->hasMany(LidarProgress::class); 
+        return $this->hasMany(LidarProgress::class)
+        ->orderByRaw("
+                CASE stage_name
+                    WHEN 'Noise Removal' THEN 1
+                    WHEN 'Auto Classification' THEN 2
+                    WHEN 'Manual Classification' THEN 3
+                    WHEN 'Manual Editing' THEN 4
+                    WHEN 'Build DSM' THEN 5
+                    WHEN 'Build DTM' THEN 6
+                    WHEN 'Build Contour' THEN 7
+                    WHEN 'Export Data' THEN 8
+                    WHEN 'Uji Akurasi LE90' THEN 9     
+                    ELSE 99 
+                END ASC
+            ")
+            ->orderBy('id', 'asc'); 
     }
     
     // Relasi KE BAWAH (Anak): Ke Output File

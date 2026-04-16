@@ -132,7 +132,7 @@ class PhotoReportController extends Controller
 
         return view('projects.progress.photo.show_hamparan', compact(
             'hamparan', 'project', 'pcs', 'pengolahData',
-            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase','totalHariPengolahan'
+            'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase','totalHariPengolahan',
         ));
     }
 

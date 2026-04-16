@@ -15,18 +15,48 @@ class GroundPointController extends Controller
     {
         // Validasi input
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'       => 'required|string|max:255',
             'point_type' => 'required|in:BM,ICP,GCP',
+            'quantity'   => 'required|integer|min:1|max:200', // Batasi max 200 agar server tidak hang
         ]);
 
-        // Simpan ke database
-        $report->points()->create([
-            'name' => $request->name,
-            'point_type' => $request->point_type,
-            // Status lainnya default false (sesuai migration)
-        ]);
+        $quantity = $request->quantity;
+        $prefix = trim($request->name);
 
-        return back()->with('success', 'Titik berhasil ditambahkan!');
+        // Jika hanya input 1 titik, simpan nama persis seperti yang diketik
+        if ($quantity == 1) {
+            $report->points()->create([
+                'name'       => $prefix,
+                'point_type' => $request->point_type,
+            ]);
+            
+            return back()->with('success', 'Titik ' . $prefix . ' berhasil ditambahkan!');
+        }
+
+        // Jika input lebih dari 1, lakukan looping massal
+        $pointsData = [];
+        
+        // Menentukan jumlah digit padding (Jika titik > 99, pakai 3 digit "001", jika tidak pakai 2 digit "01")
+        $padLength = $quantity > 99 ? 3 : 2; 
+
+        for ($i = 1; $i <= $quantity; $i++) {
+            // Gabungkan Prefix dengan Angka berformat (Contoh: BDSG + 01 = BDSG01)
+            $formattedNumber = sprintf("%0" . $padLength . "d", $i);
+            $generatedName = $prefix . $formattedNumber;
+
+            $pointsData[] = [
+                'ground_report_id' => $report->id,
+                'name'             => $generatedName,
+                'point_type'       => $request->point_type,
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ];
+        }
+
+        // Insert massal ke database (jauh lebih cepat daripada insert satu-satu)
+        \App\Models\GroundPoint::insert($pointsData);
+
+        return back()->with('success', $quantity . ' titik (' . $prefix . '01 - ' . $prefix . sprintf("%0".$padLength."d", $quantity) . ') berhasil digenerate otomatis!');
     }
 
     /**

@@ -19,7 +19,34 @@ class PhotoHamparan extends Model
     // Relasi KE BAWAH (Anak): Ke Progress Tahapan
     public function progresses()
     {
-        return $this->hasMany(PhotoProgress::class);
+        return $this->hasMany(PhotoProgress::class)
+        ->orderByRaw("
+                CASE stage_name
+                    WHEN 'Align Photos' THEN 1
+                    WHEN 'Marking GCP' THEN 2
+                    WHEN 'Optimize Camera' THEN 3
+                    WHEN 'Build Dense Cloud' THEN 4
+                    WHEN 'Classify Ground Points' THEN 5
+                    WHEN 'Build Mesh/Model' THEN 6
+                    WHEN 'Smoothing Mesh/Model' THEN 7
+                    WHEN 'Build DEM' THEN 8
+                    WHEN 'Build Orthomosaic' THEN 9
+                    WHEN 'Asign Images' THEN 10
+                    WHEN 'Export Orthomosaic (TIF)' THEN 11
+                    WHEN 'Export Orthomosaic (ECW)' THEN 12
+                    WHEN 'Export DEM' THEN 13
+                    WHEN 'Export Pointcloud' THEN 14
+                    WHEN 'Ortho Rectifying' THEN 15
+                    WHEN 'Tiling TIF' THEN 16
+                    WHEN 'Tiling ECW' THEN 17
+                    WHEN 'Tiling MBTiles' THEN 18
+                    WHEN 'Tiling XYZ' THEN 19
+                    WHEN 'Uji Akurasi CE90' THEN 20
+                    WHEN 'Uji Akurasi LE90' THEN 21      
+                    ELSE 99 
+                END ASC
+            ")
+            ->orderBy('id', 'asc');
     }
     
     // Relasi KE BAWAH (Anak): Ke Output File
