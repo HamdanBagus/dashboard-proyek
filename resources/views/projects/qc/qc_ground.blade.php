@@ -103,6 +103,7 @@
 
                         <input type="hidden" name="remove_file_tolerance" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus. Silakan unggah file baru atau biarkan kosong.</p>
+                        <input type="text" name="note_file_tolerance" value="{{ $qc->note_file_tolerance }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->file_inacors ? 'true' : 'false' }}, fileError: false }">
@@ -124,6 +125,7 @@
 
                         <input type="hidden" name="remove_file_inacors" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus. Silakan unggah file baru atau biarkan kosong.</p>
+                        <input type="text" name="note_file_inacors" value="{{ $qc->note_file_inacors }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->file_google_earth ? 'true' : 'false' }}, fileError: false }">
@@ -145,7 +147,31 @@
 
                         <input type="hidden" name="remove_file_google_earth" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus. Silakan unggah file baru atau biarkan kosong.</p>
+                        <input type="text" name="note_file_google_earth" value="{{ $qc->note_file_google_earth }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->file_utsb ? 'true' : 'false' }}, fileError: false }">
+                        <p class="font-bold text-sm mb-3 text-gray-800">4. Foto UTSB sesuai arah mata angin, paku menempel.</p>
+                        
+                        <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm mb-3">
+                            <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
+                            <span class="text-gray-300">|</span>
+                            <a href="{{ asset('storage/' . $qc->file_utsb) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <span class="text-gray-300">|</span>
+                            <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
+                        </div>
+
+                        <div x-show="!hasFile || removed" class="mb-3">
+                            <input type="file" name="file_utsb" class="text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition cursor-pointer"
+                                @change="fileError = $event.target.files[0].size > 2097152; if(fileError) $event.target.value = ''">
+                            <p x-show="fileError" class="text-xs text-red-600 font-bold mt-2" style="display:none;">⚠️ File ditolak! Ukuran melebihi batas 2MB.</p>
+                        </div>
+
+                        <input type="hidden" name="remove_file_utsb" x-bind:value="removed ? '1' : '0'">
+                        <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-1 mb-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+
+                        <input type="text" name="note_file_utsb" value="{{ $qc->note_file_utsb }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk foto UTSB (opsional)...">
+                    </div>
+                    
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#F4F7F6] p-5 rounded-lg border border-gray-200">
@@ -225,6 +251,7 @@
 
                         <input type="hidden" name="remove_rev_file_tolerance" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="rev_note_file_tolerance" value="{{ $qc->rev_note_file_tolerance }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->rev_file_inacors ? 'true' : 'false' }}, fileError: false }">
@@ -246,6 +273,7 @@
 
                         <input type="hidden" name="remove_rev_file_inacors" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="rev_note_file_inacors" value="{{ $qc->rev_note_file_inacors }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->rev_file_google_earth ? 'true' : 'false' }}, fileError: false }">
@@ -267,6 +295,29 @@
 
                         <input type="hidden" name="remove_rev_file_google_earth" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="rev_note_file_google_earth" value="{{ $qc->rev_note_file_google_earth }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">                    
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->rev_file_utsb ? 'true' : 'false' }}, fileError: false }">
+                        <p class="font-bold text-sm mb-3 text-gray-800">4. Foto UTSB sesuai arah mata angin, paku menempel.</p>
+                        
+                        <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm mb-3">
+                            <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
+                            <span class="text-gray-300">|</span>
+                            <a href="{{ asset('storage/' . $qc->rev_file_utsb) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <span class="text-gray-300">|</span>
+                            <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
+                        </div>
+
+                        <div x-show="!hasFile || removed" class="mb-3">
+                            <input type="file" name="rev_file_utsb" class="text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 transition cursor-pointer"
+                                @change="fileError = $event.target.files[0].size > 2097152; if(fileError) $event.target.value = ''">
+                            <p x-show="fileError" class="text-xs text-red-600 font-bold mt-2" style="display:none;">⚠️ File ditolak! Ukuran melebihi batas 2MB.</p>
+                        </div>
+
+                        <input type="hidden" name="remove_file_utsb" x-bind:value="removed ? '1' : '0'">
+                        <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-1 mb-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+
+                        <input type="text" name="rev_note_file_utsb" value="{{ $qc->rev_note_file_utsb }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk foto UTSB (opsional)...">
                     </div>
                 </div>
 

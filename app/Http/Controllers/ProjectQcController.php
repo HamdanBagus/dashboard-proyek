@@ -35,15 +35,20 @@ class ProjectQcController extends Controller
     {
         $qc = QcGround::where('project_id', $project->id)->first();
 
+        // 1. TAMBAHAN VALIDASI UNTUK FILE UTSB
         $request->validate([
             'file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_utsb' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Baru
+            
             'rev_file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'rev_file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'rev_file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rev_file_utsb' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Baru
         ]);
 
+        // Secara otomatis menangkap semua text input (termasuk 8 input notes baru)
         $data = $request->except(['_token', '_method']);
 
         $items = ['form_log', 'raw_gps', 'report_gps', 'coordinate', 'photo_utsb'];
@@ -69,16 +74,24 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            $revFiles = ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth'];
+            // TAMBAHAN: Reset Notes File Revisi jika diubah menjadi "Tidak Ada Revisi"
+            $data['rev_note_file_tolerance'] = null;
+            $data['rev_note_file_inacors'] = null;
+            $data['rev_note_file_google_earth'] = null;
+            $data['rev_note_file_utsb'] = null;
+            
+            // 2. TAMBAHAN: Masukkan rev_file_utsb untuk dihapus dari server jika batal revisi
+            $revFiles = ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth', 'rev_file_utsb'];
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
 
-        $fileFields = ['file_tolerance', 'file_inacors', 'file_google_earth'];
+        // 3. TAMBAHAN: Masukkan file_utsb dan rev_file_utsb ke array pemrosesan upload/delete
+        $fileFields = ['file_tolerance', 'file_inacors', 'file_google_earth', 'file_utsb'];
         if ($hasRevision) {
-            $fileFields = array_merge($fileFields, ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth']);
+            $fileFields = array_merge($fileFields, ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth', 'rev_file_utsb']);
         }
 
         foreach ($fileFields as $field) {
