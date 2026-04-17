@@ -234,12 +234,13 @@ class ProjectQcController extends Controller
         $qc = QcUavLidar::where('project_id', $project->id)->first();
 
         $request->validate([
-            'file_gap'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'file_accuracy' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_gap'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_accuracy'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'rev_file_gap'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'rev_file_accuracy' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
+        // Otomatis menangkap seluruh checkbox status & text input notes
         $data = $request->except(['_token', '_method']);
 
         $items = ['raw_lidar', 'base_gps', 'pre_processing'];
@@ -266,6 +267,10 @@ class ProjectQcController extends Controller
             }
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
+            
+            // TAMBAHAN: Reset notes file revisi menjadi null
+            $data['rev_note_file_gap'] = null;
+            $data['rev_note_file_accuracy'] = null;
             
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
