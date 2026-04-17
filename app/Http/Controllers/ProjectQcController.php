@@ -413,6 +413,7 @@ class ProjectQcController extends Controller
             'rev_file_other'  => $fileRules,
         ]);
 
+        // Otomatis menangkap seluruh checkbox & input notes
         $data = $request->except(['_token', '_method']);
 
         $items = ['report', 'other_docs'];
@@ -439,6 +440,10 @@ class ProjectQcController extends Controller
             }
             $data['rev_qc_date'] = null;
             $data['rev_qc_name'] = null;
+            
+            // TAMBAHAN: Reset notes revisi
+            $data['rev_note_file_report'] = null;
+            $data['rev_note_file_other'] = null;
             
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
