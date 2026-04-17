@@ -144,9 +144,8 @@
                             <span class="text-gray-300">|</span>
                             <a href="{{ asset('storage/' . $qc->{$up['id']}) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
-                            <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
+                            <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button> 
                         </div>
-
                         <div x-show="!hasFile || removed">
                             <input type="file" name="{{ $up['id'] }}" class="text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 transition cursor-pointer"
                                 @change="fileError = $event.target.files[0].size > 2097152; if(fileError) $event.target.value = ''">
@@ -155,6 +154,7 @@
 
                         <input type="hidden" name="remove_{{ $up['id'] }}" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="note_{{ $up['id'] }}" value="{{ $qc->{'note_'.$up['id']} }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-[#F8931F] focus:ring-[#F8931F]" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
                     @endforeach
                 </div>
@@ -236,6 +236,7 @@
 
                         <input type="hidden" name="remove_rev_{{ $up['id'] }}" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="rev_note_{{ $up['id'] }}" value="{{ $qc->{'rev_note_'.$up['id']} }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk revisi file ini (opsional)...">
                     </div>
                     @endforeach
                 </div>

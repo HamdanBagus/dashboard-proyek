@@ -146,6 +146,7 @@ class ProjectQcController extends Controller
             'rev_file_gsd'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
+        // Otomatis menangkap seluruh checkbox status & text input notes
         $data = $request->except(['_token', '_method']);
 
         $items = ['raw_photo', 'raw_uav', 'base_gps', 'geotag'];
@@ -165,6 +166,7 @@ class ProjectQcController extends Controller
                 $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
             }
         } else {
+            // Jika statusnya batal revisi/selesai, bersihkan jejak revisi
             foreach ($items as $item) {
                 $data["rev_chk_complete_{$item}"] = 0;
                 $data["rev_chk_folder_{$item}"] = 0;
@@ -173,6 +175,14 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
+            // TAMBAHAN: Reset 5 notes upload revisi menjadi null
+            $data['rev_note_file_quality'] = null;
+            $data['rev_note_file_geotag'] = null;
+            $data['rev_note_file_blur'] = null;
+            $data['rev_note_file_overlap'] = null;
+            $data['rev_note_file_gsd'] = null;
+            
+            // Hapus file fisik revisi
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
                 $data[$rf] = null;
