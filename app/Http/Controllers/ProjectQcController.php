@@ -324,6 +324,7 @@ class ProjectQcController extends Controller
             'rev_file_accuracy' => $fileRules, 'rev_file_ortho' => $fileRules, 'rev_file_cloud' => $fileRules, 'rev_file_folder' => $fileRules, 'rev_file_hdd' => $fileRules,
         ]);
 
+        // Otomatis menangkap text input notes
         $data = $request->except(['_token', '_method']);
 
         // 2. Handle Checkbox UTAMA
@@ -353,6 +354,13 @@ class ProjectQcController extends Controller
             }
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
+            
+            // TAMBAHAN: Reset notes revisi
+            $data['rev_note_file_accuracy'] = null;
+            $data['rev_note_file_ortho'] = null;
+            $data['rev_note_file_cloud'] = null;
+            $data['rev_note_file_folder'] = null;
+            $data['rev_note_file_hdd'] = null;
             
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);

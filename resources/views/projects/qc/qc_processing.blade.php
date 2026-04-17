@@ -94,6 +94,7 @@
 
                         <input type="hidden" name="remove_{{ $up['db'] }}" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="note_{{ $up['db'] }}" value="{{ $qc->{'note_'.$up['db']} }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D]" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
                     @endforeach
                 </div>
@@ -175,6 +176,7 @@
 
                         <input type="hidden" name="remove_rev_{{ $up['db'] }}" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
+                        <input type="text" name="rev_note_{{ $up['db'] }}" value="{{ $qc->{'rev_note_'.$up['db']} }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan revisi untuk file ini (opsional)...">
                     </div>
                     @endforeach
                 </div>
