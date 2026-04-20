@@ -12,4 +12,8 @@ class AssetUav extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
+    public function pic()
+    {
+        return $this->belongsTo(Employee::class, 'pic_id')->withTrashed();
+    }
 }

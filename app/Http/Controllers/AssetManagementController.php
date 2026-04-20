@@ -34,8 +34,18 @@ class AssetManagementController extends Controller
 
     // --- CRUD UAV ---
     public function storeUav(Request $request) {
-        AssetUav::create($request->validate(['name' => 'required|string|max:255']));
-        return back()->with('success', 'UAV berhasil ditambahkan.');
+        // 1. Validasi semua inputan yang masuk dari form
+        $validatedData = $request->validate([
+            'name'          => 'required|string|max:255',
+            'serial_number' => 'nullable|string|max:255',
+            'pic_id'        => 'nullable|exists:employees,id', // Memastikan ID karyawan benar-benar ada di database
+        ]);
+
+        // 2. Simpan ke database
+        AssetUav::create($validatedData);
+
+        // 3. Kembalikan halaman beserta pesan sukses
+        return back()->with('success', 'Asset UAV berhasil ditambahkan beserta detailnya.');
     }
     public function destroyUav(AssetUav $uav) {
         $uav->delete();
