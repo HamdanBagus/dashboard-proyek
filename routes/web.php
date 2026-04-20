@@ -166,6 +166,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/qc-manager', [\App\Http\Controllers\ProjectQcController::class, 'showManager'])->name('projects.qc.manager');
     Route::post('/projects/{project}/qc-manager', [\App\Http\Controllers\ProjectQcController::class, 'updateManager'])->name('projects.qc.manager.update');
 
+    // Route untuk Log UAV (Maintenance)
+    Route::get('/projects/{project}/uav-log/{uav_name}', [App\Http\Controllers\UavLogController::class, 'show'])->name('projects.uav-log.show');
+    Route::post('/projects/{project}/uav-log/{uav_id}', [App\Http\Controllers\UavLogController::class, 'update'])->name('projects.uav-log.update');
+
 });
 
 require __DIR__.'/auth.php';
