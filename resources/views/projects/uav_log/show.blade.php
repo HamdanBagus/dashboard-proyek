@@ -142,14 +142,21 @@
                                                 <option value="tidak_ada" class="text-gray-500" {{ ($record->condition ?? '') == 'tidak_ada' ? 'selected' : '' }}>Tidak Ada</option>
                                             </select>
                                         </td>
-                                        <td class="p-4">
-                                            @if($record && $record->photo_path)
-                                                <div class="mb-2 flex items-center gap-2">
-                                                    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase">Ada File</span>
-                                                    <a href="{{ asset('storage/' . $record->photo_path) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
-                                                </div>
-                                            @endif
-                                            <input type="file" name="photo_sebelum_{{ $safeKey }}" class="w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-semibold file:bg-[#144C4D]/10 file:text-[#144C4D] hover:file:bg-[#144C4D]/20 transition cursor-pointer" accept="image/*">
+                                        <td class="p-4" x-data="{ removed: false, hasFile: {{ ($record && $record->photo_path) ? 'true' : 'false' }} }">
+    
+                                            <div x-show="hasFile && !removed" class="mb-2 flex items-center gap-2">
+                                                <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase">Ada File</span>
+                                                <a href="{{ asset('storage/' . ($record->photo_path ?? '')) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
+                                                <span class="text-gray-300">|</span>
+                                                <button type="button" @click="removed = true" class="text-[10px] text-red-500 hover:text-red-700 font-bold">Hapus</button>
+                                            </div>
+
+                                            <div x-show="!hasFile || removed">
+                                                <input type="file" name="photo_sebelum_{{ $safeKey }}" class="w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-semibold file:bg-[#144C4D]/10 file:text-[#144C4D] hover:file:bg-[#144C4D]/20 transition cursor-pointer" accept="image/*">
+                                                <p x-show="removed && hasFile" class="text-[10px] text-red-500 italic mt-1" style="display:none;">⚠️ File lama akan dihapus saat form disimpan.</p>
+                                            </div>
+
+                                            <input type="hidden" name="remove_photo_sebelum_{{ $safeKey }}" :value="removed ? '1' : '0'">
                                         </td>
                                         <td class="p-4">
                                             <input type="text" name="note_sebelum_{{ $safeKey }}" value="{{ $record->notes ?? '' }}" class="w-full rounded-md border-gray-300 focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm" placeholder="Ket...">
@@ -204,14 +211,18 @@
                                                 <option value="tidak_ada" class="text-gray-500" {{ ($record->condition ?? '') == 'tidak_ada' ? 'selected' : '' }}>Tidak Ada</option>
                                             </select>
                                         </td>
-                                        <td class="p-4">
-                                            @if($record && $record->photo_path)
-                                                <div class="mb-2 flex items-center gap-2">
-                                                    <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase">Ada File</span>
-                                                    <a href="{{ asset('storage/' . $record->photo_path) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
-                                                </div>
-                                            @endif
-                                            <input type="file" name="photo_sesudah_{{ $safeKey }}" class="w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-semibold file:bg-[#F8931F]/10 file:text-[#F8931F] hover:file:bg-[#F8931F]/20 transition cursor-pointer" accept="image/*">
+                                        <td class="p-4" x-data="{ removed: false, hasFile: {{ ($record && $record->photo_path) ? 'true' : 'false' }} }">
+                                            <div x-show="hasFile && !removed" class="mb-2 flex items-center gap-2">
+                                                <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase">Ada File</span>
+                                                <a href="{{ asset('storage/' . ($record->photo_path ?? '')) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
+                                                <span class="text-gray-300">|</span>
+                                                <button type="button" @click="removed = true" class="text-[10px] text-red-500 hover:text-red-700 font-bold">Hapus</button>
+                                            </div>
+                                            <div x-show="!hasFile || removed">
+                                                <input type="file" name="photo_sesudah_{{ $safeKey }}" class="w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-semibold file:bg-[#F8931F]/10 file:text-[#F8931F] hover:file:bg-[#F8931F]/20 transition cursor-pointer" accept="image/*">
+                                                <p x-show="removed && hasFile" class="text-[10px] text-red-500 italic mt-1" style="display:none;">⚠️ File lama akan dihapus saat form disimpan.</p>
+                                            </div>
+                                            <input type="hidden" name="remove_photo_sesudah_{{ $safeKey }}" :value="removed ? '1' : '0'">
                                         </td>
                                         <td class="p-4">
                                             <input type="text" name="note_sesudah_{{ $safeKey }}" value="{{ $record->notes ?? '' }}" class="w-full rounded-md border-gray-300 focus:border-[#F8931F] focus:ring-[#F8931F] sm:text-sm" placeholder="Ket...">

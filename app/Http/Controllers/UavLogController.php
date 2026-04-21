@@ -70,7 +70,7 @@ class UavLogController extends Controller
         foreach (['sebelum', 'sesudah'] as $phase) {
             foreach ($this->standardComponents as $compName) {
                 
-                // Karena nama komponen ada spasinya, kita buat format key inputnya dengan underscore (contoh: comp_sebelum_Baterai_drone)
+                // Karena nama komponen ada spasinya, kita buat format key inputnya dengan underscore
                 $inputKeySafe = str_replace([' ', '&', '(', ')'], '_', $compName); 
 
                 $checkRecord = $log->componentChecks()->where('phase', $phase)->where('component_name', $compName)->first();
@@ -82,12 +82,19 @@ class UavLogController extends Controller
                         'notes'        => $request->input("note_{$phase}_{$inputKeySafe}")
                     ];
 
-                    // Handle File Upload
+                    // FITUR HAPUS & UPLOAD FILE
                     $fileKey = "photo_{$phase}_{$inputKeySafe}";
-                    if ($request->hasFile($fileKey)) {
-                        // Hapus file lama jika ada
+                    $removeKey = "remove_photo_{$phase}_{$inputKeySafe}";
+                    $isRemoved = $request->input($removeKey) == '1';
+
+                    // Jika user klik hapus ATAU mengunggah file baru, hapus file lama dari server
+                    if ($isRemoved || $request->hasFile($fileKey)) {
                         if ($checkRecord->photo_path) Storage::disk('public')->delete($checkRecord->photo_path);
-                        // Simpan file baru
+                        $updateData['photo_path'] = null; // Setel ke null di database
+                    }
+
+                    // Jika ada file baru yang diunggah, simpan file baru tersebut
+                    if ($request->hasFile($fileKey)) {
                         $updateData['photo_path'] = $request->file($fileKey)->store("uav_maintenance/{$log->id}", 'public');
                     }
 
