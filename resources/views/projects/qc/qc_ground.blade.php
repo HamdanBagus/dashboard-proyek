@@ -103,7 +103,7 @@
 
                         <input type="hidden" name="remove_file_tolerance" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus. Silakan unggah file baru atau biarkan kosong.</p>
-                        <input type="text" name="note_file_tolerance" value="{{ $qc->note_file_tolerance }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
+                        <input type="text" name="note_file_tolerance" value="{{ $qc->note_file_tolerance }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->file_inacors ? 'true' : 'false' }}, fileError: false }">
@@ -125,7 +125,7 @@
 
                         <input type="hidden" name="remove_file_inacors" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus. Silakan unggah file baru atau biarkan kosong.</p>
-                        <input type="text" name="note_file_inacors" value="{{ $qc->note_file_inacors }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
+                        <input type="text" name="note_file_inacors" value="{{ $qc->note_file_inacors }}" class="w-full  mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->file_google_earth ? 'true' : 'false' }}, fileError: false }">
@@ -147,7 +147,7 @@
 
                         <input type="hidden" name="remove_file_google_earth" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus. Silakan unggah file baru atau biarkan kosong.</p>
-                        <input type="text" name="note_file_google_earth" value="{{ $qc->note_file_google_earth }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
+                        <input type="text" name="note_file_google_earth" value="{{ $qc->note_file_google_earth }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->file_utsb ? 'true' : 'false' }}, fileError: false }">
                         <p class="font-bold text-sm mb-3 text-gray-800">4. Foto UTSB sesuai arah mata angin, paku menempel.</p>
@@ -169,7 +169,7 @@
                         <input type="hidden" name="remove_file_utsb" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-1 mb-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
 
-                        <input type="text" name="note_file_utsb" value="{{ $qc->note_file_utsb }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk foto UTSB (opsional)...">
+                        <input type="text" name="note_file_utsb" value="{{ $qc->note_file_utsb }}" class="w-full  border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk foto UTSB (opsional)...">
                     </div>
                     
                 </div>
@@ -221,7 +221,7 @@
                                     <input type="checkbox" name="rev_chk_folder_{{ $chk['id'] }}" value="1" {{ $qc->{'rev_chk_folder_'.$chk['id']} ? 'checked' : '' }} class="rounded border-gray-400 text-green-600 focus:ring-green-500 h-5 w-5 cursor-pointer">
                                 </td>
                                 <td class="p-3">
-                                    <input type="text" name="rev_note_{{ $chk['id'] }}" value="{{ $qc->{'rev_note_'.$chk['id']} }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Ketik catatan revisi...">
+                                    <input type="text" name="rev_note_{{ $chk['id'] }}" value="{{ $qc->{'rev_note_'.$chk['id']} }}" class="w-full  mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Ketik catatan revisi...">
                                 </td>
                             </tr>
                             @endforeach
@@ -251,7 +251,7 @@
 
                         <input type="hidden" name="remove_rev_file_tolerance" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
-                        <input type="text" name="rev_note_file_tolerance" value="{{ $qc->rev_note_file_tolerance }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">
+                        <input type="text" name="rev_note_file_tolerance" value="{{ $qc->rev_note_file_tolerance }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->rev_file_inacors ? 'true' : 'false' }}, fileError: false }">
@@ -273,7 +273,7 @@
 
                         <input type="hidden" name="remove_rev_file_inacors" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
-                        <input type="text" name="rev_note_file_inacors" value="{{ $qc->rev_note_file_inacors }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">
+                        <input type="text" name="rev_note_file_inacors" value="{{ $qc->rev_note_file_inacors }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">
                     </div>
 
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->rev_file_google_earth ? 'true' : 'false' }}, fileError: false }">
@@ -295,7 +295,7 @@
 
                         <input type="hidden" name="remove_rev_file_google_earth" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
-                        <input type="text" name="rev_note_file_google_earth" value="{{ $qc->rev_note_file_google_earth }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">                    
+                        <input type="text" name="rev_note_file_google_earth" value="{{ $qc->rev_note_file_google_earth }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Catatan untuk file ini (opsional)...">                    
                     </div>
                     <div class="bg-gray-50 p-5 rounded-lg border border-gray-200" x-data="{ removed: false, hasFile: {{ $qc->rev_file_utsb ? 'true' : 'false' }}, fileError: false }">
                         <p class="font-bold text-sm mb-3 text-gray-800">4. Foto UTSB sesuai arah mata angin, paku menempel.</p>
@@ -314,10 +314,10 @@
                             <p x-show="fileError" class="text-xs text-red-600 font-bold mt-2" style="display:none;">⚠️ File ditolak! Ukuran melebihi batas 2MB.</p>
                         </div>
 
-                        <input type="hidden" name="remove_file_utsb" x-bind:value="removed ? '1' : '0'">
+                        <input type="hidden" name="remove_rev_file_utsb" x-bind:value="removed ? '1' : '0'">
                         <p x-show="removed && hasFile" class="text-xs text-red-500 italic mt-1 mb-3 font-medium" style="display: none;">⚠️ File lama akan dihapus.</p>
 
-                        <input type="text" name="rev_note_file_utsb" value="{{ $qc->rev_note_file_utsb }}" class="w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk foto UTSB (opsional)...">
+                        <input type="text" name="rev_note_file_utsb" value="{{ $qc->rev_note_file_utsb }}" class="w-full mt-2 border-gray-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan untuk foto UTSB (opsional)...">
                     </div>
                 </div>
 
