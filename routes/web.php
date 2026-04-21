@@ -24,10 +24,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Karyawan
     Route::post('/management/employee', [\App\Http\Controllers\AssetManagementController::class, 'storeEmployee'])->name('management.employee.store');
     Route::delete('/management/employee/{employee}', [\App\Http\Controllers\AssetManagementController::class, 'destroyEmployee'])->name('management.employee.destroy');
+    Route::put('/management/employee/{employee}', [AssetManagementController::class, 'updateEmployee'])->name('management.employee.update');
 
     // UAV
     Route::post('/management/uav', [\App\Http\Controllers\AssetManagementController::class, 'storeUav'])->name('management.uav.store');
     Route::delete('/management/uav/{uav}', [\App\Http\Controllers\AssetManagementController::class, 'destroyUav'])->name('management.uav.destroy');
+    Route::put('/management/uav/{uav}', [AssetManagementController::class, 'updateUav'])->name('management.uav.update');
 
     // Kamera
     Route::post('/management/camera', [\App\Http\Controllers\AssetManagementController::class, 'storeCamera'])->name('management.camera.store');
@@ -39,6 +41,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // GPS
     Route::post('/management/gps', [\App\Http\Controllers\AssetManagementController::class, 'storeGps'])->name('management.gps.store');
     Route::delete('/management/gps/{gps}', [\App\Http\Controllers\AssetManagementController::class, 'destroyGps'])->name('management.gps.destroy');
+
 });
 
 
@@ -169,6 +172,8 @@ Route::middleware('auth')->group(function () {
     // Route untuk Log UAV (Maintenance)
     Route::get('/projects/{project}/uav-log/{uav_name}', [App\Http\Controllers\UavLogController::class, 'show'])->name('projects.uav-log.show');
     Route::post('/projects/{project}/uav-log/{uav_id}', [App\Http\Controllers\UavLogController::class, 'update'])->name('projects.uav-log.update');
+
+    
 
 });
 

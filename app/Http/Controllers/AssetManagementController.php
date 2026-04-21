@@ -92,4 +92,19 @@ class AssetManagementController extends Controller
         $gps->delete();
         return back()->with('success', 'Aset GPS berhasil dihapus.');
     }
+    public function updateEmployee(Request $request, Employee $employee) {
+        $employee->update($request->validate(['name' => 'required|string|max:255']));
+        return back()->with('success', 'Data Karyawan berhasil diperbarui.');
+    }
+    
+    public function updateUav(Request $request, AssetUav $uav) {
+        $validatedData = $request->validate([
+            'name'          => 'required|string|max:255',
+            'serial_number' => 'nullable|string|max:255',
+            'pic_id'        => 'nullable|exists:employees,id',
+        ]);
+
+        $uav->update($validatedData);
+        return back()->with('success', 'Asset UAV berhasil diperbarui.');
+    }
 }
