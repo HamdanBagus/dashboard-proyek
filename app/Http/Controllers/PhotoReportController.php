@@ -13,9 +13,6 @@ use App\Services\ProgressCalculatorService;
 
 class PhotoReportController extends Controller
 {
-    /**
-     * Halaman Utama Laporan Foto Udara
-     */
     public function index(Project $project)
     {
         $report = PhotoReport::firstOrCreate(
@@ -35,9 +32,7 @@ class PhotoReportController extends Controller
         return view('projects.progress.photo.index', compact('project', 'report', 'hamparans', 'pctOverall', 'hamparanCount'));
     }
 
-    /**
-     * Update Header (Tanggal)
-     */
+    // update header
     public function updateReport(Request $request, PhotoReport $report)
     {
         $report->update($request->validate([
@@ -47,9 +42,7 @@ class PhotoReportController extends Controller
         return back()->with('success', 'Header laporan diperbarui.');
     }
 
-    /**
-     * Tambah Hamparan (Area)
-     */
+    // add new hamparan
     public function storeHamparan(Request $request, PhotoReport $report)
     {
         $report->hamparans()->create($request->validate([
@@ -59,18 +52,14 @@ class PhotoReportController extends Controller
         return back()->with('success', 'Hamparan berhasil ditambahkan.');
     }
 
-    /**
-     * Hapus Hamparan
-     */
+    //delete hamparan
     public function destroyHamparan(PhotoHamparan $hamparan)
     {
         $hamparan->delete();
         return back()->with('success', 'Hamparan dihapus.');
     }
 
-    /**
-     * Tambah Output File
-     */
+    // add new output
     public function storeOutput(Request $request, PhotoHamparan $hamparan) 
     {
         $hamparan->outputs()->create($request->validate([
@@ -84,18 +73,14 @@ class PhotoReportController extends Controller
         return back()->with('success', 'Output berhasil ditambahkan ke area ini.');
     }
 
-    /**
-     * Hapus Output
-     */
+    // delete output
     public function destroyOutput(PhotoOutput $output)
     {
         $output->delete();
         return back()->with('success', 'Output dihapus.');
     }
 
-    /**
-     * Update data output dari pop-up modal
-     */
+    //update output
     public function updateOutput(Request $request, PhotoOutput $output)
     {
         $validated = $request->validate([
@@ -111,9 +96,7 @@ class PhotoReportController extends Controller
         return back()->with('success', 'Detail output berhasil diperbarui!');
     }
 
-    /**
-     * Halaman Detail Hamparan (Tabel Progress Per Tahap)
-     */
+    // Show detail hamparan
     public function showHamparan(PhotoHamparan $hamparan)
     {
         $hamparan->load(['progresses', 'outputs', 'photoReport.project.personnel']);
@@ -135,10 +118,7 @@ class PhotoReportController extends Controller
             'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase','totalHariPengolahan',
         ));
     }
-
-    /**
-     * Tambah Progress Tahapan
-     */
+    //add new progress 
     public function storeProgress(Request $request, PhotoHamparan $hamparan)
     {
         $request->validate(['stage_name' => 'required|string']);
@@ -147,9 +127,7 @@ class PhotoReportController extends Controller
         return back()->with('success', 'Tahapan berhasil ditambahkan.');
     }
 
-    /**
-     * Update data progress tahapan dari pop-up modal
-     */
+    //update progress
     public function updateProgress(Request $request, PhotoProgress $progress)
     {
         $validated = $request->validate([
@@ -167,9 +145,7 @@ class PhotoReportController extends Controller
         return back()->with('success', 'Progress tahapan berhasil diperbarui!');
     }
 
-    /**
-     * Hapus Progress Tahapan
-     */
+    //delete progress
     public function destroyProgress(PhotoProgress $progress)
     {
         $progress->delete();

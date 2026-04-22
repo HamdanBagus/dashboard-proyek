@@ -9,19 +9,13 @@ use App\Models\LidarReport;
 
 class ProgressCalculatorService
 {
-    /**
-     * =====================================================================
-     * FUNGSI MASTER (SINGLE SOURCE OF TRUTH)
-     * Menghitung semua statistik (Tahapan & Output) untuk Hamparan apapun
-     * Dilengkapi logika kebal spasi & huruf (unique) untuk menghindari bug
-     * =====================================================================
-     */
+    // count stages and outputs
     public static function getHamparanStats($hamparan)
     {
         $progresses = $hamparan->progresses;
         $outputs = $hamparan->outputs;
 
-        // 1. Hitung Tahapan (Kebal Spasi & Huruf Besar/Kecil)
+        // count unique stages for total and completed
         $totalTahapan = $progresses->map(function ($item) { 
             return strtolower(trim($item->stage_name)); 
         })->unique()->count();
@@ -32,13 +26,13 @@ class ProgressCalculatorService
 
         $pctTahapan = $totalTahapan > 0 ? ($tahapanSelesai / $totalTahapan) * 100 : 0;
 
-        // 2. Hitung Output
+        // count outputs for total and completed
         $totalOutput = $outputs->count();
         $outputSelesai = $outputs->where('checklist', 1)->count();
         
         $pctOutput = $totalOutput > 0 ? ($outputSelesai / $totalOutput) * 100 : 0;
 
-        // 3. Persentase Gabungan (Jika output belum ada, ambil dari tahapan saja)
+        // merge progress and output percentages with equal weight
         $persentaseGabungan = $totalOutput > 0 ? ($pctTahapan + $pctOutput) / 2 : $pctTahapan;
 
         return [
@@ -51,30 +45,21 @@ class ProgressCalculatorService
             'persentase_gabungan' => $persentaseGabungan
         ];
     }
-
-    /**
-     * Menghitung persentase gabungan untuk 1 Hamparan Foto.
-     */
+    // count merge progress and output percentages for 1 Hamparan 
     public static function calculateHamparanProgress(PhotoHamparan $hamparan)
     {
-        // Panggil Fungsi Master di atas, lalu ambil persentasenya saja
         $stats = self::getHamparanStats($hamparan);
         return $stats['persentase_gabungan'];
     }
 
-    /**
-     * Menghitung persentase gabungan untuk 1 Hamparan LiDAR.
-     */
+    // count merge progress and output percentages for 1 Hamparan LiDAR
     public static function calculateLidarHamparanProgress(LidarHamparan $hamparan)
     {
-        // Panggil Fungsi Master di atas, lalu ambil persentasenya saja
         $stats = self::getHamparanStats($hamparan);
         return $stats['persentase_gabungan'];
     }
 
-    /**
-     * Menghitung rata-rata persentase keseluruhan Laporan Foto Udara.
-     */
+    // count average overall progress for PhotoReport based on its Hamparans
     public static function calculatePhotoReportOverallProgress(PhotoReport $report)
     {
         $hamparans = $report->hamparans;
@@ -90,9 +75,7 @@ class ProgressCalculatorService
         return $totalSemuaPersentase / $count;
     }
 
-    /**
-     * Menghitung rata-rata persentase keseluruhan Laporan LiDAR.
-     */
+    // count average overall progress for LidarReport based on its Hamparans
     public static function calculateLidarReportOverallProgress(LidarReport $report)
     {
         $hamparans = $report->hamparans;
@@ -108,9 +91,7 @@ class ProgressCalculatorService
         return $totalSemuaPersentase / $count;
     }
 
-    /**
-     * Menghitung Performa Surveyor Tim Ground (Titik / Orang / Hari)
-     */
+    // count surveyor performance based on jumlah surveyor, jumlah hari, dan total titik yang terpasang/terukur
     public static function calculateGroundSurveyorPerformance($project, $report) 
     {
         $jumlahSurveyor = $project->personnel()->where('role', 'Surveyor')->count();
@@ -139,9 +120,7 @@ class ProgressCalculatorService
         ];
     }
 
-    /**
-     * Menghitung Progress UAV (Luas Tercapai & Persentase)
-     */
+    // count uav progress
     public static function calculateUavProgress($project, $uavReport)
     {
         $luasTercapai = $uavReport->logs()->where('status', 'Finished Flight')->sum('area_acquired');
@@ -154,9 +133,7 @@ class ProgressCalculatorService
         ];
     }
 
-    /**
-     * Menghitung Rekapitulasi Performa Pilot UAV
-     */
+    // count uav pilot performance
     public static function calculateUavPilotSummary($uavReport)
     {
         $allLogs = $uavReport->logs;
@@ -193,10 +170,7 @@ class ProgressCalculatorService
 
         return $pilotStats;
     }
-    /**
-     * Menghitung Persentase Keseluruhan (Overall Progress) Tim Ground
-     * Berdasarkan rata-rata pemasangan, pengukuran, dan pengolahan titik.
-     */
+    // count overall progress for 1 Hamparan
     public static function calculateGroundProgress($project, $groundReport)
     {
         if (!$groundReport || $groundReport->points->count() === 0) {
@@ -205,14 +179,13 @@ class ProgressCalculatorService
 
         $totalTitik = $groundReport->points->count();
         
-        // Hitung masing-masing status yang true/selesai
+        // count installed, measured, and processed points
         $installed  = $groundReport->points->where('install_status', true)->count();
         $measured   = $groundReport->points->where('measure_status', true)->count();
         $processed  = $groundReport->points->where('process_status', true)->count();
 
-        // Rumus: ( (Persentase Pasang + Persentase Ukur + Persentase Olah) / 3 ) * 100
         $persentase = (( ($installed / $totalTitik) + ($measured / $totalTitik) + ($processed / $totalTitik) ) / 3) * 100;
 
-        return min($persentase, 100); // Pastikan tidak lebih dari 100%
+        return min($persentase, 100); 
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory; // Tambahkan ini jika err
 
 class GroundReport extends Model
 {
-    // Izinkan semua kolom diisi
+    // allow mass assignment except for 'id'
     protected $guarded = ['id'];
 
     public function project()
@@ -15,12 +15,11 @@ class GroundReport extends Model
         return $this->belongsTo(Project::class);
     }
 
-    // Relasi ke titik-titik (akan dipakai nanti)
     public function points()
     {
         return $this->hasMany(GroundPoint::class);
     }
-    // --- 1. Statistik Jumlah Titik ---
+    // statistic of points by type
     public function getCountBmAttribute()
     {
         return $this->points()->where('point_type', 'BM')->count();
@@ -41,7 +40,7 @@ class GroundReport extends Model
         return $this->points()->count();
     }
 
-    // --- 2. Statistik Tahapan Selesai ---
+    // statistic of points by status
     public function getInstalledCountAttribute()
     {
         return $this->points()->where('install_status', true)->count();
@@ -57,7 +56,8 @@ class GroundReport extends Model
         return $this->points()->where('process_status', true)->count();
     }
 
-    // --- 3. Persentase Keseluruhan (Overall Progress) ---
+    // overall progress in percentage
+    
     public function getOverallProgressAttribute()
     {
         $total = $this->total_titik;

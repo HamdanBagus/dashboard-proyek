@@ -10,13 +10,11 @@ class PhotoHamparan extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    // Relasi KE ATAS (Induk): Ke Laporan Foto
     public function photoReport()
     {
         return $this->belongsTo(PhotoReport::class);
     }
 
-    // Relasi KE BAWAH (Anak): Ke Progress Tahapan
     public function progresses()
     {
         return $this->hasMany(PhotoProgress::class)
@@ -49,13 +47,11 @@ class PhotoHamparan extends Model
             ->orderBy('id', 'asc');
     }
     
-    // Relasi KE BAWAH (Anak): Ke Output File
     public function outputs()
     {
         return $this->hasMany(PhotoOutput::class, 'photo_hamparan_id');
     }
 
-    // Menghitung total hari proses dari semua tahapan
     public function getTotalProcessingDaysAttribute()
     {
         $minDate = $this->progresses()->whereNotNull('start_date')->min('start_date');

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('asset_pcs', function (Blueprint $table) {
         $table->id();
-        $table->string('name'); // Contoh: PC Panther
-        $table->string('spec')->nullable(); // Spesifikasi singkat
-        $table->string('status')->default('baik'); // baik/rusak
+        $table->string('name'); 
+        $table->string('spec')->nullable(); 
+        $table->string('status')->default('baik'); 
         $table->timestamps();
         $table->softDeletes();
     });

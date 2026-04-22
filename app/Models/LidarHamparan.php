@@ -9,13 +9,11 @@ class LidarHamparan extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    // Relasi KE ATAS (Induk): Ke Laporan LiDAR
     public function lidarReport() 
     { 
         return $this->belongsTo(LidarReport::class); 
     }
     
-    // Relasi KE BAWAH (Anak): Ke Progress Tahapan
     public function progresses() 
     { 
         return $this->hasMany(LidarProgress::class)
@@ -36,13 +34,12 @@ class LidarHamparan extends Model
             ->orderBy('id', 'asc'); 
     }
     
-    // Relasi KE BAWAH (Anak): Ke Output File
     public function outputs()
     {
         return $this->hasMany(LidarOutput::class, 'lidar_hamparan_id');
     }
 
-    // Menghitung total hari proses dari semua tahapan
+    // count total processing days based on progresses with valid start and end dates
     public function getTotalProcessingDaysAttribute()
     {
         $minDate = $this->progresses()->whereNotNull('start_date')->min('start_date');

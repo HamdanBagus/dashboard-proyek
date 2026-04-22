@@ -9,9 +9,6 @@ use App\Services\ProgressCalculatorService;
 
 class GroundReportController extends Controller
 {
-    /**
-     * Menampilkan Halaman Laporan Ground
-     */
     public function index(Project $project)
     {
         $report = GroundReport::firstOrCreate(
@@ -25,16 +22,13 @@ class GroundReportController extends Controller
         );
         $report->load('points');
         
-        // Load data personil yang ada di proyek ini
+        // Load project personnel to calculate surveyor performance
         $project->load('personnel');
         $performaData = ProgressCalculatorService::calculateGroundSurveyorPerformance($project, $report);
 
         return view('projects.progress.ground', compact('project', 'report', 'performaData'));
     }
-
-    /**
-     * Update Data Header (Tanggal & Jumlah Titik)
-     */
+    // Update Ground Report 
     public function update(Request $request, GroundReport $report)
     {
         $validated = $request->validate([

@@ -9,7 +9,7 @@ use App\Models\LidarOutput;
 use App\Models\LidarProgress;
 use App\Models\AssetPc;
 use Illuminate\Http\Request;
-use App\Services\ProgressCalculatorService; // <-- Panggil Service Master Kita
+use App\Services\ProgressCalculatorService; 
 
 class LidarReportController extends Controller
 {
@@ -20,7 +20,7 @@ class LidarReportController extends Controller
             ['status' => 'On Progress'] //  default status 
         );
         
-        // Eager load relasi agar hemat query
+        // Eager load relations for hamparans to avoid N+1 problem in Blade
         $hamparans = $report->hamparans()->with(['progresses', 'outputs'])->get();
         foreach ($hamparans as $h) {
             $h->persentase_gabungan = ProgressCalculatorService::calculateLidarHamparanProgress($h);
@@ -59,7 +59,7 @@ class LidarReportController extends Controller
 
     public function showHamparan(LidarHamparan $hamparan)
     {
-        // 1. Eager Load Relasi agar tidak N+1
+        // Eager Load relations for the selected hamparan
         $hamparan->load(['progresses', 'outputs', 'lidarReport.project.personnel']);
         
         $project = $hamparan->lidarReport->project;
@@ -68,25 +68,22 @@ class LidarReportController extends Controller
         $totalHariPengolahan = $hamparan->total_processing_days;
 
         
-        // 2. PANGGIL SINGLE SOURCE OF TRUTH (FUNGSI MASTER)
+        // call service for stats calculation
         $stats = ProgressCalculatorService::getHamparanStats($hamparan);
 
-        // 3. Pecah array dari Service untuk dikirim ke Blade
+        // Extract stats into individual variables for easier use in Blade
         $totalTahapan = $stats['total_tahapan'];
         $tahapanSelesai = $stats['tahapan_selesai'];
         $totalOutput = $stats['total_output'];
         $outputSelesai = $stats['output_selesai'];
         $persentase = $stats['persentase_gabungan'];
 
-        // Kirim semua variabel ke tampilan Blade
+        // Pass all data to the view
         return view('projects.progress.lidar.show_hamparan', compact(
             'hamparan', 'project', 'pcs', 'pengolahData',
             'totalTahapan', 'tahapanSelesai', 'totalOutput', 'outputSelesai', 'persentase','totalHariPengolahan'
         ));
     }
-
-    // --- PROGRESS TAHAPAN ---
-
     public function storeProgress(Request $request, LidarHamparan $hamparan)
     {
         $hamparan->progresses()->create($request->validate([
@@ -113,16 +110,11 @@ class LidarReportController extends Controller
 
         return back()->with('success', 'Progress tahapan berhasil diperbarui!');
     }
-
     public function destroyProgress(LidarProgress $progress)
     {
         $progress->delete();
         return back()->with('success', 'Tahapan dihapus.');
     }
-
-
-    // --- OUTPUT PRODUK ---
-
     public function storeOutput(Request $request, LidarHamparan $hamparan)
     {
         $validated = $request->validate([
@@ -130,12 +122,9 @@ class LidarReportController extends Controller
             'format' => 'required|string|max:255',
             'checklist' => 'required|boolean'
         ]);
-
         $hamparan->outputs()->create($validated);
-
         return back()->with('success', 'Output berhasil didaftarkan.');
     }
-
     public function updateOutput(Request $request, LidarOutput $output)
     {
         $validated = $request->validate([
@@ -145,12 +134,9 @@ class LidarReportController extends Controller
             'location' => 'nullable|string|max:1000',
             'checklist' => 'required|boolean',
         ]);
-
         $output->update($validated);
-
         return back()->with('success', 'Detail output berhasil diperbarui!');
     }
-
     public function destroyOutput(LidarOutput $output)
     {
         $output->delete();

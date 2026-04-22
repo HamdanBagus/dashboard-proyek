@@ -10,12 +10,9 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    /**
-     * Menampilkan Halaman Manajemen User
-     */
     public function index()
     {
-        //  Hanya Admin yang boleh masuk
+        //  admin-only access control
         if (!Auth::check() || Auth::user()?->role !== 'admin') {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE HALAMAN INI.');
         }
@@ -27,9 +24,7 @@ class UserController extends Controller
         return view('management.users.index', compact('users', 'employeesWithoutAccount'));
     }
 
-    /**
-     * Menyimpan Akun User Baru
-     */
+    // save new user
     public function store(Request $request)
     {
         if (!Auth::check() || Auth::user()?->role !== 'admin') {
@@ -45,11 +40,9 @@ class UserController extends Controller
             'employee_id.unique' => 'Karyawan ini sudah memiliki akun login!',
             'email.unique' => 'Email ini sudah digunakan oleh akun lain!'
         ]);
-
-        // Cari data karyawan berdasarkan ID yang dipilih Admin
         $employee = Employee::findOrFail($request->employee_id);
 
-        // Buat akun baru dari data karyawan 
+        // create user account and link to employee
         User::create([
             'name' => $employee->name, 
             'email' => $request->email,
@@ -61,16 +54,14 @@ class UserController extends Controller
         return back()->with('success', 'Akun berhasil dibuat dan dihubungkan dengan Karyawan!');
     }
 
-    /**
-     * Menghapus Akun User
-     */
+    // delete user
     public function destroy(User $user)
     {
         if (!Auth::check() || Auth::user()?->role !== 'admin') {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
         }
 
-        // Mencegah admin menghapus akunnya sendiri s
+        // prevent admin from deleting their own account while logged in
         if ($user->id === Auth::id()) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan!');
         }

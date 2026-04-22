@@ -20,7 +20,6 @@ class Employee extends Model
                     ->withTimestamps();
     }
 
-    // RELASI BARU: 1 Karyawan (bisa jadi) punya 1 Akun Login
     public function user()
     {
         return $this->hasOne(User::class);

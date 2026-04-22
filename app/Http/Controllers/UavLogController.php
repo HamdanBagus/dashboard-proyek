@@ -11,7 +11,7 @@ use App\Models\AssetPc;
 
 class UavLogController extends Controller
 {
-    // Daftar baku 18 komponen (SOP)
+    // list 18 components standart for pre & post flight check, to be used in both show & update methods
     private $standardComponents = [
         'Baterai drone', 'Baterai remote', 'Propeller', 'Motor', 'Servo',
         'Gimbal & Kamera (Payload)', 'GPS', 'Body Frame', 'Checklist', 'Firmware',
@@ -24,7 +24,7 @@ class UavLogController extends Controller
         $uav = AssetUav::where('name', $uav_id)->firstOrFail(); 
         $pilot = $project->personnel()->where('role', 'Pilot')->first();
 
-        // AMBIL DATA MASTER PC
+        // get all PCs for the dropdown in the form
         $pcs = AssetPc::all();
 
         $log = UavMaintenanceLog::firstOrCreate([
@@ -52,7 +52,6 @@ class UavLogController extends Controller
         $checksAfter = $log->componentChecks->where('phase', 'sesudah')->keyBy('component_name');
         $components = $this->standardComponents;
 
-        // PASTIKAN $pcs IKUT DIKIRIM KE COMPACT
         return view('projects.uav_log.show', compact('project', 'uav', 'log', 'components', 'checksBefore', 'checksAfter', 'pcs'));
     }
 
@@ -60,17 +59,15 @@ class UavLogController extends Controller
     {
         $log = UavMaintenanceLog::where('project_id', $project->id)->where('uav_id', $uav_id)->firstOrFail();
 
-        // 1. Update Data Induk (Angka-angka)
+        // Update main Data Log Maintenance UAV
         $log->update($request->only([
             'km_before', 'flight_count_before', 'flight_hours_before',
             'km_after', 'flight_count_after', 'flight_hours_after'
         ]));
 
-        // 2. Loop dan Update Data Komponen (Pre & Post)
+        // Loop and Update Data Component Checks for both 'sebelum' and 'sesudah' phases 
         foreach (['sebelum', 'sesudah'] as $phase) {
             foreach ($this->standardComponents as $compName) {
-                
-                // Karena nama komponen ada spasinya, kita buat format key inputnya dengan underscore
                 $inputKeySafe = str_replace([' ', '&', '(', ')'], '_', $compName); 
 
                 $checkRecord = $log->componentChecks()->where('phase', $phase)->where('component_name', $compName)->first();
@@ -82,18 +79,18 @@ class UavLogController extends Controller
                         'notes'        => $request->input("note_{$phase}_{$inputKeySafe}")
                     ];
 
-                    // FITUR HAPUS & UPLOAD FILE
+                    // delete and update photo if user requested deletion or uploaded new photo
                     $fileKey = "photo_{$phase}_{$inputKeySafe}";
                     $removeKey = "remove_photo_{$phase}_{$inputKeySafe}";
                     $isRemoved = $request->input($removeKey) == '1';
 
-                    // Jika user klik hapus ATAU mengunggah file baru, hapus file lama dari server
+                    // id user wants to remove existing photo or upload new one, then delete old photo if exists
                     if ($isRemoved || $request->hasFile($fileKey)) {
                         if ($checkRecord->photo_path) Storage::disk('public')->delete($checkRecord->photo_path);
-                        $updateData['photo_path'] = null; // Setel ke null di database
+                        $updateData['photo_path'] = null; // set to null if removed, will be updated with new path if new file uploaded below
                     }
 
-                    // Jika ada file baru yang diunggah, simpan file baru tersebut
+                    // if there's a new file uploaded, store it and update the path
                     if ($request->hasFile($fileKey)) {
                         $updateData['photo_path'] = $request->file($fileKey)->store("uav_maintenance/{$log->id}", 'public');
                     }

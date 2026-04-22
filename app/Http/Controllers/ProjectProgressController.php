@@ -10,7 +10,7 @@ class ProjectProgressController extends Controller
 {
     public function index(Project $project)
     {
-        // 1. Eager Load Relasi secara efisien untuk performa maksimal
+        // Eager Load all related data needed for progress calculation to avoid N+1 query problem in the views
         $project->load([
             'groundReport.points', 
             'uavReport.logs', 
@@ -18,34 +18,32 @@ class ProjectProgressController extends Controller
             'lidarReport.hamparans.outputs', 'lidarReport.hamparans.progresses'
         ]);
 
-        // 2. HITUNG PROGRESS DARI SINGLE SOURCE OF TRUTH (SERVICE)
-
-        // -- A. PROGRESS GROUND
+        // A. PROGRESS GROUND
         $groundProgress = 0;
         if ($project->groundReport) {
             $groundProgress = ProgressCalculatorService::calculateGroundProgress($project, $project->groundReport);
         }
 
-        // -- B. PROGRESS UAV --
+        // B. PROGRESS UAV 
         $uavProgress = 0;
         if ($project->uavReport) {
             $uavData = ProgressCalculatorService::calculateUavProgress($project, $project->uavReport);
             $uavProgress = $uavData['persentase'];
         }
 
-        // -- C. PROGRESS FOTO UDARA --
+        // C. PROGRESS AIR PHOTO 
         $photoProgress = 0;
         if ($project->photoReport) {
             $photoProgress = ProgressCalculatorService::calculatePhotoReportOverallProgress($project->photoReport);
         }
 
-        // -- D. PROGRESS LIDAR --
+        // D. PROGRESS LIDAR 
         $lidarProgress = 0;
         if ($project->lidarReport) {
             $lidarProgress = ProgressCalculatorService::calculateLidarReportOverallProgress($project->lidarReport);
         }
 
-        // 3. Batasi nilai maksimal 100% 
+        // 3. LIMIT PROGRESS TO MAX 100% 
         $groundProgress = min($groundProgress, 100);
         $uavProgress    = min($uavProgress, 100);
         $photoProgress  = min($photoProgress, 100);

@@ -9,10 +9,10 @@ class GroundPoint extends Model
 {
     use HasFactory;
 
-    // BARIS PENTING: Mengizinkan semua kolom diisi kecuali ID
+    // allow mass assignment except for 'id'
     protected $guarded = ['id'];
 
-    // Relasi balik ke Laporan Ground
+    // relation to GroundReport
     public function report()
     {
         return $this->belongsTo(GroundReport::class, 'ground_report_id');

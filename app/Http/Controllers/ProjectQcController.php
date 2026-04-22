@@ -20,9 +20,7 @@ class ProjectQcController extends Controller
         return view('projects.qc.index', compact('project'));
     }
 
-    // =================================================================
-    // --- QC TIM GROUND ---
-    // =================================================================
+    // QC TIM GROUND
     public function showGround(Project $project)
     {
         $project->load(['personnel', 'groundReport']);
@@ -34,21 +32,17 @@ class ProjectQcController extends Controller
     public function updateGround(Request $request, Project $project)
     {
         $qc = QcGround::where('project_id', $project->id)->first();
-
-        // 1. TAMBAHAN VALIDASI UNTUK FILE UTSB
         $request->validate([
             'file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'file_utsb' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Baru
+            'file_utsb' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', 
             
             'rev_file_tolerance' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'rev_file_inacors' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'rev_file_google_earth' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'rev_file_utsb' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Baru
+            'rev_file_utsb' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', 
         ]);
-
-        // Secara otomatis menangkap semua text input (termasuk 8 input notes baru)
         $data = $request->except(['_token', '_method']);
 
         $items = ['form_log', 'raw_gps', 'report_gps', 'coordinate', 'photo_utsb'];
@@ -74,13 +68,13 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // TAMBAHAN: Reset Notes File Revisi jika diubah menjadi "Tidak Ada Revisi"
+            // RESET 4 NOTES FILE REVISI IF NOT IN REVISION STATUS
             $data['rev_note_file_tolerance'] = null;
             $data['rev_note_file_inacors'] = null;
             $data['rev_note_file_google_earth'] = null;
             $data['rev_note_file_utsb'] = null;
             
-            // 2. TAMBAHAN: Masukkan rev_file_utsb untuk dihapus dari server jika batal revisi
+            // PUT REVISION FILE TO NULL IF NOT IN REVISION STATUS
             $revFiles = ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth', 'rev_file_utsb'];
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
@@ -88,7 +82,7 @@ class ProjectQcController extends Controller
             }
         }
 
-        // 3. TAMBAHAN: Masukkan file_utsb dan rev_file_utsb ke array pemrosesan upload/delete
+        // input file ustb and rev_file_ustb  into array to handle upload and deletion in one loop
         $fileFields = ['file_tolerance', 'file_inacors', 'file_google_earth', 'file_utsb'];
         if ($hasRevision) {
             $fileFields = array_merge($fileFields, ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth', 'rev_file_utsb']);
@@ -113,9 +107,7 @@ class ProjectQcController extends Controller
         return back()->with('success', 'Data QC Tim Ground berhasil disimpan!');
     }
 
-    // =================================================================
-    // --- QC UAV FOTO UDARA ---
-    // =================================================================
+    //  QC uav photo 
     public function showUavPhoto(Project $project)
     {
         $project->load(['personnel', 'uavReport.logs']);
@@ -146,7 +138,6 @@ class ProjectQcController extends Controller
             'rev_file_gsd'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Otomatis menangkap seluruh checkbox status & text input notes
         $data = $request->except(['_token', '_method']);
 
         $items = ['raw_photo', 'raw_uav', 'base_gps', 'geotag'];
@@ -166,7 +157,7 @@ class ProjectQcController extends Controller
                 $data["rev_chk_folder_{$item}"] = $request->has("rev_chk_folder_{$item}");
             }
         } else {
-            // Jika statusnya batal revisi/selesai, bersihkan jejak revisi
+            // if not in revision status, reset all revision checkboxes to false and notes to null
             foreach ($items as $item) {
                 $data["rev_chk_complete_{$item}"] = 0;
                 $data["rev_chk_folder_{$item}"] = 0;
@@ -175,14 +166,14 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // TAMBAHAN: Reset 5 notes upload revisi menjadi null
+            // reset 5 notes revision if not in revision status
             $data['rev_note_file_quality'] = null;
             $data['rev_note_file_geotag'] = null;
             $data['rev_note_file_blur'] = null;
             $data['rev_note_file_overlap'] = null;
             $data['rev_note_file_gsd'] = null;
             
-            // Hapus file fisik revisi
+            // delete file revision if not in revision status
             foreach ($revFiles as $rf) {
                 if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
                 $data[$rf] = null;
@@ -213,9 +204,7 @@ class ProjectQcController extends Controller
         return back()->with('success', 'Data QC UAV Foto Udara berhasil disimpan!');
     }
 
-    // =================================================================
-    // --- QC UAV LIDAR ---
-    // =================================================================
+    //  QC UAV LIDAR 
     public function showUavLidar(Project $project)
     {
         $project->load(['personnel', 'uavReport.logs']);
@@ -240,7 +229,6 @@ class ProjectQcController extends Controller
             'rev_file_accuracy' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Otomatis menangkap seluruh checkbox status & text input notes
         $data = $request->except(['_token', '_method']);
 
         $items = ['raw_lidar', 'base_gps', 'pre_processing'];
@@ -268,7 +256,7 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // TAMBAHAN: Reset notes file revisi menjadi null
+            // reset notes revisi if not in revision status
             $data['rev_note_file_gap'] = null;
             $data['rev_note_file_accuracy'] = null;
             
@@ -302,9 +290,7 @@ class ProjectQcController extends Controller
         return back()->with('success', 'Data QC UAV LiDAR berhasil disimpan!');
     }
 
-    // =================================================================
-    // --- QC PENGOLAH DATA ---
-    // =================================================================
+    // QC processing    
     public function showProcessing(Project $project)
     {
         $project->load(['lidarReport.hamparans']);
@@ -317,28 +303,26 @@ class ProjectQcController extends Controller
     {
         $qc = QcProcessing::where('project_id', $project->id)->first();
 
-        // 1. Validasi File (Utama & Revisi)
         $fileRules = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048';
         $request->validate([
             'file_accuracy' => $fileRules, 'file_ortho' => $fileRules, 'file_cloud' => $fileRules, 'file_folder' => $fileRules, 'file_hdd' => $fileRules,
             'rev_file_accuracy' => $fileRules, 'rev_file_ortho' => $fileRules, 'rev_file_cloud' => $fileRules, 'rev_file_folder' => $fileRules, 'rev_file_hdd' => $fileRules,
         ]);
 
-        // Otomatis menangkap text input notes
         $data = $request->except(['_token', '_method']);
 
-        // 2. Handle Checkbox UTAMA
+        // handle checkbox for processing QC
         $items = ['project_file', 'ortho', 'dsm', 'dtm', 'accuracy', 'report', 'other'];
         foreach ($items as $item) {
             $data["chk_{$item}"] = $request->has("chk_{$item}");
             $data["chk_folder_{$item}"] = $request->has("chk_folder_{$item}");
         }
 
-        // 3. Handle Status Revisi Mayor
+        // handle major revision status
         $hasRevision = $request->has('has_major_revision') && $request->has_major_revision == '1';
         $data['has_major_revision'] = $hasRevision;
 
-        // 4. Handle Checkbox & Pembersihan QC REVISI
+        // handle revision checkboxes if major revision is true
         $revFiles = ['rev_file_accuracy', 'rev_file_ortho', 'rev_file_cloud', 'rev_file_folder', 'rev_file_hdd'];
 
         if ($hasRevision) {
@@ -355,7 +339,7 @@ class ProjectQcController extends Controller
             $data['rev_qc_date'] = null;
             $data['rev_qc_officer_name'] = null;
             
-            // TAMBAHAN: Reset notes revisi
+            // reset notes revisi if not in revision status
             $data['rev_note_file_accuracy'] = null;
             $data['rev_note_file_ortho'] = null;
             $data['rev_note_file_cloud'] = null;
@@ -368,7 +352,7 @@ class ProjectQcController extends Controller
             }
         }
 
-        // 5. Handle File Uploads & Tombol Hapus
+        // handle file uploads and deletions for both original and revision files
         $fileFields = ['file_accuracy', 'file_ortho', 'file_cloud', 'file_folder', 'file_hdd'];
         if ($hasRevision) {
             $fileFields = array_merge($fileFields, $revFiles);
@@ -393,7 +377,7 @@ class ProjectQcController extends Controller
         return back()->with('success', 'Data QC Pengolah Data berhasil disimpan!');
     }
 
-    // --- QC PROJECT MANAGER (FINAL) ---
+    // QC PROJECT MANAGER 
     
     public function showManager(Project $project)
     {
@@ -413,7 +397,6 @@ class ProjectQcController extends Controller
             'rev_file_other'  => $fileRules,
         ]);
 
-        // Otomatis menangkap seluruh checkbox & input notes
         $data = $request->except(['_token', '_method']);
 
         $items = ['report', 'other_docs'];
@@ -440,8 +423,6 @@ class ProjectQcController extends Controller
             }
             $data['rev_qc_date'] = null;
             $data['rev_qc_name'] = null;
-            
-            // TAMBAHAN: Reset notes revisi
             $data['rev_note_file_report'] = null;
             $data['rev_note_file_other'] = null;
             

@@ -22,7 +22,7 @@ class AssetManagementController extends Controller
         return view('management.index', compact('employees', 'uavs', 'cameras', 'pcs','gps_units'));
     }
 
-    // --- CRUD KARYAWAN ---
+    // CRUD EMPLOYEE
     public function storeEmployee(Request $request) {
         Employee::create($request->validate(['name' => 'required|string|max:255']));
         return back()->with('success', 'Karyawan berhasil ditambahkan.');
@@ -32,19 +32,19 @@ class AssetManagementController extends Controller
         return back()->with('success', 'Karyawan berhasil dihapus.');
     }
 
-    // --- CRUD UAV ---
+    // CRUD UAV
     public function storeUav(Request $request) {
-        // 1. Validasi semua inputan yang masuk dari form
+        // validate input
         $validatedData = $request->validate([
             'name'          => 'required|string|max:255',
             'serial_number' => 'nullable|string|max:255',
-            'pic_id'        => 'nullable|exists:employees,id', // Memastikan ID karyawan benar-benar ada di database
+            'pic_id'        => 'nullable|exists:employees,id', 
         ]);
 
-        // 2. Simpan ke database
+        // save to database
         AssetUav::create($validatedData);
 
-        // 3. Kembalikan halaman beserta pesan sukses
+        // redirect back with success message
         return back()->with('success', 'Asset UAV berhasil ditambahkan beserta detailnya.');
     }
     public function destroyUav(AssetUav $uav) {
@@ -52,7 +52,7 @@ class AssetManagementController extends Controller
         return back()->with('success', 'UAV berhasil dihapus.');
     }
 
-    // --- CRUD KAMERA ---
+    //  CRUD CAMERA 
     public function storeCamera(Request $request) {
         AssetCamera::create($request->validate(['name' => 'required|string|max:255']));
         return back()->with('success', 'Kamera berhasil ditambahkan.');
@@ -62,7 +62,7 @@ class AssetManagementController extends Controller
         return back()->with('success', 'Kamera berhasil dihapus.');
     }
 
-    // --- CRUD PC ---
+    // CRUD PC
     public function storePc(Request $request) {
         AssetPc::create($request->validate([
             'name' => 'required|string|max:255',
@@ -74,7 +74,7 @@ class AssetManagementController extends Controller
         $pc->delete();
         return back()->with('success', 'PC berhasil dihapus.');
     }
-    // --- FUNGSI UNTUK GPS ---
+    // CRUD GPS
     public function storeGps(Request $request)
     {
         $validated = $request->validate([
@@ -96,7 +96,7 @@ class AssetManagementController extends Controller
         $employee->update($request->validate(['name' => 'required|string|max:255']));
         return back()->with('success', 'Data Karyawan berhasil diperbarui.');
     }
-    
+
     public function updateUav(Request $request, AssetUav $uav) {
         $validatedData = $request->validate([
             'name'          => 'required|string|max:255',

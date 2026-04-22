@@ -10,13 +10,11 @@ class PhotoReport extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    // Relasi KE ATAS: Ke Proyek Utama
     public function project()
     {
         return $this->belongsTo(Project::class);
     }
 
-    // Relasi KE BAWAH: Ke Hamparan & Output
     public function hamparans()
     {
         return $this->hasMany(PhotoHamparan::class);
@@ -26,9 +24,7 @@ class PhotoReport extends Model
     {
         return $this->hasMany(PhotoOutput::class);
     }
-    /**
-     * Hitung Persentase Keseluruhan Laporan Foto Udara
-     */
+    // count overall progress in percentage
     public function getOverallProgressAttribute()
     {
         $hamparans = $this->hamparans; 

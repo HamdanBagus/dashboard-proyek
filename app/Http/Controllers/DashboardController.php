@@ -13,10 +13,10 @@ class DashboardController extends Controller
     {
         $tahunIni = Carbon::now()->year;
         
-        // 1. Statistik Keseluruhan (All Time)
+        // statistics all time
         $totalSemuaProyek = Project::count();
 
-        // 2. Statistik Tahun Ini
+        // statistics this year
         $totalProyek = Project::whereYear('start_date', $tahunIni)->count();
 
         $proyekBerjalan = Project::whereYear('start_date', $tahunIni)
@@ -27,10 +27,10 @@ class DashboardController extends Controller
             ->where('status', 'finished')
             ->count();
             
-        // 3. 5 Proyek Terbaru
+        // 5 newest projects
         $proyekTerbaru = Project::latest()->take(5)->get();
         
-        // 4. Chart 5 Tahun Terakhir
+        // chart for the last 5 years
         $chartData = Project::select(
                 DB::raw('YEAR(start_date) as tahun'),
                 DB::raw('COUNT(*) as total')

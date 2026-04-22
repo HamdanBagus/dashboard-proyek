@@ -13,16 +13,12 @@ use App\Services\ProgressCalculatorService;
 
 class ProjectController extends Controller
 {
-    
-    /**
-     * Menampilkan daftar proyek.
-     */
     public function index(Request $request)
     {
         $query = Project::query();
         $search = $request->input('search');
 
-        // 1. Filter Pencarian Teks (Kode atau Nama)
+        // filter search
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -30,47 +26,40 @@ class ProjectController extends Controller
             });
         }
 
-        // 2. Filter Urutan (Sorting)
-        $sort = $request->input('sort', 'newest'); // Ambil nilai sort, default-nya 'newest'
+        // sort
+        $sort = $request->input('sort', 'newest'); // default sort by newest
 
         match ($sort) {
             'az'     => $query->orderBy('name', 'asc'),
             'za'     => $query->orderBy('name', 'desc'),
             'oldest' => $query->orderBy('start_date', 'asc'),
-            default  => $query->latest('start_date','desc'), // Menangani 'newest' atau input asing lainnya
+            default  => $query->latest('start_date','desc'), 
         };
 
-        // 3. Eksekusi Query dan Lempar ke View (TETAP WAJIB ADA)
+        // pagination
         $projects = $query->paginate(10);
 
         return view('projects.index', compact('projects', 'search'));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         
-        // Hanya Admin yang boleh akses halaman tambah
+        // only admin can access this page
         if (!Auth::check() || Auth::user()?->role !== 'admin') {
         abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
     }
-    // Panggil semua master data aset
+    // load data asset for dropdown selection in create project form
         $uavs = \App\Models\AssetUav::all();
         $cameras = \App\Models\AssetCamera::all();
         $pcs = \App\Models\AssetPc::all();
-        $gps_units = \App\Models\AssetGps::all(); // Model baru yang baru saja kita buat
+        $gps_units = \App\Models\AssetGps::all(); 
 
         return view('projects.create', compact('uavs', 'cameras', 'pcs', 'gps_units'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    //store new project to database
     public function store(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|unique:projects,code',
@@ -85,7 +74,7 @@ class ProjectController extends Controller
             'planned_cameras' => 'nullable|array',
             'planned_gps' => 'nullable|array',
             'planned_pcs' => 'nullable|array',
-            // Validasi Data Persiapan
+            
             'takeoff_count' => 'nullable|integer|min:0',
             'control_point_count' => 'nullable|integer|min:0',
 
@@ -102,16 +91,16 @@ class ProjectController extends Controller
             'tie_points.*' => 'nullable|string',
         ]);
 
-        // Fungsi kecil untuk membersihkan array kosong (jika user tidak memilih alat)
+        // Function for cleaning up device arrays (removing entries where 'id' is empty)
         $cleanArray = function ($items) {
             if (!is_array($items)) return null;
             return array_values(array_filter($items, function ($item) {
-                // Hanya simpan yang ID alatnya tidak kosong
+                // save only if 'id' is not empty
                 return !empty($item['id']); 
             }));
         };
 
-        // Terapkan fungsi pembersih ke data input
+        // implement the function
         $validated['planned_uavs'] = $cleanArray($request->planned_uavs);
         $validated['planned_cameras'] = $cleanArray($request->planned_cameras);
         $validated['planned_gps'] = $cleanArray($request->planned_gps);
@@ -123,7 +112,6 @@ class ProjectController extends Controller
     }
     public function show(Project $project)
     {
-        // 1. Load relasi agar tidak N+1 Query
         $project->load([
             'personnel', 
             'groundReport.points', 
@@ -131,54 +119,39 @@ class ProjectController extends Controller
             'photoReport.hamparans.outputs', 'photoReport.hamparans.progresses',
             'lidarReport.hamparans.outputs', 'lidarReport.hamparans.progresses'
         ]);
-
         $employees = \App\Models\Employee::orderBy('name', 'asc')->get();
+        // PROGRESS GROUND 
+        $groundProgress = \App\Services\ProgressCalculatorService::calculateGroundProgress($project, $project->groundReport);
 
-        // ==========================================
-        // 2. HITUNG PROGRESS DARI SERVICE (SINGLE SOURCE OF TRUTH)
-        // ==========================================
-
-        // -- A. PROGRESS GROUND --
-        // (Tetap menggunakan hitungan titik karena di Service belum ada fungsi persentase Ground)
-        $groundProgress = 0;
-        if ($project->groundReport && $project->groundReport->points->count() > 0) {
-            $totalTitik = $project->groundReport->points->count();
-            $installed  = $project->groundReport->points->where('install_status', true)->count();
-            $measured   = $project->groundReport->points->where('measure_status', true)->count();
-            $processed  = $project->groundReport->points->where('process_status', true)->count();
-
-            $groundProgress = (( ($installed/$totalTitik) + ($measured/$totalTitik) + ($processed/$totalTitik) ) / 3) * 100;
-        }
-
-        // -- B. PROGRESS UAV --
+        // PROGRESS UAV 
         $uavProgress = 0;
         if ($project->uavReport) {
-            // Gunakan Service yang membagi Luas Tercapai / Luas Proyek
+            // use the service to calculate UAV progress and get the percentage
             $uavData = \App\Services\ProgressCalculatorService::calculateUavProgress($project, $project->uavReport);
             $uavProgress = $uavData['persentase'];
         }
 
-        // -- C. PROGRESS FOTO UDARA --
+        // PROGRESS FOTO UDARA 
         $photoProgress = 0;
         if ($project->photoReport) {
             $photoProgress = \App\Services\ProgressCalculatorService::calculatePhotoReportOverallProgress($project->photoReport);
         }
 
-        // -- D. PROGRESS LIDAR --
+        // PROGRESS LIDAR 
         $lidarProgress = 0;
         if ($project->lidarReport) {
             $lidarProgress = \App\Services\ProgressCalculatorService::calculateLidarReportOverallProgress($project->lidarReport);
         }
 
-        // Batasi nilai maksimal 100%
+        // limit max 100% for each progress type
         $groundProgress = min($groundProgress, 100);
         $uavProgress    = min($uavProgress, 100);
         $photoProgress  = min($photoProgress, 100);
         $lidarProgress  = min($lidarProgress, 100);
 
-        // ==========================================
-        // 3. HITUNG RATA-RATA TOTAL KESELURUHAN PROYEK
-        // ==========================================
+        
+        // calculate total project progress as average of all types 
+        
         $totalProjectProgress = ($groundProgress + $uavProgress + $photoProgress + $lidarProgress) / 4;
 
         return view('projects.show', compact(
@@ -186,7 +159,7 @@ class ProjectController extends Controller
             'groundProgress', 'uavProgress', 'photoProgress', 'lidarProgress'
         ));
     }
-    // --- FUNGSI TAMBAH PERSONIL ---
+    // add new personnel to project
     public function storePersonnel(Request $request, Project $project)
     {
         $request->validate([
@@ -194,15 +167,15 @@ class ProjectController extends Controller
             'role' => 'required|string'
         ]);
 
-        // Menyimpan data ke tabel pivot (employee_project) beserta rolenya
+        // attach personnel to project with specific role 
         $project->personnel()->attach($request->employee_id, ['role' => $request->role]);
 
         return back()->with('success', 'Personil berhasil ditambahkan ke proyek.');
     }
-    // --- FUNGSI HAPUS PERSONIL ---
+    // delete personnel from project
     public function destroyPersonnel(Project $project, $employee_id, $role)
     {
-        // Menghapus spesifik karyawan dengan role tertentu di proyek ini
+        // delete the specific personnel with role from the pivot table
         \Illuminate\Support\Facades\DB::table('project_personnel')
             ->where('project_id', $project->id)
             ->where('employee_id', $employee_id)
@@ -211,7 +184,7 @@ class ProjectController extends Controller
 
         return back()->with('success', 'Personil berhasil dihapus dari proyek.');
     }
-    // --- FUNGSI MENAMPILKAN FORM EDIT ---
+    // edit project form
     public function edit(Project $project)
     {
         $uavs = \App\Models\AssetUav::all();
@@ -221,11 +194,10 @@ class ProjectController extends Controller
         return view('projects.edit', compact('project','uavs', 'cameras', 'pcs', 'gps_units'));
     }
 
-    // --- FUNGSI MENYIMPAN PERUBAHAN EDIT ---
+    // save update project to database
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
-            // PENTING: Untuk validasi unique 'code' saat update, kita harus mengecualikan ID proyek ini sendiri
             'code' => 'required|unique:projects,code,' . $project->id, 
             'name' => 'required|string|max:255',
             'client_name' => 'required|string|max:255',
@@ -239,20 +211,20 @@ class ProjectController extends Controller
             'takeoff_count' => 'nullable|integer|min:0',
             'control_point_count' => 'nullable|integer|min:0',
 
-            // Validasi format array untuk daftar alat (Bukan lagi integer tunggal!)
+            // validae format araray for planned assets
             'planned_uavs' => 'nullable|array',
             'planned_cameras' => 'nullable|array',
             'planned_gps' => 'nullable|array',
             'planned_pcs' => 'nullable|array',
             
-            // Validasi format array untuk daftar spesifikasi dan produk
+            // Validate format array for preparation details (products, specs, point codes, tie points)
             'products' => 'nullable|array',
             'product_specs' => 'nullable|array',
             'point_codes' => 'nullable|array',
             'tie_points' => 'nullable|array',
         ]);
 
-        // 1. Fungsi pembersih untuk Array Alat (menghapus baris yang ID alat-nya kosong)
+        // cleaning functions for array inputs
         $cleanDeviceArray = function ($items) {
             if (!is_array($items)) return null;
             return array_values(array_filter($items, function ($item) {
@@ -260,38 +232,36 @@ class ProjectController extends Controller
             }));
         };
 
-        // 2. Fungsi pembersih untuk Array Teks Biasa (menghapus baris input string yang kosong)
+        // cleaning function for text arrays (products, specs, point codes, tie points)
         $cleanTextArray = function ($items) {
             if (!is_array($items)) return null;
             return array_values(array_filter($items)); 
         };
 
-        // Bersihkan data Alat
+        // clean up planned assets arrays
         $validated['planned_uavs'] = $cleanDeviceArray($request->planned_uavs);
         $validated['planned_cameras'] = $cleanDeviceArray($request->planned_cameras);
         $validated['planned_gps'] = $cleanDeviceArray($request->planned_gps);
         $validated['planned_pcs'] = $cleanDeviceArray($request->planned_pcs);
 
-        // Bersihkan data Detail Persiapan Proyek
+        // clean up preparation details arrays
         $validated['products'] = $cleanTextArray($request->products);
         $validated['product_specs'] = $cleanTextArray($request->product_specs);
         $validated['point_codes'] = $cleanTextArray($request->point_codes);
         $validated['tie_points'] = $cleanTextArray($request->tie_points);
 
-        // Lakukan pembaruan (Update) ke database
+        // update project with validated data
         $project->update($validated);
 
         return redirect()->route('projects.show', $project->id)->with('success', 'Detail proyek berhasil diperbarui!');
     }
 
-    // --- FUNGSI MENGHAPUS PROYEK ---
+    // delete project 
     public function destroy(Project $project)
     {
-        // Karena di database kita pakai onDelete('cascade'),
-        // menghapus proyek akan otomatis menghapus semua data Progress, QC, dan Personil terkait.
+        // because of the foreign key constraints with cascade on delete, deleting the project will automatically delete all related data in other tables (reports, points, personnel associations, etc.)
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Proyek beserta seluruh datanya berhasil dihapus!');
     }
-    // ... method lain (show, edit, update, destroy) kita isi nanti ...
 }

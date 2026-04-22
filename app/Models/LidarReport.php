@@ -10,11 +10,9 @@ class LidarReport extends Model
 
     public function project() { return $this->belongsTo(Project::class); }
     public function hamparans() { return $this->hasMany(LidarHamparan::class); }
-    // public function outputs() { return $this->hasMany(LidarOutput::class); }
 
-    /**
-     * Hitung Persentase Keseluruhan Laporan LiDAR
-     */
+
+    // count overall progress in percentage
     public function getOverallProgressAttribute()
     {
         $hamparans = $this->hamparans; 

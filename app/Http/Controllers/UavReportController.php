@@ -12,21 +12,15 @@ use App\Services\ProgressCalculatorService;
 
 class UavReportController extends Controller
 {
-    /**
-     * Tampilkan Halaman Laporan UAV
-     */
     public function index(Project $project)
     {
-        // 1. Cari atau Buat Laporan UAV
+        // 1. search or create report for the project
         $report = UavReport::firstOrCreate(
             ['project_id' => $project->id]
         );
 
-        // 2. Siapkan Data Dropdown
         $employees = Employee::all();
         $uavs = AssetUav::all();
-
-        // PANGGIL RUMUS DARI SERVICE
         $uavData = ProgressCalculatorService::calculateUavProgress($project, $report);
         $luasTercapai = $uavData['luas_tercapai'];
         $persentase = $uavData['persentase'];
@@ -36,9 +30,7 @@ class UavReportController extends Controller
         ));
     }
 
-    /**
-     * Update Header Laporan (Hanya Tanggal Pelaksanaan)
-     */
+    // update header report
     public function update(Request $request, UavReport $report)
     {
         $validated = $request->validate([
@@ -50,9 +42,7 @@ class UavReportController extends Controller
         return back()->with('success', 'Waktu pelaksanaan UAV berhasil diperbarui.');
     }
 
-    /**
-     * Simpan Log Harian Pilot
-     */
+    // save log flight
     public function storeLog(Request $request, UavReport $report)
     {
         $validated = $request->validate([
@@ -72,9 +62,7 @@ class UavReportController extends Controller
                          ->with('success', 'Log penerbangan berhasil ditambahkan.');
     }
 
-    /**
-     * FITUR BARU: Update Log Pilot (Dari Modal Edit)
-     */
+    // update log flight
     public function updateLog(Request $request, UavPilotLog $log)
     {
         $validated = $request->validate([
@@ -96,9 +84,7 @@ class UavReportController extends Controller
                          ->with('success', 'Log penerbangan berhasil diperbarui.');
     }
 
-    /**
-     * Hapus Log Pilot
-     */
+    // delete log flight
     public function destroyLog(UavPilotLog $log)
     {
         $report = \App\Models\UavReport::find($log->uav_report_id);
@@ -110,9 +96,7 @@ class UavReportController extends Controller
                          ->with('success', 'Log penerbangan berhasil dihapus.');
     }
 
-    /**
-     * Rekap Pilot
-     */
+    // recap pilot
     public function pilotSummary(Project $project)
     {
         $report = \App\Models\UavReport::with(['logs.pilot', 'logs.uav', 'logs.assistant'])

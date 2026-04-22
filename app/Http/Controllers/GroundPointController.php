@@ -8,22 +8,21 @@ use Illuminate\Http\Request;
 
 class GroundPointController extends Controller
 {
-    /**
-     * Simpan Titik Baru (Hanya Nama Dulu)
-     */
+    //Store new Ground Point(s)
+     
     public function store(Request $request, GroundReport $report)
     {
-        // Validasi input
+        // Validate input
         $request->validate([
             'name'       => 'required|string|max:255',
             'point_type' => 'required|in:BM,ICP,GCP',
-            'quantity'   => 'required|integer|min:1|max:200', // Batasi max 200 agar server tidak hang
+            'quantity'   => 'required|integer|min:1|max:200', // limit max 200 for safety
         ]);
 
         $quantity = $request->quantity;
         $prefix = trim($request->name);
 
-        // Jika hanya input 1 titik, simpan nama persis seperti yang diketik
+        // if quantity is 1, just create a single point with the given name
         if ($quantity == 1) {
             $report->points()->create([
                 'name'       => $prefix,
@@ -33,14 +32,14 @@ class GroundPointController extends Controller
             return back()->with('success', 'Titik ' . $prefix . ' berhasil ditambahkan!');
         }
 
-        // Jika input lebih dari 1, lakukan looping massal
+        // if quantity > 1, generate points with incremental numbering (e.g., BDSG01, BDSG02, ...)
         $pointsData = [];
         
-        // Menentukan jumlah digit padding (Jika titik > 99, pakai 3 digit "001", jika tidak pakai 2 digit "01")
+        // define padding length based on quantity (e.g., 2 digits for up to 99, 3 digits for 100-999)
         $padLength = $quantity > 99 ? 3 : 2; 
 
         for ($i = 1; $i <= $quantity; $i++) {
-            // Gabungkan Prefix dengan Angka berformat (Contoh: BDSG + 01 = BDSG01)
+            // merge prefix with formatted number (e.g., BDSG + 01, BDSG + 02, ...)
             $formattedNumber = sprintf("%0" . $padLength . "d", $i);
             $generatedName = $prefix . $formattedNumber;
 
@@ -53,76 +52,64 @@ class GroundPointController extends Controller
             ];
         }
 
-        // Insert massal ke database (jauh lebih cepat daripada insert satu-satu)
+        // Insert generated points into database
         \App\Models\GroundPoint::insert($pointsData);
 
         return back()->with('success', $quantity . ' titik (' . $prefix . '01 - ' . $prefix . sprintf("%0".$padLength."d", $quantity) . ') berhasil digenerate otomatis!');
     }
 
-    /**
-     * Hapus Titik
-     */
+        // Delete Ground Point
     public function destroy(GroundPoint $point)
     {
         $point->delete();
         return back()->with('success', 'Titik berhasil dihapus.');
     }
 
-    /**
-     * Halaman Edit Progress (Mengirim Data Dropdown Personil)
-     */
+        // Edit Ground Point - Show Form
     public function edit(GroundPoint $point)
     {
-        // 1. Ambil data proyek melalui relasi titik -> report -> project
-        // (Perhatikan: kita memanggil relasi 'report' karena di fungsi update di bawah Anda menggunakan $point->report)
+        // get project from the point's report
         $project = $point->report->project;
 
-        // 2. Load data personil dari proyek tersebut
+        // load personnel relationship to filter surveyors later
         $project->load('personnel');
 
-        // 3. Filter personil berdasarkan Role untuk dikirim ke Dropdown View
+        // filter personnel to get only surveyors (assuming role is stored in pivot table as 'role')
         $surveyors = $project->personnel->where('pivot.role', 'Surveyor');
-        // $pengolahData = $project->personnel->where('pivot.role', 'Pengolah Data');
+        
 
-        // 4. Kirim variabel point, surveyors, dan pengolahData ke view
+        // send point and surveyors to the edit view
         return view('projects.progress.ground_edit_point', compact('point', 'surveyors'));
     }
 
-    /**
-     * Update Progress Titik (Checklist, Tanggal, Surveyor)
-     */
+        // Update Ground Point
     public function update(Request $request, GroundPoint $point)
     {
-        // Validasi input
         $validated = $request->validate([
 
-            // Identitas Titik (BARU)
+            // Identity of the Point
             'name'       => 'required|string|max:255',
             'point_type' => 'required|in:BM,ICP,GCP',
 
-            // Tahap 1: Pemasangan
+            // stage 1: Installation
             'install_status' => 'boolean',
             'install_date' => 'nullable|date',
             'install_surveyor' => 'nullable|string',
 
-            // Tahap 2: Pengukuran
+            // stage 2: Measurement
             'measure_status' => 'boolean',
             'measure_date' => 'nullable|date',
             'measure_surveyor' => 'nullable|string',
 
-            // Tahap 3: Pengolahan
+            // stage 3: Processing
             'process_status' => 'boolean',
             'process_date' => 'nullable|date',
             'process_surveyor' => 'nullable|string',
 
             'notes' => 'nullable|string',
-        ]);
-
-        // Fix checkbox: HTML checkbox tidak kirim data jika unchecked.
-        
+        ]);        
         $point->update([
-
-        // Identitas Titik (BARU)
+        // Identity of the Point
             'name' => $request->name,
             'point_type' => $request->point_type,
 
@@ -141,7 +128,7 @@ class GroundPointController extends Controller
             'notes' => $request->notes,
         ]);
 
-        // Redirect kembali ke halaman Laporan Ground
+        // Redirect back to the ground report page with success message
         return redirect()->route('projects.ground.index', $point->report->project_id)
                          ->with('success', 'Progress titik ' . $point->name . ' berhasil diperbarui.');
     }
