@@ -77,7 +77,7 @@ class ProjectQcController extends Controller
             // PUT REVISION FILE TO NULL IF NOT IN REVISION STATUS
             $revFiles = ['rev_file_tolerance', 'rev_file_inacors', 'rev_file_google_earth', 'rev_file_utsb'];
             foreach ($revFiles as $rf) {
-                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                if ($qc->$rf) Storage::disk('uploads')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
@@ -92,12 +92,12 @@ class ProjectQcController extends Controller
             $isRemoved = $request->input("remove_{$field}") == '1';
 
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                if ($qc->$field) Storage::disk('uploads')->delete($qc->$field);
                 $data[$field] = null;
             }
 
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('qc_files/ground', 'public');
+                $data[$field] = $request->file($field)->store('qc_files/ground', 'uploads');
             } elseif (!$isRemoved) {
                 unset($data[$field]);
             }
@@ -175,7 +175,7 @@ class ProjectQcController extends Controller
             
             // delete file revision if not in revision status
             foreach ($revFiles as $rf) {
-                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                if ($qc->$rf) Storage::disk('uploads')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
@@ -189,12 +189,12 @@ class ProjectQcController extends Controller
             $isRemoved = $request->input("remove_{$field}") == '1';
 
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                if ($qc->$field) Storage::disk('uploads')->delete($qc->$field);
                 $data[$field] = null; 
             }
 
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('qc_files/uav_photo', 'public');
+                $data[$field] = $request->file($field)->store('qc_files/uav_photo', 'uploads');
             } elseif (!$isRemoved) {
                 unset($data[$field]);
             }
@@ -261,7 +261,7 @@ class ProjectQcController extends Controller
             $data['rev_note_file_accuracy'] = null;
             
             foreach ($revFiles as $rf) {
-                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                if ($qc->$rf) Storage::disk('uploads')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
@@ -275,12 +275,12 @@ class ProjectQcController extends Controller
             $isRemoved = $request->input("remove_{$field}") == '1';
 
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                if ($qc->$field) Storage::disk('uploads')->delete($qc->$field);
                 $data[$field] = null; 
             }
 
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('qc_files/uav_lidar', 'public');
+                $data[$field] = $request->file($field)->store('qc_files/uav_lidar', 'uploads');
             } elseif (!$isRemoved) {
                 unset($data[$field]);
             }
@@ -347,7 +347,7 @@ class ProjectQcController extends Controller
             $data['rev_note_file_hdd'] = null;
             
             foreach ($revFiles as $rf) {
-                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                if ($qc->$rf) Storage::disk('uploads')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
@@ -362,12 +362,12 @@ class ProjectQcController extends Controller
             $isRemoved = $request->input("remove_{$field}") == '1';
 
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                if ($qc->$field) Storage::disk('uploads')->delete($qc->$field);
                 $data[$field] = null;
             }
 
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('qc_files/processing', 'public');
+                $data[$field] = $request->file($field)->store('qc_files/processing', 'uploads');
             } elseif (!$isRemoved) {
                 unset($data[$field]); 
             }
@@ -427,7 +427,7 @@ class ProjectQcController extends Controller
             $data['rev_note_file_other'] = null;
             
             foreach ($revFiles as $rf) {
-                if ($qc->$rf) Storage::disk('public')->delete($qc->$rf);
+                if ($qc->$rf) Storage::disk('uploads')->delete($qc->$rf);
                 $data[$rf] = null;
             }
         }
@@ -441,12 +441,12 @@ class ProjectQcController extends Controller
             $isRemoved = $request->input("remove_{$field}") == '1';
 
             if ($isRemoved || $request->hasFile($field)) {
-                if ($qc->$field) Storage::disk('public')->delete($qc->$field);
+                if ($qc->$field) Storage::disk('uploads')->delete($qc->$field);
                 $data[$field] = null; 
             }
 
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('qc_files/manager', 'public');
+                $data[$field] = $request->file($field)->store('qc_files/manager', 'uploads');
             } elseif (!$isRemoved) {
                 unset($data[$field]);
             }

@@ -55,6 +55,16 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        // if local development, store uploads in public/uploads, if production, store in a separate folder outside of the Laravel app for better security and easier management
+        'uploads' => [
+            'driver' => 'local', 
+            'root' => env('APP_ENV') === 'local' 
+                        ? public_path('uploads') 
+                        : base_path('..') . '/public_html/projectmonitoring/uploads',
+            'url' => env('APP_URL').'/uploads',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
 
     ],
 

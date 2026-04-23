@@ -146,7 +146,7 @@
     
                                             <div x-show="hasFile && !removed" class="mb-2 flex items-center gap-2">
                                                 <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase">Ada File</span>
-                                                <a href="{{ asset('storage/' . ($record->photo_path ?? '')) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
+                                                <a href="{{ asset('uploads/' . ($record->photo_path ?? '')) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
                                                 <span class="text-gray-300">|</span>
                                                 <button type="button" @click="removed = true" class="text-[10px] text-red-500 hover:text-red-700 font-bold">Hapus</button>
                                             </div>
@@ -214,7 +214,7 @@
                                         <td class="p-4" x-data="{ removed: false, hasFile: {{ ($record && $record->photo_path) ? 'true' : 'false' }} }">
                                             <div x-show="hasFile && !removed" class="mb-2 flex items-center gap-2">
                                                 <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase">Ada File</span>
-                                                <a href="{{ asset('storage/' . ($record->photo_path ?? '')) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
+                                                <a href="{{ asset('uploads/' . ($record->photo_path ?? '')) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-bold">Lihat Foto</a>
                                                 <span class="text-gray-300">|</span>
                                                 <button type="button" @click="removed = true" class="text-[10px] text-red-500 hover:text-red-700 font-bold">Hapus</button>
                                             </div>

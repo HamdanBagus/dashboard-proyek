@@ -90,7 +90,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->file_tolerance) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->file_tolerance) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -112,7 +112,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->file_inacors) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->file_inacors) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -134,7 +134,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->file_google_earth) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->file_google_earth) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -155,7 +155,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm mb-3">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->file_utsb) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->file_utsb) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -238,7 +238,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->rev_file_tolerance) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->rev_file_tolerance) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -260,7 +260,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->rev_file_inacors) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->rev_file_inacors) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -282,7 +282,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->rev_file_google_earth) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->rev_file_google_earth) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>
@@ -303,7 +303,7 @@
                         <div x-show="hasFile && !removed" class="flex items-center gap-3 bg-white p-3 rounded border border-gray-200 inline-flex shadow-sm mb-3">
                             <span class="text-sm font-bold text-green-600 flex items-center gap-1">✅ File Terupload</span>
                             <span class="text-gray-300">|</span>
-                            <a href="{{ asset('storage/' . $qc->rev_file_utsb) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
+                            <a href="{{ asset('uploads/' . $qc->rev_file_utsb) }}" target="_blank" class="text-indigo-600 text-sm font-bold hover:underline">Lihat Bukti</a>
                             <span class="text-gray-300">|</span>
                             <button type="button" @click="removed = true" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">❌ Hapus / Ganti</button>
                         </div>

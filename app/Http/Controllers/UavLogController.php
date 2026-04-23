@@ -86,13 +86,13 @@ class UavLogController extends Controller
 
                     // id user wants to remove existing photo or upload new one, then delete old photo if exists
                     if ($isRemoved || $request->hasFile($fileKey)) {
-                        if ($checkRecord->photo_path) Storage::disk('public')->delete($checkRecord->photo_path);
+                        if ($checkRecord->photo_path) Storage::disk('uploads')->delete($checkRecord->photo_path);
                         $updateData['photo_path'] = null; // set to null if removed, will be updated with new path if new file uploaded below
                     }
 
                     // if there's a new file uploaded, store it and update the path
                     if ($request->hasFile($fileKey)) {
-                        $updateData['photo_path'] = $request->file($fileKey)->store("uav_maintenance/{$log->id}", 'public');
+                        $updateData['photo_path'] = $request->file($fileKey)->store("uav_maintenance/{$log->id}", 'uploads');
                     }
 
                     $checkRecord->update($updateData);
