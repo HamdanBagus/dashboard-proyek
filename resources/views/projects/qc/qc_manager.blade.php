@@ -131,8 +131,8 @@
                     <div>
                         <label class="block text-xs font-bold text-red-600 uppercase tracking-wider mb-2">Apakah Ada Revisi Laporan?</label>
                         <select name="has_major_revision" x-model="hasRevision" class="block w-full rounded-md border-red-300 text-red-700 shadow-sm bg-white focus:ring-red-500 focus:border-red-500 font-bold cursor-pointer sm:text-sm">
-                            <option value="0">TIDAK ADA (Laporan Final Disahkan)</option>
-                            <option value="1">YA, ADA REVISI DOKUMEN</option>
+                            <option value="0">TIDAK ADA </option>
+                            <option value="1">YA, ADA REVISI</option>
                         </select>
                     </div>
                 </div>
