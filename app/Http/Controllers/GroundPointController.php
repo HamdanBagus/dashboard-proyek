@@ -65,22 +65,6 @@ class GroundPointController extends Controller
         return back()->with('success', 'Titik berhasil dihapus.');
     }
 
-        // Edit Ground Point - Show Form
-    public function edit(GroundPoint $point)
-    {
-        // get project from the point's report
-        $project = $point->report->project;
-
-        // load personnel relationship to filter surveyors later
-        $project->load('personnel');
-
-        // filter personnel to get only surveyors (assuming role is stored in pivot table as 'role')
-        $surveyors = $project->personnel->where('pivot.role', 'Surveyor');
-        
-
-        // send point and surveyors to the edit view
-        return view('projects.progress.ground_edit_point', compact('point', 'surveyors'));
-    }
 
         // Update Ground Point
     public function update(Request $request, GroundPoint $point)
@@ -129,7 +113,6 @@ class GroundPointController extends Controller
         ]);
 
         // Redirect back to the ground report page with success message
-        return redirect()->route('projects.ground.index', $point->report->project_id)
-                         ->with('success', 'Progress titik ' . $point->name . ' berhasil diperbarui.');
+        return back()->with('success', 'Progress titik ' . $point->name . ' berhasil diperbarui.');
     }
 }

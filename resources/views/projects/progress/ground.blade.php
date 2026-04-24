@@ -179,7 +179,7 @@
             </h4>
             
             <div class="space-y-4">
-                @forelse($performaData['chart_data'] as $date => $count)
+                @forelse($performaData['chart_data'] as $date => $data)
                     <div class="flex items-center gap-4 group">
                         <div class="w-24 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
                             {{ \Carbon\Carbon::parse($date)->format('d M y') }}
@@ -188,13 +188,25 @@
                         <div class="flex-1">
                             <div class="h-5 bg-gray-100 rounded-md overflow-hidden flex items-center shadow-inner">
                                 <div class="h-full rounded-md transition-all duration-1000 ease-out relative bg-gradient-to-r from-[#144C4D] to-[#2bbbbd] group-hover:from-[#0c2e2e] group-hover:to-[#144C4D]" 
-                                     :style="animateChart ? 'width: {{ ($count / $performaData['max_daily']) * 100 }}%;' : 'width: 0%;'">
+                                     :style="animateChart ? 'width: {{ ($data['total'] / $performaData['max_daily']) * 100 }}%;' : 'width: 0%;'">
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="w-16 text-right text-sm font-black text-gray-800">
-                            {{ $count }} <span class="text-[10px] text-gray-400 font-bold uppercase">Titik</span>
+                        <div class="w-48 text-right flex flex-col justify-center">
+                            
+                            <div class="text-sm font-black text-gray-800 leading-tight">
+                                {{ $data['total'] }} <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Titik</span>
+                            </div>
+                            
+                            <div class="text-[9px] font-bold text-gray-500 mt-0.5 leading-tight">
+                                ({{ $data['icp'] }} ICP, {{ $data['gcp'] }} GCP)
+                            </div>
+
+                            <div class="text-[10px] font-bold text-[#144C4D] mt-1.5 leading-tight">
+                                👨‍🔧 {{ $data['surveyors'] }} Surveyor <span class="text-gray-300 mx-1">|</span> ⚡ Avg: {{ number_format($data['performa'], 1) }}
+                            </div>
+
                         </div>
                     </div>
                 @empty
@@ -252,7 +264,8 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
                         @forelse($report->points as $point)
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition" x-data="{ showEditModal: false }">
+                            
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="font-black text-gray-900 text-lg">{{ $point->name }}</div>
                                 <div class="text-[10px] font-bold text-gray-600 bg-gray-100 uppercase tracking-widest inline-block px-2.5 py-1 rounded-md border border-gray-200 mt-1.5">{{ $point->point_type }}</div>
@@ -260,10 +273,10 @@
 
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if($point->install_status)
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-green-50 text-green-700 border border-green-200">Selesai</span>
+                                    <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-orange-50 text-[#F8931F] border border-orange-200">Selesai</span>
                                     <div class="text-xs font-bold text-gray-500 mt-2">{{ \Carbon\Carbon::parse($point->install_date)->format('d/m/Y') }}</div>
                                     @if($point->install_surveyor)
-                                        <div class="text-[10px] font-bold text-[#144C4D] mt-1 uppercase tracking-widest flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> {{ $point->install_surveyor }}</div>
+                                        <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest flex items-center justify-center gap-1">{{ $point->install_surveyor }}</div>
                                     @endif
                                 @else
                                     <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-gray-100 text-gray-400 border border-gray-200">Belum</span>
@@ -272,10 +285,10 @@
 
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if($point->measure_status)
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-green-50 text-green-700 border border-green-200">Selesai</span>
+                                    <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-[#144C4D]/10 text-[#144C4D] border border-[#144C4D]/20">Selesai</span>
                                     <div class="text-xs font-bold text-gray-500 mt-2">{{ \Carbon\Carbon::parse($point->measure_date)->format('d/m/Y') }}</div>
                                     @if($point->measure_surveyor)
-                                        <div class="text-[10px] font-bold text-[#144C4D] mt-1 uppercase tracking-widest flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> {{ $point->measure_surveyor }}</div>
+                                        <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest flex items-center justify-center gap-1">{{ $point->measure_surveyor }}</div>
                                     @endif
                                 @else
                                     <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-gray-100 text-gray-400 border border-gray-200">Belum</span>
@@ -287,23 +300,25 @@
                                     <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-green-50 text-green-700 border border-green-200">Selesai</span>
                                     <div class="text-xs font-bold text-gray-500 mt-2">{{ \Carbon\Carbon::parse($point->process_date)->format('d/m/Y') }}</div>
                                     @if($point->process_surveyor)
-                                        <div class="text-[10px] font-bold text-[#144C4D] mt-1 uppercase tracking-widest flex items-center justify-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> {{ $point->process_surveyor }}</div>
+                                        <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest flex items-center justify-center gap-1">{{ $point->process_surveyor }}</div>
                                     @endif
                                 @else
                                     <span class="px-2.5 py-1 inline-flex text-[10px] font-black uppercase tracking-widest rounded-md bg-gray-100 text-gray-400 border border-gray-200">Belum</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-normal max-w-[250px] leading-relaxed text-center">
+
+                            <td class="px-6 py-4 whitespace-normal max-w-[150px] leading-relaxed text-center">
                                 <span class="italic text-gray-400 text-[11px]">
-                                    {{ !empty($point->notes) ? $point->notes : 'Tidak ada catatan' }}
+                                    {{ !empty($point->notes) ? \Illuminate\Support\Str::limit($point->notes, 30) : 'Tidak ada' }}
                                 </span>
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center items-center space-x-2">
-                                    <a href="{{ route('ground-points.edit', $point->id) }}" class="text-[#F8931F] hover:text-white hover:bg-[#F8931F] border border-[#F8931F] p-1.5 rounded-md transition" title="Update">
+                                    <button type="button" @click="showEditModal = true" class="text-[#F8931F] hover:text-white hover:bg-[#F8931F] border border-[#F8931F] p-1.5 rounded-md transition" title="Update Progress">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </a>
+                                    </button>
+                                    
                                     <form action="{{ route('ground-points.destroy', $point->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus titik ini? Jumlah pada statistik akan otomatis berkurang.');" class="inline-block">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-red-500 hover:text-white hover:bg-red-500 border border-red-500 p-1.5 rounded-md transition" title="Hapus">
@@ -311,11 +326,139 @@
                                         </button>
                                     </form>
                                 </div>
-                            </td>
+
+                                <div x-show="showEditModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto text-left">
+                                    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                                        <div x-show="showEditModal" @click="showEditModal = false" class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-50"></div>
+                                        
+                                        <div x-show="showEditModal" class="relative inline-block w-full max-w-4xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl border border-gray-100">
+                                            
+                                            <div class="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
+                                                <h3 class="text-xl font-black text-gray-800 flex items-center gap-2">
+                                                    Update Progress: <span class="text-[#144C4D]">{{ $point->name }}</span>
+                                                </h3>
+                                                <button type="button" @click="showEditModal = false" class="text-gray-400 hover:text-red-500 transition">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            </div>
+
+                                            <form action="{{ route('ground-points.update', $point->id) }}" method="POST">
+                                                @csrf @method('PUT')
+
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                                    <div>
+                                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Nama / Kode Titik</label>
+                                                        <input type="text" name="name" value="{{ $point->name }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-bold" required>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Jenis Titik</label>
+                                                        <select name="point_type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm font-bold" required>
+                                                            <option value="BM" {{ $point->point_type == 'BM' ? 'selected' : '' }}>BM (Benchmark)</option>
+                                                            <option value="ICP" {{ $point->point_type == 'ICP' ? 'selected' : '' }}>ICP (Independent Check Point)</option>
+                                                            <option value="GCP" {{ $point->point_type == 'GCP' ? 'selected' : '' }}>GCP (Ground Control Point)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                                                    <div class="border rounded-xl p-4 bg-orange-50/30 border-orange-100">
+                                                        <h3 class="font-black text-sm mb-4 text-[#F8931F] border-b border-orange-100 pb-2">1. Pemasangan</h3>
+                                                        <div class="mb-3">
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" name="install_status" value="1" {{ $point->install_status ? 'checked' : '' }} class="rounded border-gray-300 text-[#F8931F] shadow-sm focus:ring-[#F8931F] h-5 w-5">
+                                                                <span class="ml-2 text-sm font-bold text-gray-700">Sudah Dipasang?</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Tgl Pasang</label>
+                                                            <input type="date" name="install_date" value="{{ $point->install_date }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F8931F] focus:ring-[#F8931F] sm:text-sm">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Surveyor</label>
+                                                            <select name="install_surveyor" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F8931F] focus:ring-[#F8931F] sm:text-sm">
+                                                                <option value="">-- Pilih --</option>
+                                                                @foreach($surveyors as $surveyor)
+                                                                    <option value="{{ $surveyor->name }}" {{ $point->install_surveyor == $surveyor->name ? 'selected' : '' }}>
+                                                                        {{ $surveyor->name }} {{ $surveyor->trashed() ? '(Non-Aktif)' : '' }} 
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="border rounded-xl p-4 bg-[#144C4D]/5 border-[#144C4D]/10">
+                                                        <h3 class="font-black text-sm mb-4 text-[#144C4D] border-b border-[#144C4D]/10 pb-2">2. Pengukuran</h3>
+                                                        <div class="mb-3">
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" name="measure_status" value="1" {{ $point->measure_status ? 'checked' : '' }} class="rounded border-gray-300 text-[#144C4D] shadow-sm focus:ring-[#144C4D] h-5 w-5">
+                                                                <span class="ml-2 text-sm font-bold text-gray-700">Sudah Diukur?</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Tgl Ukur</label>
+                                                            <input type="date" name="measure_date" value="{{ $point->measure_date }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Surveyor</label>
+                                                            <select name="measure_surveyor" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm">
+                                                                <option value="">-- Pilih --</option>
+                                                                @foreach($surveyors as $surveyor)
+                                                                    <option value="{{ $surveyor->name }}" {{ $point->measure_surveyor == $surveyor->name ? 'selected' : '' }}>
+                                                                        {{ $surveyor->name }} {{ $surveyor->trashed() ? '(Non-Aktif)' : '' }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="border rounded-xl p-4 bg-green-50/50 border-green-100">
+                                                        <h3 class="font-black text-sm mb-4 text-green-700 border-b border-green-100 pb-2">3. Pengolahan</h3>
+                                                        <div class="mb-3">
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" name="process_status" value="1" {{ $point->process_status ? 'checked' : '' }} class="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500 h-5 w-5">
+                                                                <span class="ml-2 text-sm font-bold text-gray-700">Sudah Diolah?</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Tgl Olah</label>
+                                                            <input type="date" name="process_date" value="{{ $point->process_date }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Pengolah Data</label>
+                                                            <select name="process_surveyor" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm">
+                                                                <option value="">-- Pilih --</option>
+                                                                @foreach($surveyors as $person) 
+                                                                    <option value="{{ $person->name }}" {{ $point->process_surveyor == $person->name ? 'selected' : '' }}>
+                                                                        {{ $person->name }} {{ $person->trashed() ? '(Non-Aktif)' : '' }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-6">
+                                                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Catatan Tambahan</label>
+                                                    <textarea name="notes" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] focus:ring-[#144C4D] sm:text-sm" placeholder="Opsional...">{{ $point->notes }}</textarea>
+                                                </div>
+
+                                                <div class="flex justify-end space-x-3 border-t border-gray-100 pt-4">
+                                                    <button type="button" @click="showEditModal = false" class="bg-white border border-gray-300 text-gray-700 font-bold px-6 py-2.5 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">Batal</button>
+                                                    <button type="submit" class="bg-[#144C4D] text-white px-6 py-2.5 rounded-lg shadow-sm hover:bg-[#0c2e2e] font-bold transition flex items-center gap-2 text-sm">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                                        Simpan Perubahan
+                                                    </button>
+                                                </div>
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-400 italic">
                                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 Belum ada titik yang ditambahkan. Silakan tambah titik baru melalui form di atas.
                             </td>

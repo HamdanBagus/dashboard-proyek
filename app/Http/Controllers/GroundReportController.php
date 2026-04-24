@@ -26,7 +26,9 @@ class GroundReportController extends Controller
         $project->load('personnel');
         $performaData = ProgressCalculatorService::calculateGroundSurveyorPerformance($project, $report);
 
-        return view('projects.progress.ground', compact('project', 'report', 'performaData'));
+        $surveyors = $project->personnel->where('pivot.role', 'Surveyor');
+
+        return view('projects.progress.ground', compact('project', 'report', 'performaData', 'surveyors'));
     }
     // Update Ground Report 
     public function update(Request $request, GroundReport $report)

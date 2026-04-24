@@ -74,8 +74,6 @@ Route::middleware('auth')->group(function () {
         ->name('ground-points.store');
     Route::delete('/ground-points/{point}', [\App\Http\Controllers\GroundPointController::class, 'destroy'])
         ->name('ground-points.destroy');
-    Route::get('/ground-points/{point}/edit', [\App\Http\Controllers\GroundPointController::class, 'edit'])
-        ->name('ground-points.edit');
     Route::put('/ground-points/{point}', [\App\Http\Controllers\GroundPointController::class, 'update'])
         ->name('ground-points.update');
 
