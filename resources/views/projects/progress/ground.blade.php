@@ -139,7 +139,7 @@
 
         <h3 class="text-lg font-black text-gray-800 mb-4 mt-8 flex items-center gap-2">
             <svg class="w-5 h-5 text-[#F8931F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-            Monitoring Titik & Performa Lapangan
+            Monitoring Titik & Performa Lapangan (GCP & ICP)
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
@@ -157,7 +157,7 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Hari Kerja Eksekusi</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Hari Kerja Aktif</p>
                     <p class="text-2xl font-black text-gray-800">{{ $performaData['jumlah_hari'] }} <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Hari</span></p>
                 </div>
             </div>
@@ -169,6 +169,39 @@
                     <p class="text-[10px] font-bold text-green-700 uppercase tracking-widest mb-0.5">Performa Rata-rata</p>
                     <p class="text-2xl font-black text-green-900">{{ number_format($performaData['performa_harian'], 1) }} <span class="text-[10px] font-bold text-green-700 uppercase tracking-widest">Titik / Org / Hari</span></p>
                 </div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 p-6 rounded-xl shadow-sm mb-8" x-data="{ animateChart: false }" x-init="setTimeout(() => animateChart = true, 200)">
+            <h4 class="text-sm font-black text-gray-800 mb-5 border-b border-gray-100 pb-3 flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Distribusi Pengerjaan Titik Harian
+            </h4>
+            
+            <div class="space-y-4">
+                @forelse($performaData['chart_data'] as $date => $count)
+                    <div class="flex items-center gap-4 group">
+                        <div class="w-24 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                            {{ \Carbon\Carbon::parse($date)->format('d M y') }}
+                        </div>
+                        
+                        <div class="flex-1">
+                            <div class="h-5 bg-gray-100 rounded-md overflow-hidden flex items-center shadow-inner">
+                                <div class="h-full rounded-md transition-all duration-1000 ease-out relative bg-gradient-to-r from-[#144C4D] to-[#2bbbbd] group-hover:from-[#0c2e2e] group-hover:to-[#144C4D]" 
+                                     :style="animateChart ? 'width: {{ ($count / $performaData['max_daily']) * 100 }}%;' : 'width: 0%;'">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="w-16 text-right text-sm font-black text-gray-800">
+                            {{ $count }} <span class="text-[10px] text-gray-400 font-bold uppercase">Titik</span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-6 text-gray-400 italic text-sm">
+                        Belum ada aktivitas pengerjaan titik GCP/ICP yang tercatat.
+                    </div>
+                @endforelse
             </div>
         </div>
 

@@ -94,29 +94,57 @@ class ProgressCalculatorService
     // count surveyor performance based on jumlah surveyor, jumlah hari, dan total titik yang terpasang/terukur
     public static function calculateGroundSurveyorPerformance($project, $report) 
     {
+        // count suveyor that are assigned to the project 
         $jumlahSurveyor = $project->personnel()->where('role', 'Surveyor')->count();
-        $installDates = $report->points()->whereNotNull('install_date')->pluck('install_date');
-        $measureDates = $report->points()->whereNotNull('measure_date')->pluck('measure_date');
-        $allDates = $installDates->merge($measureDates)->filter();
 
-        $jumlahHari = 0;
-        if ($allDates->isNotEmpty()) {
-            $startDate = \Carbon\Carbon::parse($allDates->min());
-            $endDate = \Carbon\Carbon::parse($allDates->max());
-            $jumlahHari = $startDate->diffInDays($endDate) + 1;
+        // take all points that are GCP or ICP
+        $points = $report->points()->whereIn('point_type', ['GCP', 'ICP'])->get();
+
+        // group points by date for installation and measurement stages to count how many points are worked on each day (regardless of surveyor) to calculate total active days in the field, which is a key factor in surveyor performance calculation
+        $dailyActivity = [];
+
+        foreach ($points as $point) {
+            // note: a point can only be counted once per day even if it has both installation and measurement activities on the same day, 
+            if ($point->install_status && $point->install_date) {
+                $date = \Carbon\Carbon::parse($point->install_date)->format('Y-m-d');
+                $dailyActivity[$date][$point->id] = true;
+            }
+            // note: a point can only be counted once per day even if it has both installation and measurement activities on the same day,
+            if ($point->measure_status && $point->measure_date) {
+                $date = \Carbon\Carbon::parse($point->measure_date)->format('Y-m-d');
+                $dailyActivity[$date][$point->id] = true;
+            }
         }
 
-        $performa = 0;
-        $totalTitik = $report->points()->count();
+        // bar chart
+        $chartData = [];
+        $maxDaily = 0; 
+        
+        foreach ($dailyActivity as $date => $pointIds) {
+            $count = count($pointIds); // sum of unique points worked on that day
+            $chartData[$date] = $count;
+            if ($count > $maxDaily) {
+                $maxDaily = $count;
+            }
+        }
+        ksort($chartData); // short by date ascending
 
-        if ($jumlahSurveyor > 0 && $jumlahHari > 0) {
-            $performa = $totalTitik / $jumlahSurveyor / $jumlahHari;
+        // calculate days active in the field based on daily activity
+        $jumlahHariAktif = count($chartData);
+        $totalTitikTarget = $points->count();
+        $performa = 0;
+
+        // calculate surveyor performance
+        if ($jumlahSurveyor > 0 && $jumlahHariAktif > 0) {
+            $performa = $totalTitikTarget / $jumlahSurveyor / $jumlahHariAktif;
         }
 
         return [
             'jumlah_surveyor' => $jumlahSurveyor,
-            'jumlah_hari'     => $jumlahHari,
-            'performa_harian' => $performa
+            'jumlah_hari'     => $jumlahHariAktif, 
+            'performa_harian' => $performa,
+            'chart_data'      => $chartData,
+            'max_daily'       => $maxDaily > 0 ? $maxDaily : 1 
         ];
     }
 
