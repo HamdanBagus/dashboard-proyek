@@ -187,8 +187,8 @@
                         
                         <div class="flex-1">
                             <div class="h-5 bg-gray-100 rounded-md overflow-hidden flex items-center shadow-inner">
-                                <div class="h-full rounded-md transition-all duration-1000 ease-out relative group-hover:brightness-90" 
-                                     :style="'background: linear-gradient(to right, #144C4D, #2bbbbd); ' + (animateChart ? 'width: {{ ($data['total'] / $performaData['max_daily']) * 100 }}%;' : 'width: 0%;')">
+                                <div class="h-full rounded-md transition-all duration-1000 ease-out relative bg-gradient-to-r from-[#144C4D] to-[#2bbbbd] group-hover:from-[#0c2e2e] group-hover:to-[#144C4D]" 
+                                    :style="animateChart ? 'width: {{ ($data['total'] / $performaData['max_daily']) * 100 }}%;' : 'width: 0%;'">
                                 </div>
                             </div>
                         </div>
