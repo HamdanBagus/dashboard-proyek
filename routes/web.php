@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssetManagementController;
-
+use App\Http\Controllers\UavMaintenanceController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -42,6 +42,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // GPS
     Route::post('/management/gps', [\App\Http\Controllers\AssetManagementController::class, 'storeGps'])->name('management.gps.store');
     Route::delete('/management/gps/{gps}', [\App\Http\Controllers\AssetManagementController::class, 'destroyGps'])->name('management.gps.destroy');
+
+    // UAV Maintenance
+    Route::resource('uav-maintenance', UavMaintenanceController::class)->except(['create', 'edit', 'show']);
 
 });
 

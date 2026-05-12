@@ -16,4 +16,8 @@ class AssetUav extends Model
     {
         return $this->belongsTo(Employee::class, 'pic_id')->withTrashed();
     }
+    public function maintenances()
+    {
+        return $this->hasMany(UavMaintenance::class, 'asset_uav_id');
+    }
 }
