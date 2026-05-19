@@ -26,7 +26,7 @@ class GroundReportController extends Controller
         $project->load('personnel');
         $performaData = ProgressCalculatorService::calculateGroundSurveyorPerformance($project, $report);
 
-        $surveyors = $project->personnel->where('pivot.role', 'Surveyor');
+        $surveyors = $project->personnel->whereIn('pivot.role', ['Surveyor', 'Koordinator Tim Ground']);
 
         return view('projects.progress.ground', compact('project', 'report', 'performaData', 'surveyors'));
     }

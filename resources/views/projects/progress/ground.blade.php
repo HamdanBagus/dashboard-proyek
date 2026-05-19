@@ -217,7 +217,7 @@
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200" x-data="{ searchPoint: '' }">
             
             <div class="bg-gray-50 p-5 border-b border-gray-200">
                 <h3 class="font-black text-gray-800 text-sm mb-3">Tambah Titik Baru</h3>
@@ -249,6 +249,18 @@
                     </div>
                 </form>
             </div>
+            <div class="bg-white px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h3 class="font-black text-gray-800 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#144C4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                    Daftar Titik Ground
+                </h3>
+                <div class="relative w-full sm:w-72">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" x-model="searchPoint" placeholder="Cari nama titik atau jenis..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#144C4D] focus:border-[#144C4D] sm:text-sm transition">
+                </div>
+            </div>
 
             <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -264,7 +276,11 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
                         @forelse($report->points as $point)
-                        <tr class="hover:bg-gray-50 transition" x-data="{ showEditModal: false }">
+                        <tr class="hover:bg-gray-50 transition" x-data="{ showEditModal: false }" 
+                            x-show="searchPoint === '' || '{{ strtolower($point->name) }}'.includes(searchPoint.toLowerCase()) || '{{ strtolower($point->point_type) }}'.includes(searchPoint.toLowerCase())"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 transform scale-95"
+                            x-transition:enter-end="opacity-100 transform scale-100">
                             
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="font-black text-gray-900 text-lg">{{ $point->name }}</div>
