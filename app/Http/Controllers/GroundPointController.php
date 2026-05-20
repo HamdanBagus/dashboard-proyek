@@ -115,4 +115,45 @@ class GroundPointController extends Controller
         // Redirect back to the ground report page with success message
         return back()->with('success', 'Progress titik ' . $point->name . ' berhasil diperbarui.');
     }
+    public function bulkUpdate(Request $request, GroundReport $report)
+    {
+        $request->validate([
+            'point_ids' => 'required|string', // Berisi ID yang dipisahkan koma dari JS
+        ]);
+
+        // Pecah ID menjadi array dan pastikan titik-titik tersebut adalah milik report ini (keamanan)
+        $ids = explode(',', $request->point_ids);
+        $pointsQuery = GroundPoint::whereIn('id', $ids)->where('ground_report_id', $report->id);
+        
+        $updateData = [];
+
+        // 1. Cek apakah user mencentang 'Update Pemasangan'
+        if ($request->has('update_install')) {
+            $updateData['install_status'] = $request->has('install_status') ? 1 : 0;
+            $updateData['install_date'] = $request->install_date;
+            $updateData['install_surveyor'] = $request->install_surveyor;
+        }
+
+        // 2. Cek apakah user mencentang 'Update Pengukuran'
+        if ($request->has('update_measure')) {
+            $updateData['measure_status'] = $request->has('measure_status') ? 1 : 0;
+            $updateData['measure_date'] = $request->measure_date;
+            $updateData['measure_surveyor'] = $request->measure_surveyor;
+        }
+
+        // 3. Cek apakah user mencentang 'Update Pengolahan'
+        if ($request->has('update_process')) {
+            $updateData['process_status'] = $request->has('process_status') ? 1 : 0;
+            $updateData['process_date'] = $request->process_date;
+            $updateData['process_surveyor'] = $request->process_surveyor;
+        }
+
+        // Eksekusi update massal jika ada data yang dicentang
+        if (!empty($updateData)) {
+            $pointsQuery->update($updateData);
+        }
+
+        $count = count($ids);
+        return back()->with('success', "Progress $count titik berhasil di-update secara massal!");
+    }
 }

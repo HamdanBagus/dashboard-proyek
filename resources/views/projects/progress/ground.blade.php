@@ -217,7 +217,19 @@
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200" x-data="{ searchPoint: '' }">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200" x-data="{ 
+                searchPoint: '',
+                selectedPoints: [],
+                showBulkModal: false,
+                allIds: {{ $report->points->pluck('id') }},
+                toggleAll() {
+                    if (this.selectedPoints.length === this.allIds.length) {
+                        this.selectedPoints = [];
+                    } else {
+                        this.selectedPoints = [...this.allIds];
+                    }
+                }
+             }">
             
             <div class="bg-gray-50 p-5 border-b border-gray-200">
                 <h3 class="font-black text-gray-800 text-sm mb-3">Tambah Titik Baru</h3>
@@ -266,6 +278,9 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-white sticky top-0 z-10 shadow-sm">
                         <tr>
+                            <th class="px-4 py-4 text-center border-b w-10">
+                                <input type="checkbox" @click="toggleAll()" :checked="selectedPoints.length === allIds.length && allIds.length > 0" class="rounded border-gray-300 text-[#144C4D] shadow-sm focus:ring-[#144C4D]">
+                            </th>
                             <th class="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Detail Titik</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Pemasangan</th>
                             <th class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">Pengukuran</th>
@@ -281,7 +296,10 @@
                             x-transition:enter="transition ease-out duration-200"
                             x-transition:enter-start="opacity-0 transform scale-95"
                             x-transition:enter-end="opacity-100 transform scale-100">
-                            
+
+                            <td class="px-4 py-4 text-center">
+                                <input type="checkbox" x-model="selectedPoints" value="{{ $point->id }}" class="rounded border-gray-300 text-[#144C4D] shadow-sm focus:ring-[#144C4D]">
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="font-black text-gray-900 text-lg">{{ $point->name }}</div>
                                 <div class="text-[10px] font-bold text-gray-600 bg-gray-100 uppercase tracking-widest inline-block px-2.5 py-1 rounded-md border border-gray-200 mt-1.5">{{ $point->point_type }}</div>
@@ -441,14 +459,10 @@
                                                         </div>
                                                         <div>
                                                             <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Pengolah Data</label>
-                                                            <select name="process_surveyor" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm">
-                                                                <option value="">-- Pilih --</option>
-                                                                @foreach($surveyors as $person) 
-                                                                    <option value="{{ $person->name }}" {{ $point->process_surveyor == $person->name ? 'selected' : '' }}>
-                                                                        {{ $person->name }} {{ $person->trashed() ? '(Non-Aktif)' : '' }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
+                                                            <input type="text" name="process_surveyor" readonly 
+                                                                value="{{ $project->personnel->where('pivot.role', 'Koordinator Tim Ground')->first()->name ?? 'Belum Diatur' }}" 
+                                                                class="block w-full rounded-md border-transparent bg-gray-100 shadow-sm text-gray-500 sm:text-sm font-bold cursor-not-allowed">
+                                                            <p class="text-[9px] text-gray-400 mt-1 italic">*Otomatis diisi oleh sistem sesuai Koordinator Tim.</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -483,7 +497,141 @@
                     </tbody>
                 </table>
             </div>
+            <div x-cloak x-show="selectedPoints.length > 0" 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-10"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-10"
+                 class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white px-6 py-4 rounded-full shadow-[0_10px_40px_-10px_rgba(20,76,77,0.5)] border border-[#144C4D]/20 flex items-center gap-6 z-50">
+                <div class="flex items-center gap-2">
+                    <span class="flex items-center justify-center bg-[#E8F1F1] text-[#144C4D] w-8 h-8 rounded-full font-black text-lg" x-text="selectedPoints.length"></span>
+                    <span class="font-bold text-gray-600 text-sm">Titik Terpilih</span>
+                </div>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <button @click="showBulkModal = true" class="bg-[#F8931F] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#df8218] transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Update Progress Massal
+                </button>
+            </div>
+            <div x-cloak x-show="showBulkModal" class="fixed inset-0 z-50 overflow-y-auto text-left">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                    <div x-show="showBulkModal" @click="showBulkModal = false" class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-60 backdrop-blur-sm"></div>
+                    
+                    <div x-show="showBulkModal" class="relative inline-block w-full max-w-4xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-2xl border border-gray-100">
+                        
+                        <div class="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
+                            <h3 class="text-xl font-black text-gray-800 flex items-center gap-2">
+                                Update <span class="text-[#F8931F]" x-text="selectedPoints.length"></span> Titik Sekaligus
+                            </h3>
+                            <button type="button" @click="showBulkModal = false" class="text-gray-400 hover:text-red-500 transition">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+
+                        <div class="mb-4 bg-blue-50 text-blue-800 p-3 rounded-lg text-xs font-bold flex items-start gap-2 border border-blue-100">
+                            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p>Hanya bagian yang Anda centang ("Update Bagian Ini") yang akan disimpan ke titik terpilih. Bagian yang tidak dicentang tidak akan mengubah data yang sudah ada sebelumnya.</p>
+                        </div>
+
+                        <form action="{{ route('ground-points.bulk-update', $report->id) }}" method="POST">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="point_ids" :value="selectedPoints.join(',')">
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6" x-data="{ upInstall: false, upMeasure: false, upProcess: false }">
+                                
+                                <div class="border rounded-xl p-4 transition" :class="upInstall ? 'bg-orange-50/30 border-orange-200' : 'bg-gray-50 border-gray-200'">
+                                    <div class="flex items-center gap-2 mb-4 border-b pb-2" :class="upInstall ? 'border-orange-100' : 'border-gray-200'">
+                                        <input type="checkbox" name="update_install" value="1" x-model="upInstall" class="rounded border-gray-300 text-[#F8931F] focus:ring-[#F8931F]">
+                                        <h3 class="font-black text-sm" :class="upInstall ? 'text-[#F8931F]' : 'text-gray-400'">1. Update Pemasangan</h3>
+                                    </div>
+                                    <div x-show="upInstall" x-collapse>
+                                        <div class="mb-3">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="install_status" value="1" class="rounded border-gray-300 text-[#F8931F] shadow-sm focus:ring-[#F8931F] h-5 w-5">
+                                                <span class="ml-2 text-sm font-bold text-gray-700">Tandai Selesai Dipasang</span>
+                                            </label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Tgl Pasang</label>
+                                            <input type="date" name="install_date" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F8931F] sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Surveyor</label>
+                                            <select name="install_surveyor" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F8931F] sm:text-sm">
+                                                <option value="">-- Pilih --</option>
+                                                @foreach($surveyors as $surveyor) <option value="{{ $surveyor->name }}">{{ $surveyor->name }}</option> @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border rounded-xl p-4 transition" :class="upMeasure ? 'bg-[#144C4D]/5 border-[#144C4D]/20' : 'bg-gray-50 border-gray-200'">
+                                    <div class="flex items-center gap-2 mb-4 border-b pb-2" :class="upMeasure ? 'border-[#144C4D]/10' : 'border-gray-200'">
+                                        <input type="checkbox" name="update_measure" value="1" x-model="upMeasure" class="rounded border-gray-300 text-[#144C4D] focus:ring-[#144C4D]">
+                                        <h3 class="font-black text-sm" :class="upMeasure ? 'text-[#144C4D]' : 'text-gray-400'">2. Update Pengukuran</h3>
+                                    </div>
+                                    <div x-show="upMeasure" x-collapse>
+                                        <div class="mb-3">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="measure_status" value="1" class="rounded border-gray-300 text-[#144C4D] shadow-sm focus:ring-[#144C4D] h-5 w-5">
+                                                <span class="ml-2 text-sm font-bold text-gray-700">Tandai Selesai Diukur</span>
+                                            </label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Tgl Ukur</label>
+                                            <input type="date" name="measure_date" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Surveyor</label>
+                                            <select name="measure_surveyor" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#144C4D] sm:text-sm">
+                                                <option value="">-- Pilih --</option>
+                                                @foreach($surveyors as $surveyor) <option value="{{ $surveyor->name }}">{{ $surveyor->name }}</option> @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border rounded-xl p-4 transition" :class="upProcess ? 'bg-green-50/50 border-green-200' : 'bg-gray-50 border-gray-200'">
+                                    <div class="flex items-center gap-2 mb-4 border-b pb-2" :class="upProcess ? 'border-green-100' : 'border-gray-200'">
+                                        <input type="checkbox" name="update_process" value="1" x-model="upProcess" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <h3 class="font-black text-sm" :class="upProcess ? 'text-green-700' : 'text-gray-400'">3. Update Pengolahan</h3>
+                                    </div>
+                                    <div x-show="upProcess" x-collapse>
+                                        <div class="mb-3">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="process_status" value="1" class="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500 h-5 w-5">
+                                                <span class="ml-2 text-sm font-bold text-gray-700">Tandai Selesai Diolah</span>
+                                            </label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Tgl Olah</label>
+                                            <input type="date" name="process_date" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Pengolah Data</label>
+                                            <input type="text" name="process_surveyor" readonly 
+                                                   value="{{ $project->personnel->where('pivot.role', 'Koordinator Tim Ground')->first()->name ?? 'Belum Diatur' }}" 
+                                                   class="block w-full rounded-md border-transparent bg-gray-100 text-gray-500 sm:text-sm font-bold cursor-not-allowed">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end space-x-3 border-t border-gray-100 pt-4">
+                                <button type="button" @click="showBulkModal = false" class="bg-white border border-gray-300 text-gray-700 font-bold px-6 py-2.5 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">Batal</button>
+                                <button type="submit" @click="setTimeout(() => showBulkModal = false, 100)" class="bg-[#144C4D] text-white px-6 py-2.5 rounded-lg shadow-sm hover:bg-[#0c2e2e] font-bold transition flex items-center gap-2 text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                    Terapkan ke <span x-text="selectedPoints.length"></span> Titik
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
+        
 
     </div>
 </x-app-layout>

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\UavMaintenanceController;
+use App\Http\Controllers\GroundPointController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -71,6 +72,7 @@ Route::middleware('auth')->group(function () {
         ->name('projects.ground.index');
     Route::put('/ground-reports/{report}', [\App\Http\Controllers\GroundReportController::class, 'update'])
         ->name('ground-reports.update');
+    Route::put('/ground-reports/{report}/bulk-update-points', [GroundPointController::class, 'bulkUpdate'])->name('ground-points.bulk-update');
 
     // Titik Ground
     Route::post('/ground-reports/{report}/points', [\App\Http\Controllers\GroundPointController::class, 'store'])
@@ -79,6 +81,7 @@ Route::middleware('auth')->group(function () {
         ->name('ground-points.destroy');
     Route::put('/ground-points/{point}', [\App\Http\Controllers\GroundPointController::class, 'update'])
         ->name('ground-points.update');
+    
 
 
     // --- ROUTE LAPORAN UAV ---
