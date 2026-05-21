@@ -546,7 +546,13 @@
                                         <input type="checkbox" name="update_install" value="1" x-model="upInstall" class="rounded border-gray-300 text-[#F8931F] focus:ring-[#F8931F]">
                                         <h3 class="font-black text-sm" :class="upInstall ? 'text-[#F8931F]' : 'text-gray-400'">1. Update Pemasangan</h3>
                                     </div>
-                                    <div x-show="upInstall" x-collapse>
+                                    <div x-show="upInstall" 
+                                            x-transition:enter="transition ease-out duration-300"
+                                            x-transition:enter-start="opacity-0 -translate-y-3"
+                                            x-transition:enter-end="opacity-100 translate-y-0"
+                                            x-transition:leave="transition ease-in duration-200"
+                                            x-transition:leave-start="opacity-100 translate-y-0"
+                                            x-transition:leave-end="opacity-0 -translate-y-3">
                                         <div class="mb-3">
                                             <label class="inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" name="install_status" value="1" class="rounded border-gray-300 text-[#F8931F] shadow-sm focus:ring-[#F8931F] h-5 w-5">
@@ -572,7 +578,13 @@
                                         <input type="checkbox" name="update_measure" value="1" x-model="upMeasure" class="rounded border-gray-300 text-[#144C4D] focus:ring-[#144C4D]">
                                         <h3 class="font-black text-sm" :class="upMeasure ? 'text-[#144C4D]' : 'text-gray-400'">2. Update Pengukuran</h3>
                                     </div>
-                                    <div x-show="upMeasure" x-collapse>
+                                    <div x-show="upMeasure" 
+                                                x-transition:enter="transition ease-out duration-300"
+                                                x-transition:enter-start="opacity-0 -translate-y-3"
+                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                x-transition:leave="transition ease-in duration-200"
+                                                x-transition:leave-start="opacity-100 translate-y-0"
+                                                x-transition:leave-end="opacity-0 -translate-y-3">
                                         <div class="mb-3">
                                             <label class="inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" name="measure_status" value="1" class="rounded border-gray-300 text-[#144C4D] shadow-sm focus:ring-[#144C4D] h-5 w-5">
@@ -598,7 +610,13 @@
                                         <input type="checkbox" name="update_process" value="1" x-model="upProcess" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
                                         <h3 class="font-black text-sm" :class="upProcess ? 'text-green-700' : 'text-gray-400'">3. Update Pengolahan</h3>
                                     </div>
-                                    <div x-show="upProcess" x-collapse>
+                                    <div x-show="upProcess" 
+                                                x-transition:enter="transition ease-out duration-300"
+                                                x-transition:enter-start="opacity-0 -translate-y-3"
+                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                x-transition:leave="transition ease-in duration-200"
+                                                x-transition:leave-start="opacity-100 translate-y-0"
+                                                x-transition:leave-end="opacity-0 -translate-y-3">
                                         <div class="mb-3">
                                             <label class="inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" name="process_status" value="1" class="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500 h-5 w-5">

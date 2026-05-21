@@ -250,7 +250,15 @@
                             <option value="Point Cloud">
                             <option value="Tiling">
                             <option value="Tapak Bangunan">
-                            <option value="Uji Akurasi CE90">
+                            <option value="Uji Akurasi CE90 dan LE90">
+                            <option value="Tile Orthomosaik">
+                            <option value="Tile DTM">
+                            <option value="Agisoft Report">
+                            <option value="Deskripsi titik uji (buku tugu)">
+                            <option value="Daftar koordinat">
+                            <option value="Raw foto udara">
+                            <option value="Project file Agisoft">
+                            <option value="Data pengamatan GPS">
                             <option value="Laporan">
                         </datalist>
                         <input type="hidden" name="format" value="-">
@@ -331,7 +339,18 @@
                                             <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Format File</label>
                                             <input type="text" name="format" list="format_file_modal" :value="selectedOutput?.format == '-' ? '' : selectedOutput?.format" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F8931F] focus:ring-[#F8931F] sm:text-sm font-medium" required>
                                             <datalist id="format_file_modal">
-                                                <option value="TIF"><option value="ECW"><option value="LAS"><option value="LAZ"><option value="PDF"><option value="SHP">
+                                                <option value="TIF">
+                                                <option value="ECW">
+                                                <option value="LAS">
+                                                <option value="LAZ">
+                                                <option value="PDF">
+                                                <option value="SHP">
+                                                <option value="XLS">
+                                                <option value="XYZ">
+                                                <option value="JPG">
+                                                <option value="PSX">
+                                                <option value="RINEX">
+                                                <option value="CSV">
                                             </datalist>
                                         </div>
                                         <div>
